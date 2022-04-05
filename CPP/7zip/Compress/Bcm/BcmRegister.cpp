@@ -457,10 +457,14 @@ HRESULT CDecoder::CodeReal(ISequentialInStream *inStream, ISequentialOutStream *
     const UInt64* /* inSize */, const UInt64* /* outSize */, ICompressProgressInfo *progress)
 {
   inS = inStream;
-  outS = outStream;
+  outS.Create(1<<24);
+  outS.Init();
+  outS.SetStream(outStream);
   progr = progress;
   processedIn = processedOut = 0;
   int x = Decompress(this, this);
+  outS.Flush();
+  outS.Free();
   if(x<0)return E_FAIL;
   if(x==2)return E_ABORT;
   if(x==1)return E_OUTOFMEMORY;
@@ -505,10 +509,14 @@ HRESULT CEncoder::CodeReal(ISequentialInStream *inStream, ISequentialOutStream *
     const UInt64* /* inSize */, const UInt64* /* outSize */, ICompressProgressInfo *progress)
 {
   inS = inStream;
-  outS = outStream;
+  outS.Create(1<<24);
+  outS.Init();
+  outS.SetStream(outStream);
   progr = progress;
   processedIn = processedOut = 0;
   int x = Compress(this, this, level);
+  outS.Flush();
+  outS.Free();
   if(x<0)return E_FAIL;
   if(x==2)return E_ABORT;
   if(x==1)return E_OUTOFMEMORY;
@@ -535,10 +543,10 @@ STDMETHODIMP CEncoder::GetInStreamProcessedSize(UInt64 *value)
 
 static void putC_dec(unsigned char c, void *r_){
   CDecoder *r = (CDecoder*)r_;
-  UInt32 rlen=0;
-  /*HRESULT res =*/ r->outS->Write(&c, 1, &rlen);
-  r->processedOut += rlen;
-  if(r->progr)
+  //UInt32 rlen=0;
+  /*HRESULT res =*/ r->outS.WriteByte(c);
+  r->processedOut += 1;
+  if(r->processedOut%(1<<24)==0 && r->progr)
     r->progr->SetRatioInfo(&r->processedIn, &r->processedOut);
 }
 static int read_dec(void *r_, size_t size, void *buf){
@@ -557,10 +565,10 @@ static int getC_dec(void *r_){
 
 static void putC_enc(unsigned char c, void *w_){
   CEncoder *w = (CEncoder*)w_;
-  UInt32 rlen=0;
-  /*HRESULT res =*/ w->outS->Write(&c, 1, &rlen);
-  w->processedOut += rlen;
-  if(w->progr)
+  //UInt32 rlen=0;
+  /*HRESULT res =*/ w->outS.WriteByte(c);
+  w->processedOut += 1;
+  if(w->processedOut%(1<<24)==0 && w->progr)
     w->progr->SetRatioInfo(&w->processedIn, &w->processedOut);
 }
 static int read_enc(void *w_, size_t size, void *buf){

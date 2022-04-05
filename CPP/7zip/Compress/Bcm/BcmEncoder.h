@@ -8,6 +8,7 @@
 #include "../../ICoder.h"
 
 #include "../../Common/InBuffer.h"
+#include "../../Common/OutBuffer.h"
 
 namespace NCompress {
 namespace NBCM {
@@ -25,7 +26,8 @@ public:
   UInt64 processedIn;
   UInt64 processedOut;
   ISequentialInStream *inS;
-  ISequentialOutStream *outS;
+  //ISequentialOutStream *outS;
+  COutBuffer outS;
   ICompressProgressInfo *progr;
 
   unsigned int level;
@@ -52,7 +54,8 @@ public:
   UInt64 processedIn;
   UInt64 processedOut;
   ISequentialInStream *inS;
-  ISequentialOutStream *outS;
+  //ISequentialOutStream *outS;
+  COutBuffer outS;
   ICompressProgressInfo *progr;
 
   MY_UNKNOWN_IMP1(ICompressGetInStreamProcessedSize)
