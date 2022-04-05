@@ -15,7 +15,6 @@ Copyright (C) 2008-2021 Ilya Muravyov
 
 #include "libsais.h"
 #include <stdlib.h>
-#include <stdio.h>
 
 typedef unsigned char U8;
 typedef unsigned short U16;
@@ -281,7 +280,7 @@ inline T* MemAlloc(size_t n)
   if (!p)
   {
     //perror("Malloc() failed");
-    exit(1);
+    //exit(1);
   }
   return p;
 }
@@ -333,8 +332,11 @@ int Compress(void *in, void *out, int level)
     const int idx=libsais_bwt(buf, buf, ptr, n);
     if (idx<1)
     {
-      fprintf(stderr, "BWT() failed: idx = %d\n", idx);
-      exit(1);
+      //fprintf(stderr, "BWT() failed: idx = %d\n", idx);
+      //exit(1);
+      free(buf);
+      free(ptr);
+      return -1;
     }
 
     cm.Put32(n); // Block size
@@ -380,8 +382,11 @@ int Decompress(void *in, void *out)
     const int idx=cm.Get32();
     if (n>bsize || idx<1 || idx>n)
     {
-      fprintf(stderr, "Corrupt input!\n");
-      exit(1);
+      //fprintf(stderr, "Corrupt input!\n");
+      if(buf)free(buf);
+      free(ptr);
+      //exit(1);
+      return -1;
     }
 
     // Inverse BW-transform
