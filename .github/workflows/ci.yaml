@@ -41,7 +41,7 @@ jobs:
       run: |
         curl -L https://github.com/Terraspace/UASM/archive/refs/tags/v2.55.tar.gz | tar xz
         sed -i -e 's/-ansi//' UASM-2.55/ClangOSX64.mak
-        sed -i -e 's/\/\/#include "simd.h"/void AddSimdTypes();\/\/#include "simd.h"/' UASM-2.55/assemble.c
+        sed -i -e 's/\/\/#include "simd.h"/void AddSimdTypes();char *_strupr(char *str);\/\/#include "simd.h"/' UASM-2.55/assemble.c
         make -C UASM-2.55 -f ClangOSX64.mak CC=clang
         sudo cp UASM-2.55/GccUnixR/uasm /usr/local/bin/
     # - name: Set up UASM (Win)
@@ -175,51 +175,51 @@ jobs:
         sudo apt install mingw-w64 -y
         mkdir -p bin/Codecs
         make -C CPP/7zip/Bundles/Alone -f ../../cmpl_gcc_x86.mak SystemDrive=1 RC=i686-w64-mingw32-windres CROSS_COMPILE=i686-w64-mingw32- -j16
-        cp CPP/7zip/Bundles/Alone/b/g_x64/7za.exe bin/
+        cp CPP/7zip/Bundles/Alone/b/g_x86/7za.exe bin/
         make -C CPP/7zip/Bundles/Alone2 -f ../../cmpl_gcc_x86.mak SystemDrive=1 RC=i686-w64-mingw32-windres CROSS_COMPILE=i686-w64-mingw32- DISABLE_RAR_COMPRESS=1 DISABLE_PKIMPLODE_COMPRESS=1 -j16
-        cp CPP/7zip/Bundles/Alone2/b/g_x64/7zz.exe bin/
+        cp CPP/7zip/Bundles/Alone2/b/g_x86/7zz.exe bin/
         make -C CPP/7zip/Bundles/Alone7z -f ../../cmpl_gcc_x86.mak SystemDrive=1 RC=i686-w64-mingw32-windres CROSS_COMPILE=i686-w64-mingw32- -j16
-        cp CPP/7zip/Bundles/Alone7z/b/g_x64/7zr.exe bin/
+        cp CPP/7zip/Bundles/Alone7z/b/g_x86/7zr.exe bin/
         make -C CPP/7zip/Bundles/Format7zF -f ../../cmpl_gcc_x86.mak SystemDrive=1 RC=i686-w64-mingw32-windres CROSS_COMPILE=i686-w64-mingw32- DISABLE_RAR_COMPRESS=1 DISABLE_PKIMPLODE_COMPRESS=1 -j16
-        cp CPP/7zip/Bundles/Format7zF/b/g_x64/7z.dll bin/
+        cp CPP/7zip/Bundles/Format7zF/b/g_x86/7z.dll bin/
         make -C CPP/7zip/Bundles/SFXCon -f ../../cmpl_gcc_x86.mak SystemDrive=1 RC=i686-w64-mingw32-windres CROSS_COMPILE=i686-w64-mingw32- -j16
-        cp CPP/7zip/Bundles/SFXCon/b/g_x64/7zCon.sfx.exe bin/7zCon.sfx
+        cp CPP/7zip/Bundles/SFXCon/b/g_x86/7zCon.sfx.exe bin/7zCon.sfx
         make -C CPP/7zip/UI/Client7z -f ../../cmpl_gcc_x86.mak SystemDrive=1 RC=i686-w64-mingw32-windres CROSS_COMPILE=i686-w64-mingw32- -j16
-        cp CPP/7zip/UI/Client7z/b/g_x64/7zcl.exe bin/
+        cp CPP/7zip/UI/Client7z/b/g_x86/7zcl.exe bin/
         make -C CPP/7zip/UI/Console -f ../../cmpl_gcc_x86.mak SystemDrive=1 RC=i686-w64-mingw32-windres CROSS_COMPILE=i686-w64-mingw32- -j16
-        cp CPP/7zip/UI/Console/b/g_x64/7z.exe bin/
+        cp CPP/7zip/UI/Console/b/g_x86/7z.exe bin/
         make -C C/Util/7z -f ../../../CPP/7zip/cmpl_gcc_x86.mak SystemDrive=1 RC=i686-w64-mingw32-windres CROSS_COMPILE=i686-w64-mingw32- -j16
-        cp C/Util/7z/b/g_x64/7zdec.exe bin/
+        cp C/Util/7z/b/g_x86/7zdec.exe bin/
         make -C C/Util/Lzma -f ../../../CPP/7zip/cmpl_gcc_x86.mak SystemDrive=1 RC=i686-w64-mingw32-windres CROSS_COMPILE=i686-w64-mingw32- -j16
-        cp C/Util/Lzma/b/g_x64/7lzma.exe bin/
+        cp C/Util/Lzma/b/g_x86/7lzma.exe bin/
         make -C CPP/7zip/Compress/Rar -f ../../cmpl_gcc_x86.mak SystemDrive=1 RC=i686-w64-mingw32-windres CROSS_COMPILE=i686-w64-mingw32- -j16
-        cp CPP/7zip/Compress/Rar/b/g_x64/Rar.dll bin/Codecs/
+        cp CPP/7zip/Compress/Rar/b/g_x86/Rar.dll bin/Codecs/
         make -C CPP/7zip/Compress/Zstd -f ../../cmpl_gcc_x86.mak SystemDrive=1 RC=i686-w64-mingw32-windres CROSS_COMPILE=i686-w64-mingw32- -j16
-        cp CPP/7zip/Compress/Zstd/b/g_x64/Zstd.dll bin/Codecs/
+        cp CPP/7zip/Compress/Zstd/b/g_x86/Zstd.dll bin/Codecs/
         make -C CPP/7zip/Compress/Lz4 -f ../../cmpl_gcc_x86.mak SystemDrive=1 RC=i686-w64-mingw32-windres CROSS_COMPILE=i686-w64-mingw32- -j16
-        cp CPP/7zip/Compress/Lz4/b/g_x64/Lz4.dll bin/Codecs/
+        cp CPP/7zip/Compress/Lz4/b/g_x86/Lz4.dll bin/Codecs/
         make -C CPP/7zip/Compress/Lz5 -f ../../cmpl_gcc_x86.mak SystemDrive=1 RC=i686-w64-mingw32-windres CROSS_COMPILE=i686-w64-mingw32- -j16
-        cp CPP/7zip/Compress/Lz5/b/g_x64/Lz5.dll bin/Codecs/
+        cp CPP/7zip/Compress/Lz5/b/g_x86/Lz5.dll bin/Codecs/
         make -C CPP/7zip/Compress/Lizard -f ../../cmpl_gcc_x86.mak SystemDrive=1 RC=i686-w64-mingw32-windres CROSS_COMPILE=i686-w64-mingw32- -j16
-        cp CPP/7zip/Compress/Lizard/b/g_x64/Lizard.dll bin/Codecs/
+        cp CPP/7zip/Compress/Lizard/b/g_x86/Lizard.dll bin/Codecs/
         make -C CPP/7zip/Compress/Brotli -f ../../cmpl_gcc_x86.mak SystemDrive=1 RC=i686-w64-mingw32-windres CROSS_COMPILE=i686-w64-mingw32- -j16
-        cp CPP/7zip/Compress/Brotli/b/g_x64/Brotli.dll bin/Codecs/
+        cp CPP/7zip/Compress/Brotli/b/g_x86/Brotli.dll bin/Codecs/
         make -C CPP/7zip/Compress/FLzma2 -f ../../cmpl_gcc_x86.mak SystemDrive=1 RC=i686-w64-mingw32-windres CROSS_COMPILE=i686-w64-mingw32- -j16
-        cp CPP/7zip/Compress/FLzma2/b/g_x64/FLzma2.dll bin/Codecs/
+        cp CPP/7zip/Compress/FLzma2/b/g_x86/FLzma2.dll bin/Codecs/
         make -C CPP/7zip/Compress/Lzham -f ../../cmpl_gcc_x86.mak SystemDrive=1 RC=i686-w64-mingw32-windres CROSS_COMPILE=i686-w64-mingw32- -j16
-        cp CPP/7zip/Compress/Lzham/b/g_x64/Lzham.dll bin/Codecs/
+        cp CPP/7zip/Compress/Lzham/b/g_x86/Lzham.dll bin/Codecs/
         make -C CPP/7zip/Compress/PKImplode -f ../../cmpl_gcc_x86.mak SystemDrive=1 RC=i686-w64-mingw32-windres CROSS_COMPILE=i686-w64-mingw32- -j16
-        cp CPP/7zip/Compress/PKImplode/b/g_x64/PKImplode.dll bin/Codecs/
+        cp CPP/7zip/Compress/PKImplode/b/g_x86/PKImplode.dll bin/Codecs/
         make -C CPP/7zip/Compress/Bcm -f ../../cmpl_gcc_x86.mak SystemDrive=1 RC=i686-w64-mingw32-windres CROSS_COMPILE=i686-w64-mingw32- -j16
-        cp CPP/7zip/Compress/Bcm/b/g_x64/Bcm.dll bin/Codecs/
+        cp CPP/7zip/Compress/Bcm/b/g_x86/Bcm.dll bin/Codecs/
         make -C CPP/7zip/Compress/Md5 -f ../../cmpl_gcc_x86.mak SystemDrive=1 RC=i686-w64-mingw32-windres CROSS_COMPILE=i686-w64-mingw32- -j16
-        cp CPP/7zip/Compress/Md5/b/g_x64/Md5.dll bin/Codecs/
+        cp CPP/7zip/Compress/Md5/b/g_x86/Md5.dll bin/Codecs/
         make -C CPP/7zip/Compress/Sha512 -f ../../cmpl_gcc_x86.mak SystemDrive=1 RC=i686-w64-mingw32-windres CROSS_COMPILE=i686-w64-mingw32- -j16
-        cp CPP/7zip/Compress/Sha512/b/g_x64/Sha512.dll bin/Codecs/
+        cp CPP/7zip/Compress/Sha512/b/g_x86/Sha512.dll bin/Codecs/
         make -C CPP/7zip/Compress/Xxh64 -f ../../cmpl_gcc_x86.mak SystemDrive=1 RC=i686-w64-mingw32-windres CROSS_COMPILE=i686-w64-mingw32- -j16
-        cp CPP/7zip/Compress/Xxh64/b/g_x64/Xxh64.dll bin/Codecs/
+        cp CPP/7zip/Compress/Xxh64/b/g_x86/Xxh64.dll bin/Codecs/
         make -C CPP/7zip/Compress/Blake3 -f ../../cmpl_gcc_x86.mak SystemDrive=1 RC=i686-w64-mingw32-windres CROSS_COMPILE=i686-w64-mingw32- -j16
-        cp CPP/7zip/Compress/Blake3/b/g_x64/Blake3.dll bin/Codecs/
+        cp CPP/7zip/Compress/Blake3/b/g_x86/Blake3.dll bin/Codecs/
     - name: Upload wheel (Linux/GCC)
       if: ${{ matrix.os == 'ubuntu-20.04' && matrix.mode == 'gcc' }}
       uses: actions/upload-artifact@v2
