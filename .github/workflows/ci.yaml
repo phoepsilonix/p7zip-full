@@ -11,8 +11,8 @@ jobs:
         include:
           - os: ubuntu-20.04
             architecture: "x64"
-          - os: macos-latest
-            architecture: "x64"
+          # - os: macos-latest
+          #   architecture: "x64"
           - os: windows-latest
             architecture: "x64"
           - os: windows-latest
