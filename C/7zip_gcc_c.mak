@@ -2,7 +2,7 @@
 MY_ARCH_2 = $(MY_ARCH)
 
 MY_ASM = jwasm
-MY_ASM = asmc
+MY_ASM = uasm
 
 PROGPATH = $(O)/$(PROG)
 PROGPATH_STATIC = $(O)/$(PROG)s

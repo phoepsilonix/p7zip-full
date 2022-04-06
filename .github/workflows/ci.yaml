@@ -69,10 +69,12 @@ jobs:
         cp CPP/7zip/UI/Client7z/b/g_x64/7zcl bin/
         make -C CPP/7zip/UI/Console -f ../../cmpl_gcc_x64.mak -j16
         cp CPP/7zip/UI/Console/b/g_x64/7z bin/
-        #make -C C/Util/7z -f ../../cmpl_gcc_x64.mak -j16
-        #cp C/Util/7z/b/g_x64/7zdec bin/
-        #make -C C/Util/lzma -f ../../cmpl_gcc_x64.mak -j16
-        #cp C/Util/7z/b/g_x64/7lzma bin/
+        make -C C/Util/7z -f ../../../CPP/7zip/cmpl_gcc_x64.mak -j16
+        cp C/Util/7z/b/g_x64/7zdec bin/
+        make -C C/Util/lzma -f ../../../CPP/7zip/cmpl_gcc_x64.mak -j16
+        cp C/Util/7z/b/g_x64/7lzma bin/
+        make -C CPP/7zip/Compress/Zstd -f ../../cmpl_gcc_x64.mak -j16
+        cp CPP/7zip/Compress/Zstd/b/g_x64/Zstd.so bin/
         make -C CPP/7zip/Compress/Bcm -f ../../cmpl_gcc_x64.mak -j16
         cp CPP/7zip/Compress/Bcm/b/g_x64/Bcm.so bin/
     - name: Build (Linux/Clang)
