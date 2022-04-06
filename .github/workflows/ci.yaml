@@ -45,8 +45,21 @@ jobs:
         curl -L https://github.com/Terraspace/UASM/archive/refs/tags/v2.55.tar.gz | tar xz
         make -C UASM-2.55 -f GccWin64.mak
         cp UASM-2.55/MinGW-w64R/hjwasm.exe C:/windows/system32/uasm.exe
-    - name: Build
+    - name: Build (Linux)
+      if: ${{ matrix.os == 'ubuntu-20.04' }}
       run: |
         mkdir bin
         make -C CPP/7zip/Bundles/Alone2 -f ../../cmpl_gcc_x64.mak -j16
-        cp CPP/7zip/Bundles/Alone2/g_x64/7zz bin/ 
+        cp CPP/7zip/Bundles/Alone2/g_x64/7zz bin/
+    - name: Build (Linux)
+      if: ${{ matrix.os == 'ubuntu-20.04' }}
+      run: |
+        mkdir bin
+        make -C CPP/7zip/Bundles/Alone2 -f ../../cmpl_mac_x64.mak -j16
+        cp CPP/7zip/Bundles/Alone2/g_x64/7zz bin/
+    - name: Build (Win)
+      if: ${{ matrix.os == 'windows-latest' }}
+      run: |
+        mkdir bin
+        SystemDrive=1 make -C CPP/7zip/Bundles/Alone2 -f ../../cmpl_gcc_x64.mak -j16
+        cp CPP/7zip/Bundles/Alone2/g_x64/7zz.exe bin/

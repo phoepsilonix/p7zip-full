@@ -100,7 +100,7 @@ ifdef IS_MINGW
 
 # RM = del
 RM = rm -rf
-MY_MKDIR=mkdir
+MY_MKDIR=mkdir -p
 LIB2_GUI = -lole32 -lgdi32 -lcomctl32 -lcomdlg32
 LIB2 = -loleaut32 -luuid -ladvapi32 -luser32 $(LIB2_GUI)
 
