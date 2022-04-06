@@ -93,15 +93,33 @@ endif
 CFLAGS = $(LOCAL_FLAGS) $(CFLAGS_BASE2) $(CFLAGS_BASE) $(CC_SHARED) -o $@
 
 
-ifdef IS_X64
-AFLAGS_ABI = -elf64 -DABI_LINUX
+ifdef IS_MINGW
+  ifdef IS_X64
+    AFLAGS_ABI = -win64
+  else
+    AFLAGS_ABI = -coff -DABI_CDECL
+  endif
+  AFLAGS = -nologo $(AFLAGS_ABI) -Fo$(O)/$(basename $(<F)).o
 else
-AFLAGS_ABI = -elf -DABI_LINUX -DABI_CDECL
-# -DABI_CDECL
-# -DABI_LINUX
-# -DABI_CDECL
+  ifdef IS_MAC
+    ifdef IS_X64
+      AFLAGS_ABI = -macho64 -DABI_MAC
+    else
+      AFLGGS_ABI = -UNSUPPORTED_CONFIGURATION
+    endif
+  else
+    LD_arch += -Wl,--no-undefined -Wl,-z,noexecstack
+    ifdef IS_X64
+      AFLAGS_ABI = -elf64 -DABI_LINUX
+    else
+      AFLAGS_ABI = -elf -DABI_LINUX -DABI_CDECL
+      # -DABI_CDECL
+      # -DABI_LINUX
+      # -DABI_CDECL
+    endif
+  endif
+  AFLAGS = -nologo $(AFLAGS_ABI) -Fo$(O)/
 endif
-AFLAGS = $(AFLAGS_ABI) -Fo$(O)/
 
 
 CXX_WARN_FLAGS =
