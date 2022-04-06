@@ -27,13 +27,13 @@ jobs:
     - name: Set up UASM (Linux)
       if: ${{ matrix.os == 'ubuntu-20.04' }}
       run: |
-        wget -O - https://github.com/Terraspace/UASM/archive/refs/tags/v2.55.tar.gz | tar xz
+        curl -L https://github.com/Terraspace/UASM/archive/refs/tags/v2.55.tar.gz | tar xz
         make -C UASM-2.55 -f gccLinux64.mak
         sudo cp UASM-2.55/GccUnixR/uasm /usr/local/bin/
     - name: Set up UASM (macOS)
       if: ${{ matrix.os == 'macos-latest' }}
       run: |
-        wget -O - https://github.com/Terraspace/UASM/archive/refs/tags/v2.55.tar.gz | tar xz
+        curl -L https://github.com/Terraspace/UASM/archive/refs/tags/v2.55.tar.gz | tar xz
         sed -i -e 's/-ansi//' UASM-2.55/ClangOSX64.mak
         make -C UASM-2.55 -f ClangOSX64.mak
         sudo cp UASM-2.55/GccUnixR/uasm /usr/local/bin/
@@ -41,7 +41,7 @@ jobs:
       if: ${{ matrix.os == 'windows-latest' }}
       shell: bash
       run: |
-        wget -O - https://github.com/Terraspace/UASM/archive/refs/tags/v2.55.tar.gz | tar xz
+        curl -L https://github.com/Terraspace/UASM/archive/refs/tags/v2.55.tar.gz | tar xz
         make -C UASM-2.55 -f gccLinux64.mak
         cp GccUnixR/uasm C:/windows/system32/
     - name: Build
