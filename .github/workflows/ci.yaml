@@ -9,7 +9,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: ubuntu-18.04
+          - os: ubuntu-20.04
             architecture: "x64"
           - os: macos-latest
             architecture: "x64"
@@ -25,7 +25,7 @@ jobs:
         git submodule init
         git submodule update
     - name: Set up UASM (Linux)
-      if: ${{ matrix.os == 'ubuntu-18.04' }}
+      if: ${{ matrix.os == 'ubuntu-20.04' }}
       run: |
         wget -O - https://github.com/Terraspace/UASM/archive/refs/tags/v2.55.tar.gz | tar xz
         make -C UASM-2.55 -f gccLinux64.mak
@@ -39,6 +39,7 @@ jobs:
         sudo cp UASM-2.55/GccUnixR/uasm /usr/local/bin/
     - name: Set up UASM (Win)
       if: ${{ matrix.os == 'windows-latest' }}
+      shell: bash
       run: |
         wget -O - https://github.com/Terraspace/UASM/archive/refs/tags/v2.55.tar.gz | tar xz
         make -C UASM-2.55 -f gccLinux64.mak
