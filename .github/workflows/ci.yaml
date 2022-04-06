@@ -44,7 +44,7 @@ jobs:
       run: |
         curl -L https://github.com/Terraspace/UASM/archive/refs/tags/v2.55.tar.gz | tar xz
         make -C UASM-2.55 -f GccWin64.mak
-        cp MinGW-w64R/hjwasm C:/windows/system32/uasm.exe
+        cp MinGW-w64R/hjwasm.exe C:/windows/system32/uasm.exe
     - name: Build
       run: |
         mkdir bin
