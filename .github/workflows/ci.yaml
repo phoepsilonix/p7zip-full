@@ -25,7 +25,7 @@ jobs:
         git submodule init
         git submodule update
     - name: Set up UASM (Linux)
-      if: ${{ matrix.os == 'windows-latest' }}
+      if: ${{ matrix.os == 'ubuntu-18.04' }}
       run: |
         wget -O - https://github.com/Terraspace/UASM/archive/refs/tags/v2.55.tar.gz | tar xz
         make -C UASM-2.55 -f gccLinux64.mak
@@ -46,5 +46,5 @@ jobs:
     - name: Build
       run: |
         mkdir bin
-        make -C CPP/7zip/Bundle/Alone2 -f ../../cmpl_gcc_x64.mak -j16
-        cp CPP/7zip/Bundle/Alone2/g_x64/7zz bin/ 
+        make -C CPP/7zip/Bundles/Alone2 -f ../../cmpl_gcc_x64.mak -j16
+        cp CPP/7zip/Bundles/Alone2/g_x64/7zz bin/ 
