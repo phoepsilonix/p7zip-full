@@ -61,6 +61,20 @@ jobs:
         cp CPP/7zip/Bundles/Alone2/b/g_x64/7zz bin/
         make -C CPP/7zip/Bundles/Alone7z -f ../../cmpl_gcc_x64.mak -j16
         cp CPP/7zip/Bundles/Alone7z/b/g_x64/7zr bin/
+        make -C CPP/7zip/Bundles/Format7zF -f ../../cmpl_gcc_x64.mak -j16
+        cp CPP/7zip/Bundles/Format7zF/b/g_x64/7z.so bin/
+        make -C CPP/7zip/Bundles/SFXCon -f ../../cmpl_gcc_x64.mak -j16
+        cp CPP/7zip/Bundles/SFXCon/b/g_x64/7zCon.sfx bin/
+        make -C CPP/7zip/UI/Client7z -f ../../cmpl_gcc_x64.mak -j16
+        cp CPP/7zip/UI/Client7z/b/g_x64/7zcl bin/
+        make -C CPP/7zip/UI/Console -f ../../cmpl_gcc_x64.mak -j16
+        cp CPP/7zip/UI/Console/b/g_x64/7z bin/
+        #make -C C/Util/7z -f ../../cmpl_gcc_x64.mak -j16
+        #cp C/Util/7z/b/g_x64/7zdec bin/
+        #make -C C/Util/lzma -f ../../cmpl_gcc_x64.mak -j16
+        #cp C/Util/7z/b/g_x64/7lzma bin/
+        make -C CPP/7zip/Compress/Bcm -f ../../cmpl_gcc_x64.mak -j16
+        cp CPP/7zip/Compress/Bcm/b/g_x64/Bcm.so bin/
     - name: Build (Linux/Clang)
       if: ${{ matrix.os == 'ubuntu-20.04' && matrix.mode == 'clang' }}
       run: |
@@ -92,3 +106,33 @@ jobs:
         mkdir -p bin/Codecs
         make -C CPP/7zip/Bundles/Alone2 -f ../../cmpl_gcc_x86.mak SystemDrive=1 RC=i686-w64-mingw32-windres CROSS_COMPILE=i686-w64-mingw32- -j16
         cp CPP/7zip/Bundles/Alone2/b/g_x86/7zz.exe bin/
+    - name: Upload wheel (Linux/GCC)
+      if: ${{ matrix.os == 'ubuntu-20.04' && matrix.mode == 'gcc' }}
+      uses: actions/upload-artifact@v2
+      with:
+        name: linux
+        path: bin
+    # - name: Upload wheel (Linux/Clang)
+    #   if: ${{ matrix.os == 'ubuntu-20.04' && matrix.mode == 'clang' }}
+    #   uses: actions/upload-artifact@v2
+    #   with:
+    #     name: linux_clang
+    #     path: bin
+    - name: Upload wheel (macOS)
+      if: ${{ matrix.os == 'macos-latest' }}
+      uses: actions/upload-artifact@v2
+      with:
+        name: macos
+        path: bin
+    - name: Upload wheel (Win64)
+      if: ${{ matrix.os == 'ubuntu-20.04' && matrix.mode == 'win64' }}
+      uses: actions/upload-artifact@v2
+      with:
+        name: win64
+        path: bin
+    - name: Upload wheel (Win32)
+      if: ${{ matrix.os == 'ubuntu-20.04' && matrix.mode == 'win32' }}
+      uses: actions/upload-artifact@v2
+      with:
+        name: win32
+        path: bin
