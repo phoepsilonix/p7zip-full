@@ -59,6 +59,7 @@ jobs:
         cp CPP/7zip/Bundles/Alone2/g_x64/7zz bin/
     - name: Build (Win)
       if: ${{ matrix.os == 'windows-latest' }}
+      shell: bash
       run: |
         mkdir bin
         SystemDrive=1 make -C CPP/7zip/Bundles/Alone2 -f ../../cmpl_gcc_x64.mak -j16
