@@ -71,12 +71,26 @@ jobs:
         cp CPP/7zip/UI/Console/b/g_x64/7z bin/
         make -C C/Util/7z -f ../../../CPP/7zip/cmpl_gcc_x64.mak -j16
         cp C/Util/7z/b/g_x64/7zdec bin/
-        make -C C/Util/lzma -f ../../../CPP/7zip/cmpl_gcc_x64.mak -j16
-        cp C/Util/7z/b/g_x64/7lzma bin/
+        make -C C/Util/Lzma -f ../../../CPP/7zip/cmpl_gcc_x64.mak -j16
+        cp C/Util/Lzma/b/g_x64/7lzma bin/
         make -C CPP/7zip/Compress/Zstd -f ../../cmpl_gcc_x64.mak -j16
-        cp CPP/7zip/Compress/Zstd/b/g_x64/Zstd.so bin/
+        cp CPP/7zip/Compress/Zstd/b/g_x64/Zstd.so bin/Codecs/
+        make -C CPP/7zip/Compress/Lz4 -f ../../cmpl_gcc_x64.mak -j16
+        cp CPP/7zip/Compress/Lz4/b/g_x64/Lz4.so bin/Codecs/
+        make -C CPP/7zip/Compress/Lz5 -f ../../cmpl_gcc_x64.mak -j16
+        cp CPP/7zip/Compress/Lz5/b/g_x64/Lz5.so bin/Codecs/
+        make -C CPP/7zip/Compress/Lizard -f ../../cmpl_gcc_x64.mak -j16
+        cp CPP/7zip/Compress/Lizard/b/g_x64/Lizard.so bin/Codecs/
+        make -C CPP/7zip/Compress/Brotli -f ../../cmpl_gcc_x64.mak -j16
+        cp CPP/7zip/Compress/Brotli/b/g_x64/Brotli.so bin/Codecs/
+        make -C CPP/7zip/Compress/FLzma2 -f ../../cmpl_gcc_x64.mak -j16
+        cp CPP/7zip/Compress/FLzma2/b/g_x64/FLzma2.so bin/Codecs/
+        make -C CPP/7zip/Compress/Lzham -f ../../cmpl_gcc_x64.mak -j16
+        cp CPP/7zip/Compress/Lzham/b/g_x64/Lzham.so bin/Codecs/
         make -C CPP/7zip/Compress/Bcm -f ../../cmpl_gcc_x64.mak -j16
-        cp CPP/7zip/Compress/Bcm/b/g_x64/Bcm.so bin/
+        cp CPP/7zip/Compress/Bcm/b/g_x64/Bcm.so bin/Codecs/
+        make -C CPP/7zip/Compress/Md5 -f ../../cmpl_gcc_x64.mak -j16
+        cp CPP/7zip/Compress/Md5/b/g_x64/Md5.so bin/Codecs/
     - name: Build (Linux/Clang)
       if: ${{ matrix.os == 'ubuntu-20.04' && matrix.mode == 'clang' }}
       run: |
