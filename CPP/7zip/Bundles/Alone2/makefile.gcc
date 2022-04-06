@@ -19,7 +19,6 @@ SYS_OBJS = \
   $O/FileSystem.o \
   $O/Registry.o \
   $O/MemoryLock.o \
-  $O/DLL.o \
   $O/DllSecur.o \
   $O/resource.o \
 
