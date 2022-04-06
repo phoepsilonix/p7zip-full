@@ -136,7 +136,7 @@ $O/liblzhamcomp.a: ../../../../Codecs/lzham_codec_devel/lzhamcomp/lzham_comp.h
 	cp lzham_build/lzhamdecomp/liblzhamdecomp.a $O
 
 $O/lzham_lib.o: ../../../../Codecs/lzham_codec_devel/lzhamlib/lzham_lib.cpp
-	$(CXX) $(CXXFLAGS) $< -Wno-attributes -I ../../../../Codecs/lzham_codec_devel/include -I ../../../../Codecs/lzham_codec_devel/lzhamcomp -I ../../../../Codecs/lzham_codec_devel/lzhamdecomp
+	$(CXX) $(CXXFLAGS) $< -Wno-attributes -Wno-cpp -I ../../../../Codecs/lzham_codec_devel/include -I ../../../../Codecs/lzham_codec_devel/lzhamcomp -I ../../../../Codecs/lzham_codec_devel/lzhamdecomp
 
 # Compile lzham method and Handler
 $O/LzhamRegister.o: ../../Compress/LzhamRegister.cpp
