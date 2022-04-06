@@ -17,6 +17,10 @@
 
 #include "ConsoleClose.h"
 
+#ifdef EXTERNAL_CODECS
+CExternalCodecs g_ExternalCodecs;
+#endif
+
 using namespace NWindows;
 
 extern

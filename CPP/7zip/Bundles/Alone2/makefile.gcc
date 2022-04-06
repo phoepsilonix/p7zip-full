@@ -32,6 +32,8 @@ endif
 
 
 LOCAL_FLAGS = \
+  -DEXTERNAL_CODECS \
+  -DEXTERNAL_CODECS_ALONE \
   $(LOCAL_FLAGS_SYS) \
   $(LOCAL_FLAGS_ST) \
 
@@ -96,5 +98,6 @@ OBJS = \
   $(7ZIP_COMMON_OBJS_2) \
   $(UI_COMMON_OBJS) \
   $(CONSOLE_OBJS) \
+  $O/DLL.o \
 
 include ../../7zip_gcc.mak

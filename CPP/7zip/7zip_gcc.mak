@@ -1144,13 +1144,13 @@ endif
 endif
 
 ifdef USE_X86_ASM
-$O/7zCrcOpt.o: ../../../../Asm/x86/7zCrcOpt.asm
+$O/7zCrcOpt.o: ../../../../Asm/x86/7zCrcOpt.asm $(O)
 	$(MY_ASM) $(AFLAGS) $<
-$O/XzCrc64Opt.o: ../../../../Asm/x86/XzCrc64Opt.asm
+$O/XzCrc64Opt.o: ../../../../Asm/x86/XzCrc64Opt.asm $(O)
 	$(MY_ASM) $(AFLAGS) $<
-$O/Sha1Opt.o: ../../../../Asm/x86/Sha1Opt.asm
+$O/Sha1Opt.o: ../../../../Asm/x86/Sha1Opt.asm $(O)
 	$(MY_ASM) $(AFLAGS) $<
-$O/Sha256Opt.o: ../../../../Asm/x86/Sha256Opt.asm
+$O/Sha256Opt.o: ../../../../Asm/x86/Sha256Opt.asm $(O)
 	$(MY_ASM) $(AFLAGS) $<
 
 ifndef USE_JWASM
@@ -1170,7 +1170,7 @@ endif
 
 
 ifdef USE_X86_ASM_AES
-$O/AesOpt.o: ../../../../Asm/x86/AesOpt.asm
+$O/AesOpt.o: ../../../../Asm/x86/AesOpt.asm $(O)
 	$(MY_ASM) $(AFLAGS) $<
 else
 $O/AesOpt.o: ../../../../C/AesOpt.c
@@ -1182,7 +1182,7 @@ $O/LzFindOpt.o: ../../../../C/LzFindOpt.c
 	$(CC) $(CFLAGS) $<
 else
 ifdef USE_X64_ASM
-$O/LzFindOpt.o: ../../../../Asm/x86/LzFindOpt.asm
+$O/LzFindOpt.o: ../../../../Asm/x86/LzFindOpt.asm $(O)
 	$(MY_ASM) $(AFLAGS) $<
 else
 $O/LzFindOpt.o: ../../../../C/LzFindOpt.c
@@ -1193,7 +1193,7 @@ endif
 ifdef USE_LZMA_DEC_ASM
 
 ifdef IS_X64
-$O/LzmaDecOpt.o: ../../../../Asm/x86/LzmaDecOpt.asm
+$O/LzmaDecOpt.o: ../../../../Asm/x86/LzmaDecOpt.asm $(O)
 	$(MY_ASM) $(AFLAGS) $<
 endif
 

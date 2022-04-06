@@ -766,12 +766,16 @@ HRESULT CCodecs::Load()
 
   #ifdef EXTERNAL_CODECS
     const FString baseFolder = GetBaseFolderPrefixFromRegistry();
+  #ifdef EXTERNAL_CODECS_ALONE
+    __attribute__((unused)) bool __KMAINDLL = !kMainDll;
+  #else
     {
       bool loadedOK;
       RINOK(LoadDll(baseFolder + kMainDll, false, &loadedOK));
       if (!loadedOK)
         MainDll_ErrorPath = kMainDll;
     }
+  #endif
     RINOK(LoadDllsFromFolder(baseFolder + kCodecsFolderName));
     RINOK(LoadDllsFromFolder(baseFolder + kFormatsFolderName));
 
