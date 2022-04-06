@@ -1,0 +1,50 @@
+name: CI
+  
+on:
+  push:
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-18.04
+            architecture: "x64"
+          - os: macos-latest
+            architecture: "x64"
+          - os: windows-latest
+            architecture: "x64"
+          - os: windows-latest
+            architecture: "x86"
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Checkout submodule
+      run: |
+        git submodule init
+        git submodule update
+    - name: Set up UASM (Linux)
+      if: ${{ matrix.os == 'windows-latest' }}
+      run: |
+        wget -O - https://github.com/Terraspace/UASM/archive/refs/tags/v2.55.tar.gz | tar xz
+        make -C UASM-2.55 -f gccLinux64.mak
+        sudo cp UASM-2.55/GccUnixR/uasm /usr/local/bin/
+    - name: Set up UASM (macOS)
+      if: ${{ matrix.os == 'macos-latest' }}
+      run: |
+        wget -O - https://github.com/Terraspace/UASM/archive/refs/tags/v2.55.tar.gz | tar xz
+        sed -i -e 's/-ansi//' UASM-2.55/ClangOSX64.mak
+        make -C UASM-2.55 -f ClangOSX64.mak
+        sudo cp UASM-2.55/GccUnixR/uasm /usr/local/bin/
+    - name: Set up UASM (Win)
+      if: ${{ matrix.os == 'windows-latest' }}
+      run: |
+        wget -O - https://github.com/Terraspace/UASM/archive/refs/tags/v2.55.tar.gz | tar xz
+        make -C UASM-2.55 -f gccLinux64.mak
+        cp GccUnixR/uasm C:/windows/system32/
+    - name: Build
+      run: |
+        mkdir bin
+        make -C CPP/7zip/Bundle/Alone2 -f ../../cmpl_gcc_x64.mak -j16
+        cp CPP/7zip/Bundle/Alone2/g_x64/7zz bin/ 
