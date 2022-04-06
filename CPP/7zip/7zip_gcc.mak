@@ -195,8 +195,9 @@ $(PROGPATH_STATIC): $(OBJS)
 
 
 ifndef NO_DEFAULT_RES
+RC ?= windres
 $O/resource.o: resource.rc
-	windres.exe $(RFLAGS) resource.rc $O/resource.o
+	$(RC) $(RFLAGS) resource.rc $O/resource.o
 endif
 
 $O/LzmaAlone.o: LzmaAlone.cpp

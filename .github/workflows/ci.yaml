@@ -52,7 +52,7 @@ jobs:
     #     make -C UASM-2.55 -f GccWin64.mak
     #     cp UASM-2.55/MinGW-w64R/hjwasm.exe C:/windows/system32/uasm.exe
     - name: Build (Linux/GCC)
-      if: ${{ matrix.os == 'ubuntu-20.04' && matrix.mode == 'gc' }}
+      if: ${{ matrix.os == 'ubuntu-20.04' && matrix.mode == 'gcc' }}
       run: |
         mkdir -p bin/Codecs
         make -C CPP/7zip/Bundles/Alone -f ../../cmpl_gcc_x64.mak -j16
@@ -81,7 +81,7 @@ jobs:
         sudo apt update
         sudo apt install mingw-w64 -y
         mkdir -p bin/Codecs
-        make -C CPP/7zip/Bundles/Alone2 -f ../../cmpl_gcc_x64.mak SystemDrive=1 CROSS_COMPILE=x86_64-w64-mingw32- -j16
+        make -C CPP/7zip/Bundles/Alone2 -f ../../cmpl_gcc_x64.mak SystemDrive=1 RC=x86_64-w64-mingw32-windres CROSS_COMPILE=x86_64-w64-mingw32- -j16
         cp CPP/7zip/Bundles/Alone2/b/g_x64/7zz.exe bin/
     - name: Build (Win32)
       if: ${{ matrix.os == 'ubuntu-20.04' && matrix.mode == 'win32' }}
@@ -90,5 +90,5 @@ jobs:
         sudo apt update
         sudo apt install mingw-w64 -y
         mkdir -p bin/Codecs
-        make -C CPP/7zip/Bundles/Alone2 -f ../../cmpl_gcc_x86.mak SystemDrive=1 CROSS_COMPILE=i686-w64-mingw32- -j16
+        make -C CPP/7zip/Bundles/Alone2 -f ../../cmpl_gcc_x86.mak SystemDrive=1 RC=i686-w64-mingw32-windres CROSS_COMPILE=i686-w64-mingw32- -j16
         cp CPP/7zip/Bundles/Alone2/b/g_x86/7zz.exe bin/
