@@ -62,8 +62,9 @@ endif
 
 ifdef IS_MINGW
 
-RM = del
-MY_MKDIR=mkdir
+#RM = del
+RM = rm -f
+MY_MKDIR=mkdir -p
 LIB2 = -loleaut32 -luuid -ladvapi32 -luser32
 
 
