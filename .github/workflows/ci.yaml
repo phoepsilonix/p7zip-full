@@ -17,12 +17,7 @@ jobs:
             mode: "win64"
           - os: ubuntu-20.04
             mode: "win32"
-          # - os: macos-latest
-          #   architecture: "x64"
-          # - os: windows-latest
-          #   architecture: "x64"
-          # - os: windows-latest
-          #   architecture: "x86"
+          - os: macos-latest
 
     steps:
     - uses: actions/checkout@v2
@@ -104,16 +99,103 @@ jobs:
     - name: Build (Linux/Clang)
       if: ${{ matrix.os == 'ubuntu-20.04' && matrix.mode == 'clang' }}
       run: |
-        # checking only Alone2 is enough
         mkdir -p bin/Codecs
-        make -C CPP/7zip/Bundles/Alone2 -f ../../cmpl_clang_x64.mak -j16
+        make -C CPP/7zip/Bundles/Alone -f ../../cmpl_clang_x64.mak -j16
+        cp CPP/7zip/Bundles/Alone/b/c_x64/7za bin/
+        make -C CPP/7zip/Bundles/Alone2 -f ../../cmpl_clang_x64.mak DISABLE_RAR_COMPRESS=1 DISABLE_PKIMPLODE_COMPRESS=1 -j16
         cp CPP/7zip/Bundles/Alone2/b/c_x64/7zz bin/
+        make -C CPP/7zip/Bundles/Alone7z -f ../../cmpl_clang_x64.mak -j16
+        cp CPP/7zip/Bundles/Alone7z/b/c_x64/7zr bin/
+        make -C CPP/7zip/Bundles/Format7zF -f ../../cmpl_clang_x64.mak DISABLE_RAR_COMPRESS=1 DISABLE_PKIMPLODE_COMPRESS=1 -j16
+        cp CPP/7zip/Bundles/Format7zF/b/c_x64/7z.so bin/
+        make -C CPP/7zip/Bundles/SFXCon -f ../../cmpl_clang_x64.mak -j16
+        cp CPP/7zip/Bundles/SFXCon/b/c_x64/7zCon.sfx bin/
+        make -C CPP/7zip/UI/Client7z -f ../../cmpl_clang_x64.mak -j16
+        cp CPP/7zip/UI/Client7z/b/c_x64/7zcl bin/
+        make -C CPP/7zip/UI/Console -f ../../cmpl_clang_x64.mak -j16
+        cp CPP/7zip/UI/Console/b/c_x64/7z bin/
+        make -C C/Util/7z -f ../../../CPP/7zip/cmpl_clang_x64.mak -j16
+        cp C/Util/7z/b/c_x64/7zdec bin/
+        make -C C/Util/Lzma -f ../../../CPP/7zip/cmpl_clang_x64.mak -j16
+        cp C/Util/Lzma/b/c_x64/7lzma bin/
+        make -C CPP/7zip/Compress/Rar -f ../../cmpl_clang_x64.mak -j16
+        cp CPP/7zip/Compress/Rar/b/c_x64/Rar.so bin/Codecs/
+        make -C CPP/7zip/Compress/Zstd -f ../../cmpl_clang_x64.mak -j16
+        cp CPP/7zip/Compress/Zstd/b/c_x64/Zstd.so bin/Codecs/
+        make -C CPP/7zip/Compress/Lz4 -f ../../cmpl_clang_x64.mak -j16
+        cp CPP/7zip/Compress/Lz4/b/c_x64/Lz4.so bin/Codecs/
+        make -C CPP/7zip/Compress/Lz5 -f ../../cmpl_clang_x64.mak -j16
+        cp CPP/7zip/Compress/Lz5/b/c_x64/Lz5.so bin/Codecs/
+        make -C CPP/7zip/Compress/Lizard -f ../../cmpl_clang_x64.mak -j16
+        cp CPP/7zip/Compress/Lizard/b/c_x64/Lizard.so bin/Codecs/
+        make -C CPP/7zip/Compress/Brotli -f ../../cmpl_clang_x64.mak -j16
+        cp CPP/7zip/Compress/Brotli/b/c_x64/Brotli.so bin/Codecs/
+        make -C CPP/7zip/Compress/FLzma2 -f ../../cmpl_clang_x64.mak -j16
+        cp CPP/7zip/Compress/FLzma2/b/c_x64/FLzma2.so bin/Codecs/
+        make -C CPP/7zip/Compress/Lzham -f ../../cmpl_clang_x64.mak -j16
+        cp CPP/7zip/Compress/Lzham/b/c_x64/Lzham.so bin/Codecs/
+        make -C CPP/7zip/Compress/PKImplode -f ../../cmpl_clang_x64.mak -j16
+        cp CPP/7zip/Compress/PKImplode/b/c_x64/PKImplode.so bin/Codecs/
+        make -C CPP/7zip/Compress/Bcm -f ../../cmpl_clang_x64.mak -j16
+        cp CPP/7zip/Compress/Bcm/b/c_x64/Bcm.so bin/Codecs/
+        make -C CPP/7zip/Compress/Md5 -f ../../cmpl_clang_x64.mak -j16
+        cp CPP/7zip/Compress/Md5/b/c_x64/Md5.so bin/Codecs/
+        make -C CPP/7zip/Compress/Sha512 -f ../../cmpl_clang_x64.mak -j16
+        cp CPP/7zip/Compress/Sha512/b/c_x64/Sha512.so bin/Codecs/
+        make -C CPP/7zip/Compress/Xxh64 -f ../../cmpl_clang_x64.mak -j16
+        cp CPP/7zip/Compress/Xxh64/b/c_x64/Xxh64.so bin/Codecs/
+        make -C CPP/7zip/Compress/Blake3 -f ../../cmpl_clang_x64.mak -j16
+        cp CPP/7zip/Compress/Blake3/b/c_x64/Blake3.so bin/Codecs/
     - name: Build (macOS)
       if: ${{ matrix.os == 'macos-latest' }}
       run: |
         mkdir -p bin/Codecs
-        make -C CPP/7zip/Bundles/Alone2 -f ../../cmpl_mac_x64.mak -j16
+        make -C CPP/7zip/Bundles/Alone -f ../../cmpl_mac_x64.mak -j16
+        cp CPP/7zip/Bundles/Alone/b/m_x64/7za bin/
+        make -C CPP/7zip/Bundles/Alone2 -f ../../cmpl_mac_x64.mak DISABLE_RAR_COMPRESS=1 DISABLE_PKIMPLODE_COMPRESS=1 -j16
         cp CPP/7zip/Bundles/Alone2/b/m_x64/7zz bin/
+        make -C CPP/7zip/Bundles/Alone7z -f ../../cmpl_mac_x64.mak -j16
+        cp CPP/7zip/Bundles/Alone7z/b/m_x64/7zr bin/
+        make -C CPP/7zip/Bundles/Format7zF -f ../../cmpl_mac_x64.mak DISABLE_RAR_COMPRESS=1 DISABLE_PKIMPLODE_COMPRESS=1 -j16
+        cp CPP/7zip/Bundles/Format7zF/b/m_x64/7z.so bin/
+        make -C CPP/7zip/Bundles/SFXCon -f ../../cmpl_mac_x64.mak -j16
+        cp CPP/7zip/Bundles/SFXCon/b/m_x64/7zCon.sfx bin/
+        make -C CPP/7zip/UI/Client7z -f ../../cmpl_mac_x64.mak -j16
+        cp CPP/7zip/UI/Client7z/b/m_x64/7zcl bin/
+        make -C CPP/7zip/UI/Console -f ../../cmpl_mac_x64.mak -j16
+        cp CPP/7zip/UI/Console/b/m_x64/7z bin/
+        make -C C/Util/7z -f ../../../CPP/7zip/cmpl_mac_x64.mak -j16
+        cp C/Util/7z/b/m_x64/7zdec bin/
+        make -C C/Util/Lzma -f ../../../CPP/7zip/cmpl_mac_x64.mak -j16
+        cp C/Util/Lzma/b/m_x64/7lzma bin/
+        make -C CPP/7zip/Compress/Rar -f ../../cmpl_mac_x64.mak -j16
+        cp CPP/7zip/Compress/Rar/b/m_x64/Rar.so bin/Codecs/
+        make -C CPP/7zip/Compress/Zstd -f ../../cmpl_mac_x64.mak -j16
+        cp CPP/7zip/Compress/Zstd/b/m_x64/Zstd.so bin/Codecs/
+        make -C CPP/7zip/Compress/Lz4 -f ../../cmpl_mac_x64.mak -j16
+        cp CPP/7zip/Compress/Lz4/b/m_x64/Lz4.so bin/Codecs/
+        make -C CPP/7zip/Compress/Lz5 -f ../../cmpl_mac_x64.mak -j16
+        cp CPP/7zip/Compress/Lz5/b/m_x64/Lz5.so bin/Codecs/
+        make -C CPP/7zip/Compress/Lizard -f ../../cmpl_mac_x64.mak -j16
+        cp CPP/7zip/Compress/Lizard/b/m_x64/Lizard.so bin/Codecs/
+        make -C CPP/7zip/Compress/Brotli -f ../../cmpl_mac_x64.mak -j16
+        cp CPP/7zip/Compress/Brotli/b/m_x64/Brotli.so bin/Codecs/
+        make -C CPP/7zip/Compress/FLzma2 -f ../../cmpl_mac_x64.mak -j16
+        cp CPP/7zip/Compress/FLzma2/b/m_x64/FLzma2.so bin/Codecs/
+        make -C CPP/7zip/Compress/Lzham -f ../../cmpl_mac_x64.mak -j16
+        cp CPP/7zip/Compress/Lzham/b/m_x64/Lzham.so bin/Codecs/
+        make -C CPP/7zip/Compress/PKImplode -f ../../cmpl_mac_x64.mak -j16
+        cp CPP/7zip/Compress/PKImplode/b/m_x64/PKImplode.so bin/Codecs/
+        make -C CPP/7zip/Compress/Bcm -f ../../cmpl_mac_x64.mak -j16
+        cp CPP/7zip/Compress/Bcm/b/m_x64/Bcm.so bin/Codecs/
+        make -C CPP/7zip/Compress/Md5 -f ../../cmpl_mac_x64.mak -j16
+        cp CPP/7zip/Compress/Md5/b/m_x64/Md5.so bin/Codecs/
+        make -C CPP/7zip/Compress/Sha512 -f ../../cmpl_mac_x64.mak -j16
+        cp CPP/7zip/Compress/Sha512/b/m_x64/Sha512.so bin/Codecs/
+        make -C CPP/7zip/Compress/Xxh64 -f ../../cmpl_mac_x64.mak -j16
+        cp CPP/7zip/Compress/Xxh64/b/m_x64/Xxh64.so bin/Codecs/
+        make -C CPP/7zip/Compress/Blake3 -f ../../cmpl_mac_x64.mak -j16
+        cp CPP/7zip/Compress/Blake3/b/m_x64/Blake3.so bin/Codecs/
     - name: Build (Win64)
       if: ${{ matrix.os == 'ubuntu-20.04' && matrix.mode == 'win64' }}
       shell: bash
@@ -220,31 +302,31 @@ jobs:
         cp CPP/7zip/Compress/Xxh64/b/g_x86/Xxh64.dll bin/Codecs/
         make -C CPP/7zip/Compress/Blake3 -f ../../cmpl_gcc_x86.mak SystemDrive=1 RC=i686-w64-mingw32-windres CROSS_COMPILE=i686-w64-mingw32- -j16
         cp CPP/7zip/Compress/Blake3/b/g_x86/Blake3.dll bin/Codecs/
-    - name: Upload wheel (Linux/GCC)
+    - name: Upload (Linux/GCC)
       if: ${{ matrix.os == 'ubuntu-20.04' && matrix.mode == 'gcc' }}
       uses: actions/upload-artifact@v2
       with:
         name: linux
         path: bin
-    # - name: Upload wheel (Linux/Clang)
-    #   if: ${{ matrix.os == 'ubuntu-20.04' && matrix.mode == 'clang' }}
-    #   uses: actions/upload-artifact@v2
-    #   with:
-    #     name: linux_clang
-    #     path: bin
-    - name: Upload wheel (macOS)
+    - name: Upload (Linux/Clang)
+      if: ${{ matrix.os == 'ubuntu-20.04' && matrix.mode == 'clang' }}
+      uses: actions/upload-artifact@v2
+      with:
+        name: linux_clang
+        path: bin
+    - name: Upload (macOS)
       if: ${{ matrix.os == 'macos-latest' }}
       uses: actions/upload-artifact@v2
       with:
         name: macos
         path: bin
-    - name: Upload wheel (Win64)
+    - name: Upload (Win64)
       if: ${{ matrix.os == 'ubuntu-20.04' && matrix.mode == 'win64' }}
       uses: actions/upload-artifact@v2
       with:
         name: win64
         path: bin
-    - name: Upload wheel (Win32)
+    - name: Upload (Win32)
       if: ${{ matrix.os == 'ubuntu-20.04' && matrix.mode == 'win32' }}
       uses: actions/upload-artifact@v2
       with:
