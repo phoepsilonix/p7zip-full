@@ -117,6 +117,8 @@ endif
 
 
 all: $(O) $(PROGPATH) $(STATIC_TARGET)
+.PHONY: mkdir
+mkdir: $(O)
 
 $(O):
 	$(MY_MKDIR) $(O)
