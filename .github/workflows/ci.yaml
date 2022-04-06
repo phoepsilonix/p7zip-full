@@ -65,6 +65,8 @@ jobs:
       if: ${{ matrix.os == 'ubuntu-20.04' && matrix.mode == 'win64' }}
       shell: bash
       run: |
+        sudo apt update
+        sudo apt install mingw-w64 -y
         mkdir bin
         make -C CPP/7zip/Bundles/Alone2 -f ../../cmpl_gcc_x64.mak SystemDrive=1 CROSS_COMPILE=x86_64-w64-mingw32- -j16
         cp CPP/7zip/Bundles/Alone2/g_x64/7zz.exe bin/
