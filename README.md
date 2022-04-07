@@ -1,3 +1,5 @@
+Refer https://github.com/cielavenir/p7zip/blob/main/.github/workflows/ci.yaml for building manually.
+
 # 7zz with extension method
 This is the place for 7zz (Well known as 7zip-21.02 Linux version) to include major modern codecs such as Brotli, Fast LZMA2, LZ4, LZ5, Lizard and Zstd. In order to support multithreading for those addional codecs, this project depends on the [Multithreading Library](https://github.com/mcmilk/zstdmt).
 
