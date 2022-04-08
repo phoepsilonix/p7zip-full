@@ -168,6 +168,8 @@ jobs:
         echo 'clang -arch arm64 "$@"' | sudo tee /usr/local/bin/arm64-apple-darwin-clang
         echo 'clang++ -arch arm64 "$@"' | sudo tee /usr/local/bin/arm64-apple-darwin-clang++
         sudo chmod 755 /usr/local/bin/arm64-apple-darwin-clang /usr/local/bin/arm64-apple-darwin-clang++
+        sed -e 's/\&\& LZHAM_PLATFORM_PC/\&\& 0/' Codecs/lzham_codec_devel/lzhamdecomp/lzham_platform.h
+
         mkdir -p bin/Codecs
         make -C CPP/7zip/Bundles/Alone -f ../../cmpl_mac_arm64.mak mkdir && make -C CPP/7zip/Bundles/Alone -f ../../cmpl_mac_arm64.mak CROSS_COMPILE=arm64-apple-darwin- -j16
         cp CPP/7zip/Bundles/Alone/b/m_arm64/7za bin/
