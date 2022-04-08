@@ -288,18 +288,19 @@ inline T* MemAlloc(size_t n)
 int Compress(void *in, void *out, int level)
 {
   CM cm(in, out);
-  const int tab[10]=
+  const int tab[11]=
   {
     0,
     1<<20,      // -1 - 1 MB
     1<<22,      // -2 - 4 MB
     1<<23,      // -3 - 8 MB
-    0x00FFFFFF, // -4 - ~16 MB (Default)
+    1<<24,      // -4 - 16 MB (Default)
     1<<25,      // -5 - 32 MB
     1<<26,      // -6 - 64 MB
     1<<27,      // -7 - 128 MB
     1<<28,      // -8 - 256 MB
-    0x7FFFFFFF, // -9 - ~2 GB
+    1<<29,      // -9 - 512 MB
+    0x7FFFFFFF, // -10 - ~2 GB
   };
   int bsize=tab[level]; // Block size
 
@@ -489,7 +490,6 @@ STDMETHODIMP CDecoder::GetInStreamProcessedSize(UInt64 *value)
 
 STDMETHODIMP CEncoder::SetCoderProperties(const PROPID * propIDs, const PROPVARIANT * coderProps, UInt32 numProps)
 {
-  level = 4;
   for (UInt32 i = 0; i < numProps; i++){
 	const PROPVARIANT & prop = coderProps[i];
 	PROPID propID = propIDs[i];

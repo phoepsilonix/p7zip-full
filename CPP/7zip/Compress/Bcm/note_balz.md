@@ -1,1 +1,0 @@
-Unlike BCM, BALZ does not look like stream format.
