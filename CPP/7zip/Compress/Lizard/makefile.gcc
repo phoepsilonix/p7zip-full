@@ -45,6 +45,7 @@ COMPRESS_OBJS_2 = \
   $O/lizard_compress.o \
   $O/lizard_decompress.o \
   $O/lizard_frame.o \
+  $O/libzstd.a \
 
 OBJS = \
   $(COMPRESS_OBJS_2) \

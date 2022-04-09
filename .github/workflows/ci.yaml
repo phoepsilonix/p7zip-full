@@ -101,10 +101,12 @@ jobs:
     - name: Build (Linux/Clang)
       if: ${{ matrix.os == 'ubuntu-20.04' && matrix.mode == 'clang' }}
       run: |
-        # checking only Alone2 is enough for compilation. 7z.so raises link error as liblizard.a not being -fPIC.
+        # checking only Alone2 is enough for testing compilation. 7z.so raises link error as liblizard.a not being -fPIC.
         mkdir -p bin/Codecs
         make -C CPP/7zip/Bundles/Alone2 -f ../../cmpl_clang_x64.mak mkdir && make -C CPP/7zip/Bundles/Alone2 -f ../../cmpl_clang_x64.mak -j16
         cp CPP/7zip/Bundles/Alone2/b/c_x64/7zz bin/
+        make -C CPP/7zip/Bundles/Format7zF -f ../../cmpl_clang_x64.mak mkdir && make -C CPP/7zip/Bundles/Format7zF -f ../../cmpl_clang_x64.mak DISABLE_RAR_COMPRESS=1 DISABLE_PKIMPLODE_COMPRESS=1 -j16
+        cp CPP/7zip/Bundles/Format7zF/b/c_x64/7z.so bin/
         make -C C/Util/7z -f ../../../CPP/7zip/cmpl_clang_x64.mak && make -C C/Util/7z -f ../../../CPP/7zip/cmpl_clang_x64.mak -j16
         cp C/Util/7z/b/c_x64/7zdec bin/
     - name: Build (macOS)
