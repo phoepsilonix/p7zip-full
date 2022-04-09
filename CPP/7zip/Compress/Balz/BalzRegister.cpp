@@ -615,7 +615,7 @@ HRESULT CEncoder::CodeReal(ISequentialInStream *inStream, ISequentialOutStream *
   outS.SetStream(outStream);
   progr = progress;
   processedIn = processedOut = 0;
-  int x = Compressor(this, this).compress(level);
+  int x = Compressor(this, this).compress(level>=2);
   outS.Flush();
   outS.Free();
   if(x<0)return E_FAIL;
