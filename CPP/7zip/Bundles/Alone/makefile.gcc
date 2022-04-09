@@ -88,6 +88,9 @@ ADDITIONAL_CODECS_OBJS = \
   $O/lz5.o \
   $O/lz5hc.o \
   $O/lz5frame.o \
+  $O/lizard_compress.o \
+  $O/lizard_decompress.o \
+  $O/lizard_frame.o \
 
 CONSOLE_OBJS = \
   $O/BenchCon.o \
@@ -356,12 +359,12 @@ C_OBJS = \
   $O/Sha1Opt.o \
 
 ZSTD_STATIC_LIB = $O/libzstd.a
-LZ4_STATIC_LIB = $O/liblz4.a
+# LZ4_STATIC_LIB = $O/liblz4.a
 BROTLI_STATIC_LIB = $O/libbrotlienc-static.a \
   $O/libbrotlidec-static.a \
   $O/libbrotlicommon-static.a 
-LIZARD_STATIC_LIB = $O/liblizard.a
-LZ5_STATIC_LIB = $O/liblz5.a
+# LIZARD_STATIC_LIB = $O/liblizard.a
+# LZ5_STATIC_LIB = $O/liblz5.a
 
 OBJS = \
 	$(LZMA_DEC_OPT_OBJS) \
@@ -384,6 +387,5 @@ OBJS = \
   $(CONSOLE_OBJS) \
   $(ZSTD_STATIC_LIB) \
   $(BROTLI_STATIC_LIB) \
-  $(LIZARD_STATIC_LIB) \
 
 include ../../7zip_gcc.mak

@@ -232,5 +232,5 @@ clean2:
 	# $(RM) lz4_build
 	$(RM) brotli_build
 	$(RM) lzham_build
-	make -C ../../../../Codecs/lizard/lib clean
+	# make -C ../../../../Codecs/lizard/lib clean
 	# make -C ../../../../Codecs/lz5/lib clean
