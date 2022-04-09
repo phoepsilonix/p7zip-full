@@ -103,7 +103,7 @@ $O/lizard_compress.o: ../../../../Codecs/lizard/lib/lizard_compress.c
 $O/lizard_decompress.o: ../../../../Codecs/lizard/lib/lizard_decompress.c
 	$(CC) $(CFLAGS) $<
 $O/lizard_frame.o: ../../../../Codecs/lizard/lib/lizard_frame.c
-	$(CC) $(CFLAGS) $<
+	$(CC) $(CFLAGS) $< -Wno-implicit-fallthrough
 
 # Compile lizard method and Handler
 $O/LizardDecoder.o: ../../Compress/LizardDecoder.cpp
