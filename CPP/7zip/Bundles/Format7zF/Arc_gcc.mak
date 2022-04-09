@@ -50,6 +50,9 @@ ADDITIONAL_CODECS_OBJS = \
   $O/lz5.o \
   $O/lz5hc.o \
   $O/lz5frame.o \
+  $O/lizard_compress.o \
+  $O/lizard_decompress.o \
+  $O/lizard_frame.o \
 
 COMMON_OBJS = \
   $O/CRC.o \
@@ -425,7 +428,7 @@ ZSTD_STATIC_LIB = $O/libzstd.a
 BROTLI_STATIC_LIB = $O/libbrotlienc-static.a \
   $O/libbrotlidec-static.a \
   $O/libbrotlicommon-static.a 
-LIZARD_STATIC_LIB = $O/liblizard.a
+# LIZARD_STATIC_LIB = $O/liblizard.a
 # LZ5_STATIC_LIB = $O/liblz5.a
 LZHAM_STATIC_LIB = $O/lzham_lib.o $O/liblzhamcomp.a $O/liblzhamdecomp.a
 
@@ -457,7 +460,6 @@ ARC_OBJS = \
   $(FASTLZMA2_OBJS) \
   $(ZSTD_STATIC_LIB) \
   $(BROTLI_STATIC_LIB) \
-  $(LIZARD_STATIC_LIB) \
   $(LZHAM_STATIC_LIB) \
 
 

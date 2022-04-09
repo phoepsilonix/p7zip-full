@@ -42,7 +42,9 @@ COMPRESS_OBJS_2 = \
   $O/lizard-mt_compress.o \
   $O/lizard-mt_decompress.o \
   $O/threading.o \
-  $O/liblizard.a \
+  $O/lizard_compress.o \
+  $O/lizard_decompress.o \
+  $O/lizard_frame.o \
 
 OBJS = \
   $(COMPRESS_OBJS_2) \
