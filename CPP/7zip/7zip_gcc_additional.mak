@@ -99,7 +99,7 @@ $O/liblizard.a: ../../../../Codecs/lizard/lib/lizard_frame.h
 	cp ../../../../Codecs/lizard/lib/liblizard.a $O
 
 $O/lizard_compress.o: ../../../../Codecs/lizard/lib/lizard_compress.c
-	$(CC) $(CFLAGS) $<
+	$(CC) $(CFLAGS) $< -Wno-comma
 $O/lizard_decompress.o: ../../../../Codecs/lizard/lib/lizard_decompress.c
 	$(CC) $(CFLAGS) $<
 $O/lizard_frame.o: ../../../../Codecs/lizard/lib/lizard_frame.c
