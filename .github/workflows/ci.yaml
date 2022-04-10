@@ -106,7 +106,7 @@ jobs:
         sudo apt update
         sudo apt install g++-multilib -y
         echo 'gcc -m32 "$@"' | sudo tee /usr/local/bin/i686-linux-gnu-gcc
-        echo 'gcc -m32 "$@"' | sudo tee /usr/local/bin/i686-linux-gnu-g++
+        echo 'g++ -m32 "$@"' | sudo tee /usr/local/bin/i686-linux-gnu-g++
         sudo chmod 755 /usr/local/bin/i686-linux-gnu-gcc /usr/local/bin/i686-linux-gnu-g++
 
         mkdir -p bin/Codecs
