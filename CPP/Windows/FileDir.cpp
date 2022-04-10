@@ -958,6 +958,7 @@ bool SetDirTime(CFSTR path, const FILETIME *cTime, const FILETIME *aTime, const 
 {
   // need testing
 #if 1
+//def NOTIMESPEC
   struct utimbuf buf;
   struct stat st;
   UNUSED_VAR(cTime)

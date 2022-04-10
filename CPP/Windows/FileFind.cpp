@@ -997,9 +997,11 @@ void CFileInfo::SetFrom_stat(const struct stat &st)
 
   Attrib = Get_WinAttribPosix_From_PosixMode(st.st_mode);
 
-  // NTime::UnixTimeToFileTime(st.st_ctime, CTime);
-  // NTime::UnixTimeToFileTime(st.st_mtime, MTime);
-  // NTime::UnixTimeToFileTime(st.st_atime, ATime);
+  #ifdef NOTIMESPEC
+  NTime::UnixTimeToFileTime(st.st_ctime, CTime);
+  NTime::UnixTimeToFileTime(st.st_mtime, MTime);
+  NTime::UnixTimeToFileTime(st.st_atime, ATime);
+  #else
   #ifdef __APPLE__
   // #ifdef _DARWIN_FEATURE_64_BIT_INODE
   /*
@@ -1018,6 +1020,7 @@ void CFileInfo::SetFrom_stat(const struct stat &st)
   timespec_To_FILETIME(st.st_ctim, CTime);
   timespec_To_FILETIME(st.st_mtim, MTime);
   timespec_To_FILETIME(st.st_atim, ATime);
+  #endif
   #endif
 
   dev = st.st_dev;
