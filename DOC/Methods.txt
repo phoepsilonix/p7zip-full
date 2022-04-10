@@ -139,6 +139,12 @@ List of defined IDs
          FE - eSplitter 
          FF - RawSplitter
  
+       C1 xx - reserved (Ciel Avenir)
+        
+         01 - BCM
+         02 - BALZ
+         F1 - (reserved) 
+         F2 - (reserved)
 
 06.. - Crypto 
 
