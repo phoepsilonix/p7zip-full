@@ -159,7 +159,7 @@ struct CM: Encoder
 
   void Put32(U32 x)
   {
-    for (U32 i=1<<31; i>0; i>>=1)
+    for (U32 i=1u<<31; i>0; i>>=1)
       EncodeBit<1>(x&i, 1); // p=0.5
   }
 

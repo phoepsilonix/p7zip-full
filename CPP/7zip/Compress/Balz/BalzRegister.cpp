@@ -185,7 +185,7 @@ public:
 
 	void Put32(uint x)
 	{
-		for (uint i=1<<31; i>0; i>>=1)
+		for (uint i=1u<<31; i>0; i>>=1)
 			Encode1(x&i, 1); // p=0.5
 	}
 
