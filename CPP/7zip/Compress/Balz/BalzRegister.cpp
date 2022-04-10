@@ -208,7 +208,7 @@ public:
 	Counter counter1[256][512];
 	Counter counter2[256][TAB_SIZE];
 
-	CM(void *in, void *out): Encoder(in, out){}
+	CM(void *in_, void *out_): Encoder(in_, out_){}
 
 	void Encode(int t, int c1)
 	{
