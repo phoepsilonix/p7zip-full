@@ -89,7 +89,7 @@ jobs:
         mkdir -p bin/Codecs
         export CMPL=cmpl_clang_arm64
         export OUTDIR=c_arm64
-        export FLAGS="${TARGET}${API}-"
+        export FLAGS="CROSS_COMPILE=${TARGET}${API}-"
         ./build_linux.sh
     - name: Build (macOS)
       if: ${{ matrix.os == 'macos-latest' }}
