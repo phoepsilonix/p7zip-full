@@ -26,7 +26,7 @@
 #include <sys/time.h>
 #endif
 #include <fcntl.h>
-// #include <utime.h>
+#include <utime.h>
 #include <sys/stat.h>
 #include <errno.h>
 #endif
@@ -374,7 +374,7 @@ static Int64 Time_FileTimeToUnixTime64(const FILETIME *ft)
   #define MY_ST_TIMESPEC timespec
 #endif
 
-#if UTIMENSAT
+#ifdef UTIMENSAT
 static void FILETIME_To_timespec(const FILETIME *ft, struct MY_ST_TIMESPEC *ts)
 {
   if (ft)
@@ -413,10 +413,10 @@ static WRes Set_File_FILETIME(const UInt16 *name, const FILETIME *mTime)
   FILETIME_To_timespec(mTime, &times[1]);
   res = utimensat(AT_FDCWD, (const char *)buf.data, times, flags);
 #else
-  struct utimbuf buf;
-  buf.actime = time(0);
-  buf.modtime = Time_FileTimeToUnixTime64(mTime);
-  res = utime((const char *)buf.data, &buf);
+  struct utimbuf tbuf;
+  tbuf.actime = time(0);
+  tbuf.modtime = Time_FileTimeToUnixTime64(mTime);
+  res = utime((const char *)buf.data, &tbuf);
 #endif
   Buf_Free(&buf, &g_Alloc);
   if (res == 0)
