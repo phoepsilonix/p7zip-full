@@ -90,7 +90,7 @@ endif
 
 
 
-CFLAGS = $(LOCAL_FLAGS) $(CFLAGS_BASE2) $(CFLAGS_BASE) -std=gnu99 $(CC_SHARED) -o $@
+CFLAGS = $(LOCAL_FLAGS) $(CFLAGS_BASE2) $(CFLAGS_BASE) -std=c99 $(CC_SHARED) -o $@
 
 
 ifdef IS_MINGW
