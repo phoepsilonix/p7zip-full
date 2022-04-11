@@ -920,7 +920,7 @@ bool GetCurrentDir(FString &path)
   // #define UTIME_OMIT -2
 #endif
 
-#if 0
+#ifdef UTIMENSAT
 static bool FILETME_To_timespec(const FILETIME *ft, timespec &ts)
 {
   if (ft)
@@ -957,8 +957,7 @@ static bool FILETME_To_timespec(const FILETIME *ft, timespec &ts)
 bool SetDirTime(CFSTR path, const FILETIME *cTime, const FILETIME *aTime, const FILETIME *mTime)
 {
   // need testing
-#if 1
-//def NOTIMESPEC
+#ifndef UTIMENSAT
   struct utimbuf buf;
   struct stat st;
   UNUSED_VAR(cTime)

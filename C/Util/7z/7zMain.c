@@ -374,6 +374,7 @@ static Int64 Time_FileTimeToUnixTime64(const FILETIME *ft)
   #define MY_ST_TIMESPEC timespec
 #endif
 
+#if UTIMENSAT
 static void FILETIME_To_timespec(const FILETIME *ft, struct MY_ST_TIMESPEC *ts)
 {
   if (ft)
@@ -396,21 +397,27 @@ static void FILETIME_To_timespec(const FILETIME *ft, struct MY_ST_TIMESPEC *ts)
     ts->tv_nsec = UTIME_OMIT; // keep old timesptamp
   }
 }
+#endif
 
 static WRes Set_File_FILETIME(const UInt16 *name, const FILETIME *mTime)
 {
-  struct timespec times[2];
-  
-  const int flags = 0; // follow link
-    // = AT_SYMLINK_NOFOLLOW; // don't follow link
-
   CBuf buf;
   int res;
   Buf_Init(&buf);
   RINOK(Utf16_To_Char(&buf, name MY_FILE_CODE_PAGE_PARAM));
+#ifdef UTIMENSAT
+  struct timespec times[2];
+  const int flags = 0; // follow link
+    // = AT_SYMLINK_NOFOLLOW; // don't follow link
   FILETIME_To_timespec(NULL, &times[0]);
   FILETIME_To_timespec(mTime, &times[1]);
   res = utimensat(AT_FDCWD, (const char *)buf.data, times, flags);
+#else
+  struct utimbuf buf;
+  buf.actime = time(0);
+  buf.modtime = Time_FileTimeToUnixTime64(mTime);
+  res = utime((const char *)buf.data, &buf);
+#endif
   Buf_Free(&buf, &g_Alloc);
   if (res == 0)
     return 0;
