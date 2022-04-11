@@ -151,7 +151,7 @@ $O/lzham_lib.o: ../../../../Codecs/lzham_codec_devel/lzhamlib/lzham_lib.cpp
 
 # Compile lzham method and Handler
 $O/LzhamRegister.o: ../../Compress/LzhamRegister.cpp
-	$(CXX) $(CXXFLAGS) $< -Wno-attributes -I ../../../.. -I ../../../../CPP -I ../../../../Codecs/lzham_codec_devel/include -I ../../../../Codecs/lzham_codec_devel/lzhamdecomp
+	$(CXX) $(CXXFLAGS) $< -Wno-attributes -Wno-cpp -I ../../../.. -I ../../../../CPP -I ../../../../Codecs/lzham_codec_devel/include -I ../../../../Codecs/lzham_codec_devel/lzhamdecomp
 
 # Build pkimplode lib
 $O/explode.o: ../../../../Codecs/StormLib/src/pklib/explode.c

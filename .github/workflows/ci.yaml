@@ -53,7 +53,6 @@ jobs:
     - name: Build (Linux/GCC-x64)
       if: ${{ matrix.os == 'ubuntu-20.04' && matrix.mode == 'gcc-x64' }}
       run: |
-        mkdir -p bin/Codecs
         export CMPL=cmpl_gcc_x64
         export OUTDIR=g_x64
         export FLAGS=""
@@ -81,15 +80,17 @@ jobs:
     - name: Build (Linux/android-aarch64)
       if: ${{ matrix.os == 'ubuntu-20.04' && matrix.mode == 'android-aarch64' }}
       run: |
+        sed -i -e 's/\&\& LZHAM_PLATFORM_PC/\&\& LZHAM_PLATFORM_PC \&\& !defined(__aarch64__)/' Codecs/lzham_codec_devel/lzhamdecomp/lzham_platform.h
+
         export TOOLCHAIN=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64
         export TARGET=aarch64-linux-android
         export API=21
         export PATH=$PATH:$TOOLCHAIN/bin
 
-        mkdir -p bin/Codecs
+        # it seems (on clang) -march=armv8-a+crypto must be specified on command line or __ARM_FEATURE_CRYPTO will not be enabled.
         export CMPL=cmpl_clang_arm64
         export OUTDIR=c_arm64
-        export FLAGS="CROSS_COMPILE=${TARGET}${API}-"
+        export FLAGS="CROSS_COMPILE=${TARGET}${API}- CFLAGS_ADDITIONAL=-march=armv8-a+crypto -Wno-error"
         ./build_linux.sh
     - name: Build (macOS)
       if: ${{ matrix.os == 'macos-latest' }}

@@ -42,12 +42,12 @@
 
 #include "../../C/7zTypes.h"
 
-#ifndef _UINT32_T_DECLARED
+#if !defined(_UINT32_T_DECLARED) && !defined(__BIT_TYPES_DEFINED__)
 typedef UInt32 uint32_t;
 #define _UINT32_T_DECLARED
 #endif
 
-#ifndef _UINT64_T_DECLARED
+#if !defined(_UINT64_T_DECLARED) && !defined(__BIT_TYPES_DEFINED__)
 typedef UInt64 uint64_t;
 #define _UINT64_T_DECLARED
 #endif
