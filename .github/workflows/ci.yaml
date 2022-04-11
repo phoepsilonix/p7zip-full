@@ -16,6 +16,8 @@ jobs:
           - os: ubuntu-20.04
             mode: "clang"
           - os: ubuntu-20.04
+            mode: "android-aarch64"
+          - os: ubuntu-20.04
             mode: "win64"
           - os: ubuntu-20.04
             mode: "win32"
@@ -52,54 +54,10 @@ jobs:
       if: ${{ matrix.os == 'ubuntu-20.04' && matrix.mode == 'gcc-x64' }}
       run: |
         mkdir -p bin/Codecs
-        make -C CPP/7zip/Bundles/Alone -f ../../cmpl_gcc_x64.mak mkdir && make -C CPP/7zip/Bundles/Alone -f ../../cmpl_gcc_x64.mak -j16
-        cp CPP/7zip/Bundles/Alone/b/g_x64/7za bin/
-        make -C CPP/7zip/Bundles/Alone2 -f ../../cmpl_gcc_x64.mak mkdir && make -C CPP/7zip/Bundles/Alone2 -f ../../cmpl_gcc_x64.mak DISABLE_RAR_COMPRESS=1 DISABLE_PKIMPLODE_COMPRESS=1 -j16
-        cp CPP/7zip/Bundles/Alone2/b/g_x64/7zz bin/
-        make -C CPP/7zip/Bundles/Alone7z -f ../../cmpl_gcc_x64.mak mkdir && make -C CPP/7zip/Bundles/Alone7z -f ../../cmpl_gcc_x64.mak -j16
-        cp CPP/7zip/Bundles/Alone7z/b/g_x64/7zr bin/
-        make -C CPP/7zip/Bundles/Format7zF -f ../../cmpl_gcc_x64.mak mkdir && make -C CPP/7zip/Bundles/Format7zF -f ../../cmpl_gcc_x64.mak DISABLE_RAR_COMPRESS=1 DISABLE_PKIMPLODE_COMPRESS=1 -j16
-        cp CPP/7zip/Bundles/Format7zF/b/g_x64/7z.so bin/
-        make -C CPP/7zip/Bundles/SFXCon -f ../../cmpl_gcc_x64.mak mkdir && make -C CPP/7zip/Bundles/SFXCon -f ../../cmpl_gcc_x64.mak -j16
-        cp CPP/7zip/Bundles/SFXCon/b/g_x64/7zCon.sfx bin/
-        make -C CPP/7zip/UI/Client7z -f ../../cmpl_gcc_x64.mak mkdir && make -C CPP/7zip/UI/Client7z -f ../../cmpl_gcc_x64.mak -j16
-        cp CPP/7zip/UI/Client7z/b/g_x64/7zcl bin/
-        make -C CPP/7zip/UI/Console -f ../../cmpl_gcc_x64.mak mkdir && make -C CPP/7zip/UI/Console -f ../../cmpl_gcc_x64.mak -j16
-        cp CPP/7zip/UI/Console/b/g_x64/7z bin/
-        make -C C/Util/7z -f ../../../CPP/7zip/cmpl_gcc_x64.mak && make -C C/Util/7z -f ../../../CPP/7zip/cmpl_gcc_x64.mak -j16
-        cp C/Util/7z/b/g_x64/7zdec bin/
-        make -C C/Util/Lzma -f ../../../CPP/7zip/cmpl_gcc_x64.mak && make -C C/Util/Lzma -f ../../../CPP/7zip/cmpl_gcc_x64.mak -j16
-        cp C/Util/Lzma/b/g_x64/7lzma bin/
-        make -C CPP/7zip/Compress/Rar -f ../../cmpl_gcc_x64.mak mkdir && make -C CPP/7zip/Compress/Rar -f ../../cmpl_gcc_x64.mak -j16
-        cp CPP/7zip/Compress/Rar/b/g_x64/Rar.so bin/Codecs/
-        make -C CPP/7zip/Compress/Zstd -f ../../cmpl_gcc_x64.mak mkdir && make -C CPP/7zip/Compress/Zstd -f ../../cmpl_gcc_x64.mak -j16
-        cp CPP/7zip/Compress/Zstd/b/g_x64/Zstd.so bin/Codecs/
-        make -C CPP/7zip/Compress/Lz4 -f ../../cmpl_gcc_x64.mak mkdir && make -C CPP/7zip/Compress/Lz4 -f ../../cmpl_gcc_x64.mak -j16
-        cp CPP/7zip/Compress/Lz4/b/g_x64/Lz4.so bin/Codecs/
-        make -C CPP/7zip/Compress/Lz5 -f ../../cmpl_gcc_x64.mak mkdir && make -C CPP/7zip/Compress/Lz5 -f ../../cmpl_gcc_x64.mak -j16
-        cp CPP/7zip/Compress/Lz5/b/g_x64/Lz5.so bin/Codecs/
-        make -C CPP/7zip/Compress/Lizard -f ../../cmpl_gcc_x64.mak mkdir && make -C CPP/7zip/Compress/Lizard -f ../../cmpl_gcc_x64.mak -j16
-        cp CPP/7zip/Compress/Lizard/b/g_x64/Lizard.so bin/Codecs/
-        make -C CPP/7zip/Compress/Brotli -f ../../cmpl_gcc_x64.mak mkdir && make -C CPP/7zip/Compress/Brotli -f ../../cmpl_gcc_x64.mak -j16
-        cp CPP/7zip/Compress/Brotli/b/g_x64/Brotli.so bin/Codecs/
-        make -C CPP/7zip/Compress/FLzma2 -f ../../cmpl_gcc_x64.mak mkdir && make -C CPP/7zip/Compress/FLzma2 -f ../../cmpl_gcc_x64.mak -j16
-        cp CPP/7zip/Compress/FLzma2/b/g_x64/FLzma2.so bin/Codecs/
-        make -C CPP/7zip/Compress/Lzham -f ../../cmpl_gcc_x64.mak mkdir && make -C CPP/7zip/Compress/Lzham -f ../../cmpl_gcc_x64.mak -j16
-        cp CPP/7zip/Compress/Lzham/b/g_x64/Lzham.so bin/Codecs/
-        make -C CPP/7zip/Compress/PKImplode -f ../../cmpl_gcc_x64.mak mkdir && make -C CPP/7zip/Compress/PKImplode -f ../../cmpl_gcc_x64.mak -j16
-        cp CPP/7zip/Compress/PKImplode/b/g_x64/PKImplode.so bin/Codecs/
-        make -C CPP/7zip/Compress/Bcm -f ../../cmpl_gcc_x64.mak mkdir && make -C CPP/7zip/Compress/Bcm -f ../../cmpl_gcc_x64.mak -j16
-        cp CPP/7zip/Compress/Bcm/b/g_x64/Bcm.so bin/Codecs/
-        make -C CPP/7zip/Compress/Balz -f ../../cmpl_gcc_x64.mak mkdir && make -C CPP/7zip/Compress/Balz -f ../../cmpl_gcc_x64.mak -j16
-        cp CPP/7zip/Compress/Balz/b/g_x64/Balz.so bin/Codecs/
-        make -C CPP/7zip/Compress/Md5 -f ../../cmpl_gcc_x64.mak mkdir && make -C CPP/7zip/Compress/Md5 -f ../../cmpl_gcc_x64.mak -j16
-        cp CPP/7zip/Compress/Md5/b/g_x64/Md5.so bin/Codecs/
-        make -C CPP/7zip/Compress/Sha512 -f ../../cmpl_gcc_x64.mak mkdir && make -C CPP/7zip/Compress/Sha512 -f ../../cmpl_gcc_x64.mak -j16
-        cp CPP/7zip/Compress/Sha512/b/g_x64/Sha512.so bin/Codecs/
-        make -C CPP/7zip/Compress/Xxh64 -f ../../cmpl_gcc_x64.mak mkdir && make -C CPP/7zip/Compress/Xxh64 -f ../../cmpl_gcc_x64.mak -j16
-        cp CPP/7zip/Compress/Xxh64/b/g_x64/Xxh64.so bin/Codecs/
-        make -C CPP/7zip/Compress/Blake3 -f ../../cmpl_gcc_x64.mak mkdir && make -C CPP/7zip/Compress/Blake3 -f ../../cmpl_gcc_x64.mak -j16
-        cp CPP/7zip/Compress/Blake3/b/g_x64/Blake3.so bin/Codecs/
+        export CMPL=cmpl_gcc_x64
+        export OUTDIR=g_x64
+        export FLAGS=""
+        ./build_linux.sh
     - name: Build (Linux/GCC-x86)
       if: ${{ matrix.os == 'ubuntu-20.04' && matrix.mode == 'gcc-x86' }}
       run: |
@@ -109,107 +67,30 @@ jobs:
         echo 'g++ -m32 "$@"' | sudo tee /usr/local/bin/i686-linux-gnu-g++
         sudo chmod 755 /usr/local/bin/i686-linux-gnu-gcc /usr/local/bin/i686-linux-gnu-g++
 
-        mkdir -p bin/Codecs
-        make -C CPP/7zip/Bundles/Alone -f ../../cmpl_gcc_x86.mak mkdir && make -C CPP/7zip/Bundles/Alone -f ../../cmpl_gcc_x86.mak CROSS_COMPILE=i686-linux-gnu- -j16
-        cp CPP/7zip/Bundles/Alone/b/g_x86/7za bin/
-        make -C CPP/7zip/Bundles/Alone2 -f ../../cmpl_gcc_x86.mak mkdir && make -C CPP/7zip/Bundles/Alone2 -f ../../cmpl_gcc_x86.mak CROSS_COMPILE=i686-linux-gnu- DISABLE_RAR_COMPRESS=1 DISABLE_PKIMPLODE_COMPRESS=1 -j16
-        cp CPP/7zip/Bundles/Alone2/b/g_x86/7zz bin/
-        make -C CPP/7zip/Bundles/Alone7z -f ../../cmpl_gcc_x86.mak mkdir && make -C CPP/7zip/Bundles/Alone7z -f ../../cmpl_gcc_x86.mak CROSS_COMPILE=i686-linux-gnu- -j16
-        cp CPP/7zip/Bundles/Alone7z/b/g_x86/7zr bin/
-        make -C CPP/7zip/Bundles/Format7zF -f ../../cmpl_gcc_x86.mak mkdir && make -C CPP/7zip/Bundles/Format7zF -f ../../cmpl_gcc_x86.mak CROSS_COMPILE=i686-linux-gnu- DISABLE_RAR_COMPRESS=1 DISABLE_PKIMPLODE_COMPRESS=1 -j16
-        cp CPP/7zip/Bundles/Format7zF/b/g_x86/7z.so bin/
-        make -C CPP/7zip/Bundles/SFXCon -f ../../cmpl_gcc_x86.mak mkdir && make -C CPP/7zip/Bundles/SFXCon -f ../../cmpl_gcc_x86.mak CROSS_COMPILE=i686-linux-gnu- -j16
-        cp CPP/7zip/Bundles/SFXCon/b/g_x86/7zCon.sfx bin/
-        make -C CPP/7zip/UI/Client7z -f ../../cmpl_gcc_x86.mak mkdir && make -C CPP/7zip/UI/Client7z -f ../../cmpl_gcc_x86.mak CROSS_COMPILE=i686-linux-gnu- -j16
-        cp CPP/7zip/UI/Client7z/b/g_x86/7zcl bin/
-        make -C CPP/7zip/UI/Console -f ../../cmpl_gcc_x86.mak mkdir && make -C CPP/7zip/UI/Console -f ../../cmpl_gcc_x86.mak CROSS_COMPILE=i686-linux-gnu- -j16
-        cp CPP/7zip/UI/Console/b/g_x86/7z bin/
-        make -C C/Util/7z -f ../../../CPP/7zip/cmpl_gcc_x86.mak && make -C C/Util/7z -f ../../../CPP/7zip/cmpl_gcc_x86.mak CROSS_COMPILE=i686-linux-gnu- -j16
-        cp C/Util/7z/b/g_x86/7zdec bin/
-        make -C C/Util/Lzma -f ../../../CPP/7zip/cmpl_gcc_x86.mak && make -C C/Util/Lzma -f ../../../CPP/7zip/cmpl_gcc_x86.mak CROSS_COMPILE=i686-linux-gnu- -j16
-        cp C/Util/Lzma/b/g_x86/7lzma bin/
-        make -C CPP/7zip/Compress/Rar -f ../../cmpl_gcc_x86.mak mkdir && make -C CPP/7zip/Compress/Rar -f ../../cmpl_gcc_x86.mak CROSS_COMPILE=i686-linux-gnu- -j16
-        cp CPP/7zip/Compress/Rar/b/g_x86/Rar.so bin/Codecs/
-        make -C CPP/7zip/Compress/Zstd -f ../../cmpl_gcc_x86.mak mkdir && make -C CPP/7zip/Compress/Zstd -f ../../cmpl_gcc_x86.mak CROSS_COMPILE=i686-linux-gnu- -j16
-        cp CPP/7zip/Compress/Zstd/b/g_x86/Zstd.so bin/Codecs/
-        make -C CPP/7zip/Compress/Lz4 -f ../../cmpl_gcc_x86.mak mkdir && make -C CPP/7zip/Compress/Lz4 -f ../../cmpl_gcc_x86.mak CROSS_COMPILE=i686-linux-gnu- -j16
-        cp CPP/7zip/Compress/Lz4/b/g_x86/Lz4.so bin/Codecs/
-        make -C CPP/7zip/Compress/Lz5 -f ../../cmpl_gcc_x86.mak mkdir && make -C CPP/7zip/Compress/Lz5 -f ../../cmpl_gcc_x86.mak CROSS_COMPILE=i686-linux-gnu- -j16
-        cp CPP/7zip/Compress/Lz5/b/g_x86/Lz5.so bin/Codecs/
-        make -C CPP/7zip/Compress/Lizard -f ../../cmpl_gcc_x86.mak mkdir && make -C CPP/7zip/Compress/Lizard -f ../../cmpl_gcc_x86.mak CROSS_COMPILE=i686-linux-gnu- -j16
-        cp CPP/7zip/Compress/Lizard/b/g_x86/Lizard.so bin/Codecs/
-        make -C CPP/7zip/Compress/Brotli -f ../../cmpl_gcc_x86.mak mkdir && make -C CPP/7zip/Compress/Brotli -f ../../cmpl_gcc_x86.mak CROSS_COMPILE=i686-linux-gnu- -j16
-        cp CPP/7zip/Compress/Brotli/b/g_x86/Brotli.so bin/Codecs/
-        make -C CPP/7zip/Compress/FLzma2 -f ../../cmpl_gcc_x86.mak mkdir && make -C CPP/7zip/Compress/FLzma2 -f ../../cmpl_gcc_x86.mak CROSS_COMPILE=i686-linux-gnu- -j16
-        cp CPP/7zip/Compress/FLzma2/b/g_x86/FLzma2.so bin/Codecs/
-        make -C CPP/7zip/Compress/Lzham -f ../../cmpl_gcc_x86.mak mkdir && make -C CPP/7zip/Compress/Lzham -f ../../cmpl_gcc_x86.mak CROSS_COMPILE=i686-linux-gnu- -j16
-        cp CPP/7zip/Compress/Lzham/b/g_x86/Lzham.so bin/Codecs/
-        make -C CPP/7zip/Compress/PKImplode -f ../../cmpl_gcc_x86.mak mkdir && make -C CPP/7zip/Compress/PKImplode -f ../../cmpl_gcc_x86.mak CROSS_COMPILE=i686-linux-gnu- -j16
-        cp CPP/7zip/Compress/PKImplode/b/g_x86/PKImplode.so bin/Codecs/
-        make -C CPP/7zip/Compress/Bcm -f ../../cmpl_gcc_x86.mak mkdir && make -C CPP/7zip/Compress/Bcm -f ../../cmpl_gcc_x86.mak CROSS_COMPILE=i686-linux-gnu- -j16
-        cp CPP/7zip/Compress/Bcm/b/g_x86/Bcm.so bin/Codecs/
-        make -C CPP/7zip/Compress/Balz -f ../../cmpl_gcc_x86.mak mkdir && make -C CPP/7zip/Compress/Balz -f ../../cmpl_gcc_x86.mak CROSS_COMPILE=i686-linux-gnu- -j16
-        cp CPP/7zip/Compress/Balz/b/g_x86/Balz.so bin/Codecs/
-        make -C CPP/7zip/Compress/Md5 -f ../../cmpl_gcc_x86.mak mkdir && make -C CPP/7zip/Compress/Md5 -f ../../cmpl_gcc_x86.mak CROSS_COMPILE=i686-linux-gnu- -j16
-        cp CPP/7zip/Compress/Md5/b/g_x86/Md5.so bin/Codecs/
-        make -C CPP/7zip/Compress/Sha512 -f ../../cmpl_gcc_x86.mak mkdir && make -C CPP/7zip/Compress/Sha512 -f ../../cmpl_gcc_x86.mak CROSS_COMPILE=i686-linux-gnu- -j16
-        cp CPP/7zip/Compress/Sha512/b/g_x86/Sha512.so bin/Codecs/
-        make -C CPP/7zip/Compress/Xxh64 -f ../../cmpl_gcc_x86.mak mkdir && make -C CPP/7zip/Compress/Xxh64 -f ../../cmpl_gcc_x86.mak CROSS_COMPILE=i686-linux-gnu- -j16
-        cp CPP/7zip/Compress/Xxh64/b/g_x86/Xxh64.so bin/Codecs/
-        make -C CPP/7zip/Compress/Blake3 -f ../../cmpl_gcc_x86.mak mkdir && make -C CPP/7zip/Compress/Blake3 -f ../../cmpl_gcc_x86.mak CROSS_COMPILE=i686-linux-gnu- -j16
-        cp CPP/7zip/Compress/Blake3/b/g_x86/Blake3.so bin/Codecs/
+        export CMPL=cmpl_gcc_x86
+        export OUTDIR=g_x86
+        export FLAGS="CROSS_COMPILE=i686-linux-gnu-"
+        ./build_linux.sh
     - name: Build (Linux/Clang)
       if: ${{ matrix.os == 'ubuntu-20.04' && matrix.mode == 'clang' }}
       run: |
+        export CMPL=cmpl_clang_x64
+        export OUTDIR=c_x64
+        export FLAGS=""
+        ./build_linux.sh
+    - name: Build (Linux/android-aarch64)
+      if: ${{ matrix.os == 'ubuntu-20.04' && matrix.mode == 'android-aarch64' }}
+      run: |
+        export TOOLCHAIN=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64
+        export TARGET=aarch64-linux-android
+        export API=21
+        export PATH=$PATH:$TOOLCHAIN/bin
+
         mkdir -p bin/Codecs
-        make -C CPP/7zip/Bundles/Alone -f ../../cmpl_clang_x64.mak mkdir && make -C CPP/7zip/Bundles/Alone -f ../../cmpl_clang_x64.mak -j16
-        cp CPP/7zip/Bundles/Alone/b/c_x64/7za bin/
-        make -C CPP/7zip/Bundles/Alone2 -f ../../cmpl_clang_x64.mak mkdir && make -C CPP/7zip/Bundles/Alone2 -f ../../cmpl_clang_x64.mak DISABLE_RAR_COMPRESS=1 DISABLE_PKIMPLODE_COMPRESS=1 -j16
-        cp CPP/7zip/Bundles/Alone2/b/c_x64/7zz bin/
-        make -C CPP/7zip/Bundles/Alone7z -f ../../cmpl_clang_x64.mak mkdir && make -C CPP/7zip/Bundles/Alone7z -f ../../cmpl_clang_x64.mak -j16
-        cp CPP/7zip/Bundles/Alone7z/b/c_x64/7zr bin/
-        make -C CPP/7zip/Bundles/Format7zF -f ../../cmpl_clang_x64.mak mkdir && make -C CPP/7zip/Bundles/Format7zF -f ../../cmpl_clang_x64.mak DISABLE_RAR_COMPRESS=1 DISABLE_PKIMPLODE_COMPRESS=1 -j16
-        cp CPP/7zip/Bundles/Format7zF/b/c_x64/7z.so bin/
-        make -C CPP/7zip/Bundles/SFXCon -f ../../cmpl_clang_x64.mak mkdir && make -C CPP/7zip/Bundles/SFXCon -f ../../cmpl_clang_x64.mak -j16
-        cp CPP/7zip/Bundles/SFXCon/b/c_x64/7zCon.sfx bin/
-        make -C CPP/7zip/UI/Client7z -f ../../cmpl_clang_x64.mak mkdir && make -C CPP/7zip/UI/Client7z -f ../../cmpl_clang_x64.mak -j16
-        cp CPP/7zip/UI/Client7z/b/c_x64/7zcl bin/
-        make -C CPP/7zip/UI/Console -f ../../cmpl_clang_x64.mak mkdir && make -C CPP/7zip/UI/Console -f ../../cmpl_clang_x64.mak -j16
-        cp CPP/7zip/UI/Console/b/c_x64/7z bin/
-        make -C C/Util/7z -f ../../../CPP/7zip/cmpl_clang_x64.mak && make -C C/Util/7z -f ../../../CPP/7zip/cmpl_clang_x64.mak -j16
-        cp C/Util/7z/b/c_x64/7zdec bin/
-        make -C C/Util/Lzma -f ../../../CPP/7zip/cmpl_clang_x64.mak && make -C C/Util/Lzma -f ../../../CPP/7zip/cmpl_clang_x64.mak -j16
-        cp C/Util/Lzma/b/c_x64/7lzma bin/
-        make -C CPP/7zip/Compress/Rar -f ../../cmpl_clang_x64.mak mkdir && make -C CPP/7zip/Compress/Rar -f ../../cmpl_clang_x64.mak -j16
-        cp CPP/7zip/Compress/Rar/b/c_x64/Rar.so bin/Codecs/
-        make -C CPP/7zip/Compress/Zstd -f ../../cmpl_clang_x64.mak mkdir && make -C CPP/7zip/Compress/Zstd -f ../../cmpl_clang_x64.mak -j16
-        cp CPP/7zip/Compress/Zstd/b/c_x64/Zstd.so bin/Codecs/
-        make -C CPP/7zip/Compress/Lz4 -f ../../cmpl_clang_x64.mak mkdir && make -C CPP/7zip/Compress/Lz4 -f ../../cmpl_clang_x64.mak -j16
-        cp CPP/7zip/Compress/Lz4/b/c_x64/Lz4.so bin/Codecs/
-        make -C CPP/7zip/Compress/Lz5 -f ../../cmpl_clang_x64.mak mkdir && make -C CPP/7zip/Compress/Lz5 -f ../../cmpl_clang_x64.mak -j16
-        cp CPP/7zip/Compress/Lz5/b/c_x64/Lz5.so bin/Codecs/
-        make -C CPP/7zip/Compress/Lizard -f ../../cmpl_clang_x64.mak mkdir && make -C CPP/7zip/Compress/Lizard -f ../../cmpl_clang_x64.mak -j16
-        cp CPP/7zip/Compress/Lizard/b/c_x64/Lizard.so bin/Codecs/
-        make -C CPP/7zip/Compress/Brotli -f ../../cmpl_clang_x64.mak mkdir && make -C CPP/7zip/Compress/Brotli -f ../../cmpl_clang_x64.mak -j16
-        cp CPP/7zip/Compress/Brotli/b/c_x64/Brotli.so bin/Codecs/
-        make -C CPP/7zip/Compress/FLzma2 -f ../../cmpl_clang_x64.mak mkdir && make -C CPP/7zip/Compress/FLzma2 -f ../../cmpl_clang_x64.mak -j16
-        cp CPP/7zip/Compress/FLzma2/b/c_x64/FLzma2.so bin/Codecs/
-        make -C CPP/7zip/Compress/Lzham -f ../../cmpl_clang_x64.mak mkdir && make -C CPP/7zip/Compress/Lzham -f ../../cmpl_clang_x64.mak -j16
-        cp CPP/7zip/Compress/Lzham/b/c_x64/Lzham.so bin/Codecs/
-        make -C CPP/7zip/Compress/PKImplode -f ../../cmpl_clang_x64.mak mkdir && make -C CPP/7zip/Compress/PKImplode -f ../../cmpl_clang_x64.mak -j16
-        cp CPP/7zip/Compress/PKImplode/b/c_x64/PKImplode.so bin/Codecs/
-        make -C CPP/7zip/Compress/Bcm -f ../../cmpl_clang_x64.mak mkdir && make -C CPP/7zip/Compress/Bcm -f ../../cmpl_clang_x64.mak -j16
-        cp CPP/7zip/Compress/Bcm/b/c_x64/Bcm.so bin/Codecs/
-        make -C CPP/7zip/Compress/Balz -f ../../cmpl_clang_x64.mak mkdir && make -C CPP/7zip/Compress/Balz -f ../../cmpl_clang_x64.mak -j16
-        cp CPP/7zip/Compress/Balz/b/c_x64/Balz.so bin/Codecs/
-        make -C CPP/7zip/Compress/Md5 -f ../../cmpl_clang_x64.mak mkdir && make -C CPP/7zip/Compress/Md5 -f ../../cmpl_clang_x64.mak -j16
-        cp CPP/7zip/Compress/Md5/b/c_x64/Md5.so bin/Codecs/
-        make -C CPP/7zip/Compress/Sha512 -f ../../cmpl_clang_x64.mak mkdir && make -C CPP/7zip/Compress/Sha512 -f ../../cmpl_clang_x64.mak -j16
-        cp CPP/7zip/Compress/Sha512/b/c_x64/Sha512.so bin/Codecs/
-        make -C CPP/7zip/Compress/Xxh64 -f ../../cmpl_clang_x64.mak mkdir && make -C CPP/7zip/Compress/Xxh64 -f ../../cmpl_clang_x64.mak -j16
-        cp CPP/7zip/Compress/Xxh64/b/c_x64/Xxh64.so bin/Codecs/
-        make -C CPP/7zip/Compress/Blake3 -f ../../cmpl_clang_x64.mak mkdir && make -C CPP/7zip/Compress/Blake3 -f ../../cmpl_clang_x64.mak -j16
-        cp CPP/7zip/Compress/Blake3/b/c_x64/Blake3.so bin/Codecs/
+        export CMPL=cmpl_clang_arm64
+        export OUTDIR=c_arm64
+        export FLAGS="${TARGET}${API}-"
+        ./build_linux.sh
     - name: Build (macOS)
       if: ${{ matrix.os == 'macos-latest' }}
       run: |
@@ -218,189 +99,29 @@ jobs:
         sudo chmod 755 /usr/local/bin/arm64-apple-darwin-clang /usr/local/bin/arm64-apple-darwin-clang++
         sed -i -e 's/\&\& LZHAM_PLATFORM_PC/\&\& LZHAM_PLATFORM_PC \&\& !defined(__aarch64__)/' Codecs/lzham_codec_devel/lzhamdecomp/lzham_platform.h
 
-        mkdir -p bin/Codecs
-        make -C CPP/7zip/Bundles/Alone -f ../../cmpl_mac_x64.mak mkdir && make -C CPP/7zip/Bundles/Alone -f ../../cmpl_mac_x64.mak -j16
-        make -C CPP/7zip/Bundles/Alone -f ../../cmpl_mac_arm64.mak mkdir && make -C CPP/7zip/Bundles/Alone -f ../../cmpl_mac_arm64.mak CROSS_COMPILE=arm64-apple-darwin- -j16
-        lipo CPP/7zip/Bundles/Alone/b/m_x64/7za CPP/7zip/Bundles/Alone/b/m_arm64/7za -create -output bin/7za
-        make -C CPP/7zip/Bundles/Alone2 -f ../../cmpl_mac_x64.mak mkdir && make -C CPP/7zip/Bundles/Alone2 -f ../../cmpl_mac_x64.mak DISABLE_RAR_COMPRESS=1 DISABLE_PKIMPLODE_COMPRESS=1 -j16
-        make -C CPP/7zip/Bundles/Alone2 -f ../../cmpl_mac_arm64.mak mkdir && make -C CPP/7zip/Bundles/Alone2 -f ../../cmpl_mac_arm64.mak CROSS_COMPILE=arm64-apple-darwin- DISABLE_RAR_COMPRESS=1 DISABLE_PKIMPLODE_COMPRESS=1 -j16
-        lipo CPP/7zip/Bundles/Alone2/b/m_x64/7zz CPP/7zip/Bundles/Alone2/b/m_arm64/7zz -create -output bin/7zz
-        make -C CPP/7zip/Bundles/Alone7z -f ../../cmpl_mac_x64.mak mkdir && make -C CPP/7zip/Bundles/Alone7z -f ../../cmpl_mac_x64.mak -j16
-        make -C CPP/7zip/Bundles/Alone7z -f ../../cmpl_mac_arm64.mak mkdir && make -C CPP/7zip/Bundles/Alone7z -f ../../cmpl_mac_arm64.mak CROSS_COMPILE=arm64-apple-darwin- -j16
-        lipo CPP/7zip/Bundles/Alone7z/b/m_x64/7zr CPP/7zip/Bundles/Alone7z/b/m_arm64/7zr -create -output bin/7zr
-        make -C CPP/7zip/Bundles/Format7zF -f ../../cmpl_mac_x64.mak mkdir && make -C CPP/7zip/Bundles/Format7zF -f ../../cmpl_mac_x64.mak DISABLE_RAR_COMPRESS=1 DISABLE_PKIMPLODE_COMPRESS=1 -j16
-        make -C CPP/7zip/Bundles/Format7zF -f ../../cmpl_mac_arm64.mak mkdir && make -C CPP/7zip/Bundles/Format7zF -f ../../cmpl_mac_arm64.mak CROSS_COMPILE=arm64-apple-darwin- DISABLE_RAR_COMPRESS=1 DISABLE_PKIMPLODE_COMPRESS=1 -j16
-        lipo CPP/7zip/Bundles/Format7zF/b/m_x64/7z.so CPP/7zip/Bundles/Format7zF/b/m_arm64/7z.so -create -output bin/7z.so
-        make -C CPP/7zip/Bundles/SFXCon -f ../../cmpl_mac_x64.mak mkdir && make -C CPP/7zip/Bundles/SFXCon -f ../../cmpl_mac_x64.mak -j16
-        make -C CPP/7zip/Bundles/SFXCon -f ../../cmpl_mac_arm64.mak mkdir && make -C CPP/7zip/Bundles/SFXCon -f ../../cmpl_mac_arm64.mak CROSS_COMPILE=arm64-apple-darwin- -j16
-        lipo CPP/7zip/Bundles/SFXCon/b/m_x64/7zCon.sfx CPP/7zip/Bundles/SFXCon/b/m_arm64/7zCon.sfx -create -output bin/7zCon.sfx
-        make -C CPP/7zip/UI/Client7z -f ../../cmpl_mac_x64.mak mkdir && make -C CPP/7zip/UI/Client7z -f ../../cmpl_mac_x64.mak -j16
-        make -C CPP/7zip/UI/Client7z -f ../../cmpl_mac_arm64.mak mkdir && make -C CPP/7zip/UI/Client7z -f ../../cmpl_mac_arm64.mak CROSS_COMPILE=arm64-apple-darwin- -j16
-        lipo CPP/7zip/UI/Client7z/b/m_x64/7zcl CPP/7zip/UI/Client7z/b/m_arm64/7zcl -create -output bin/7zcl
-        make -C CPP/7zip/UI/Console -f ../../cmpl_mac_x64.mak mkdir && make -C CPP/7zip/UI/Console -f ../../cmpl_mac_x64.mak -j16
-        make -C CPP/7zip/UI/Console -f ../../cmpl_mac_arm64.mak mkdir && make -C CPP/7zip/UI/Console -f ../../cmpl_mac_arm64.mak CROSS_COMPILE=arm64-apple-darwin- -j16
-        lipo CPP/7zip/UI/Console/b/m_x64/7z CPP/7zip/UI/Console/b/m_arm64/7z -create -output bin/7z
-        make -C C/Util/7z -f ../../../CPP/7zip/cmpl_mac_x64.mak mkdir && make -C C/Util/7z -f ../../../CPP/7zip/cmpl_mac_x64.mak -j16
-        make -C C/Util/7z -f ../../../CPP/7zip/cmpl_mac_arm64.mak mkdir && make -C C/Util/7z -f ../../../CPP/7zip/cmpl_mac_arm64.mak CROSS_COMPILE=arm64-apple-darwin- -j16
-        lipo C/Util/7z/b/m_x64/7zdec C/Util/7z/b/m_arm64/7zdec -create -output bin/7zdec
-        make -C C/Util/Lzma -f ../../../CPP/7zip/cmpl_mac_x64.mak mkdir && make -C C/Util/Lzma -f ../../../CPP/7zip/cmpl_mac_x64.mak -j16
-        make -C C/Util/Lzma -f ../../../CPP/7zip/cmpl_mac_arm64.mak mkdir && make -C C/Util/Lzma -f ../../../CPP/7zip/cmpl_mac_arm64.mak CROSS_COMPILE=arm64-apple-darwin- -j16
-        lipo C/Util/Lzma/b/m_x64/7lzma C/Util/Lzma/b/m_arm64/7lzma -create -output bin/7lzma
-        make -C CPP/7zip/Compress/Rar -f ../../cmpl_mac_x64.mak mkdir && make -C CPP/7zip/Compress/Rar -f ../../cmpl_mac_x64.mak -j16
-        make -C CPP/7zip/Compress/Rar -f ../../cmpl_mac_arm64.mak mkdir && make -C CPP/7zip/Compress/Rar -f ../../cmpl_mac_arm64.mak CROSS_COMPILE=arm64-apple-darwin- -j16
-        lipo CPP/7zip/Compress/Rar/b/m_x64/Rar.so CPP/7zip/Compress/Rar/b/m_arm64/Rar.so -create -output bin/Codecs/Rar.so
-        make -C CPP/7zip/Compress/Zstd -f ../../cmpl_mac_x64.mak mkdir && make -C CPP/7zip/Compress/Zstd -f ../../cmpl_mac_x64.mak -j16
-        make -C CPP/7zip/Compress/Zstd -f ../../cmpl_mac_arm64.mak mkdir && make -C CPP/7zip/Compress/Zstd -f ../../cmpl_mac_arm64.mak CROSS_COMPILE=arm64-apple-darwin- -j16
-        lipo CPP/7zip/Compress/Zstd/b/m_x64/Zstd.so CPP/7zip/Compress/Zstd/b/m_arm64/Zstd.so -create -output bin/Codecs/Zstd.so
-        make -C CPP/7zip/Compress/Lz4 -f ../../cmpl_mac_x64.mak mkdir && make -C CPP/7zip/Compress/Lz4 -f ../../cmpl_mac_x64.mak -j16
-        make -C CPP/7zip/Compress/Lz4 -f ../../cmpl_mac_arm64.mak mkdir && make -C CPP/7zip/Compress/Lz4 -f ../../cmpl_mac_arm64.mak CROSS_COMPILE=arm64-apple-darwin- -j16
-        lipo CPP/7zip/Compress/Lz4/b/m_x64/Lz4.so CPP/7zip/Compress/Lz4/b/m_arm64/Lz4.so -create -output bin/Codecs/Lz4.so
-        make -C CPP/7zip/Compress/Lz5 -f ../../cmpl_mac_x64.mak mkdir && make -C CPP/7zip/Compress/Lz5 -f ../../cmpl_mac_x64.mak -j16
-        make -C CPP/7zip/Compress/Lz5 -f ../../cmpl_mac_arm64.mak mkdir && make -C CPP/7zip/Compress/Lz5 -f ../../cmpl_mac_arm64.mak CROSS_COMPILE=arm64-apple-darwin- -j16
-        lipo CPP/7zip/Compress/Lz5/b/m_x64/Lz5.so CPP/7zip/Compress/Lz5/b/m_arm64/Lz5.so -create -output bin/Codecs/Lz5.so
-        make -C CPP/7zip/Compress/Lizard -f ../../cmpl_mac_x64.mak mkdir && make -C CPP/7zip/Compress/Lizard -f ../../cmpl_mac_x64.mak -j16
-        make -C CPP/7zip/Compress/Lizard -f ../../cmpl_mac_arm64.mak mkdir && make -C CPP/7zip/Compress/Lizard -f ../../cmpl_mac_arm64.mak CROSS_COMPILE=arm64-apple-darwin- -j16
-        lipo CPP/7zip/Compress/Lizard/b/m_x64/Lizard.so CPP/7zip/Compress/Lizard/b/m_arm64/Lizard.so -create -output bin/Codecs/Lizard.so
-        make -C CPP/7zip/Compress/Brotli -f ../../cmpl_mac_x64.mak mkdir && make -C CPP/7zip/Compress/Brotli -f ../../cmpl_mac_x64.mak -j16
-        make -C CPP/7zip/Compress/Brotli -f ../../cmpl_mac_arm64.mak mkdir && make -C CPP/7zip/Compress/Brotli -f ../../cmpl_mac_arm64.mak CROSS_COMPILE=arm64-apple-darwin- -j16
-        lipo CPP/7zip/Compress/Brotli/b/m_x64/Brotli.so CPP/7zip/Compress/Brotli/b/m_arm64/Brotli.so -create -output bin/Codecs/Brotli.so
-        make -C CPP/7zip/Compress/FLzma2 -f ../../cmpl_mac_x64.mak mkdir && make -C CPP/7zip/Compress/FLzma2 -f ../../cmpl_mac_x64.mak -j16
-        make -C CPP/7zip/Compress/FLzma2 -f ../../cmpl_mac_arm64.mak mkdir && make -C CPP/7zip/Compress/FLzma2 -f ../../cmpl_mac_arm64.mak CROSS_COMPILE=arm64-apple-darwin- -j16
-        lipo CPP/7zip/Compress/FLzma2/b/m_x64/FLzma2.so CPP/7zip/Compress/FLzma2/b/m_arm64/FLzma2.so -create -output bin/Codecs/FLzma2.so
-        make -C CPP/7zip/Compress/Lzham -f ../../cmpl_mac_x64.mak mkdir && make -C CPP/7zip/Compress/Lzham -f ../../cmpl_mac_x64.mak -j16
-        make -C CPP/7zip/Compress/Lzham -f ../../cmpl_mac_arm64.mak mkdir && make -C CPP/7zip/Compress/Lzham -f ../../cmpl_mac_arm64.mak CROSS_COMPILE=arm64-apple-darwin- -j16
-        lipo CPP/7zip/Compress/Lzham/b/m_x64/Lzham.so CPP/7zip/Compress/Lzham/b/m_arm64/Lzham.so -create -output bin/Codecs/Lzham.so
-        make -C CPP/7zip/Compress/PKImplode -f ../../cmpl_mac_x64.mak mkdir && make -C CPP/7zip/Compress/PKImplode -f ../../cmpl_mac_x64.mak -j16
-        make -C CPP/7zip/Compress/PKImplode -f ../../cmpl_mac_arm64.mak mkdir && make -C CPP/7zip/Compress/PKImplode -f ../../cmpl_mac_arm64.mak CROSS_COMPILE=arm64-apple-darwin- -j16
-        lipo CPP/7zip/Compress/PKImplode/b/m_x64/PKImplode.so CPP/7zip/Compress/PKImplode/b/m_arm64/PKImplode.so -create -output bin/Codecs/PKImplode.so
-        make -C CPP/7zip/Compress/Bcm -f ../../cmpl_mac_x64.mak mkdir && make -C CPP/7zip/Compress/Bcm -f ../../cmpl_mac_x64.mak -j16
-        make -C CPP/7zip/Compress/Bcm -f ../../cmpl_mac_arm64.mak mkdir && make -C CPP/7zip/Compress/Bcm -f ../../cmpl_mac_arm64.mak CROSS_COMPILE=arm64-apple-darwin- -j16
-        lipo CPP/7zip/Compress/Bcm/b/m_x64/Bcm.so CPP/7zip/Compress/Bcm/b/m_arm64/Bcm.so -create -output bin/Codecs/Bcm.so
-        make -C CPP/7zip/Compress/Balz -f ../../cmpl_mac_x64.mak mkdir && make -C CPP/7zip/Compress/Balz -f ../../cmpl_mac_x64.mak -j16
-        make -C CPP/7zip/Compress/Balz -f ../../cmpl_mac_arm64.mak mkdir && make -C CPP/7zip/Compress/Balz -f ../../cmpl_mac_arm64.mak CROSS_COMPILE=arm64-apple-darwin- -j16
-        lipo CPP/7zip/Compress/Balz/b/m_x64/Balz.so CPP/7zip/Compress/Balz/b/m_arm64/Balz.so -create -output bin/Codecs/Balz.so
-        make -C CPP/7zip/Compress/Md5 -f ../../cmpl_mac_x64.mak mkdir && make -C CPP/7zip/Compress/Md5 -f ../../cmpl_mac_x64.mak -j16
-        make -C CPP/7zip/Compress/Md5 -f ../../cmpl_mac_arm64.mak mkdir && make -C CPP/7zip/Compress/Md5 -f ../../cmpl_mac_arm64.mak CROSS_COMPILE=arm64-apple-darwin- -j16
-        lipo CPP/7zip/Compress/Md5/b/m_x64/Md5.so CPP/7zip/Compress/Md5/b/m_arm64/Md5.so -create -output bin/Codecs/Md5.so
-        make -C CPP/7zip/Compress/Sha512 -f ../../cmpl_mac_x64.mak mkdir && make -C CPP/7zip/Compress/Sha512 -f ../../cmpl_mac_x64.mak -j16
-        make -C CPP/7zip/Compress/Sha512 -f ../../cmpl_mac_arm64.mak mkdir && make -C CPP/7zip/Compress/Sha512 -f ../../cmpl_mac_arm64.mak CROSS_COMPILE=arm64-apple-darwin- -j16
-        lipo CPP/7zip/Compress/Sha512/b/m_x64/Sha512.so CPP/7zip/Compress/Sha512/b/m_arm64/Sha512.so -create -output bin/Codecs/Sha512.so
-        make -C CPP/7zip/Compress/Xxh64 -f ../../cmpl_mac_x64.mak mkdir && make -C CPP/7zip/Compress/Xxh64 -f ../../cmpl_mac_x64.mak -j16
-        make -C CPP/7zip/Compress/Xxh64 -f ../../cmpl_mac_arm64.mak mkdir && make -C CPP/7zip/Compress/Xxh64 -f ../../cmpl_mac_arm64.mak CROSS_COMPILE=arm64-apple-darwin- -j16
-        lipo CPP/7zip/Compress/Xxh64/b/m_x64/Xxh64.so CPP/7zip/Compress/Xxh64/b/m_arm64/Xxh64.so -create -output bin/Codecs/Xxh64.so
-        make -C CPP/7zip/Compress/Blake3 -f ../../cmpl_mac_x64.mak mkdir && make -C CPP/7zip/Compress/Blake3 -f ../../cmpl_mac_x64.mak -j16
-        make -C CPP/7zip/Compress/Blake3 -f ../../cmpl_mac_arm64.mak mkdir && make -C CPP/7zip/Compress/Blake3 -f ../../cmpl_mac_arm64.mak CROSS_COMPILE=arm64-apple-darwin- -j16
-        lipo CPP/7zip/Compress/Blake3/b/m_x64/Blake3.so CPP/7zip/Compress/Blake3/b/m_arm64/Blake3.so -create -output bin/Codecs/Blake3.so
+        ./build_macos.sh
     - name: Build (Win64)
       if: ${{ matrix.os == 'ubuntu-20.04' && matrix.mode == 'win64' }}
       shell: bash
       run: |
         sudo apt update
         sudo apt install mingw-w64 -y
-        mkdir -p bin/Codecs
-        make -C CPP/7zip/Bundles/Alone -f ../../cmpl_gcc_x64.mak mkdir && make -C CPP/7zip/Bundles/Alone -f ../../cmpl_gcc_x64.mak SystemDrive=1 RC=x86_64-w64-mingw32-windres CROSS_COMPILE=x86_64-w64-mingw32- -j16
-        cp CPP/7zip/Bundles/Alone/b/g_x64/7za.exe bin/
-        make -C CPP/7zip/Bundles/Alone2 -f ../../cmpl_gcc_x64.mak mkdir && make -C CPP/7zip/Bundles/Alone2 -f ../../cmpl_gcc_x64.mak SystemDrive=1 RC=x86_64-w64-mingw32-windres CROSS_COMPILE=x86_64-w64-mingw32- DISABLE_RAR_COMPRESS=1 DISABLE_PKIMPLODE_COMPRESS=1 -j16
-        cp CPP/7zip/Bundles/Alone2/b/g_x64/7zz.exe bin/
-        make -C CPP/7zip/Bundles/Alone7z -f ../../cmpl_gcc_x64.mak mkdir && make -C CPP/7zip/Bundles/Alone7z -f ../../cmpl_gcc_x64.mak SystemDrive=1 RC=x86_64-w64-mingw32-windres CROSS_COMPILE=x86_64-w64-mingw32- -j16
-        cp CPP/7zip/Bundles/Alone7z/b/g_x64/7zr.exe bin/
-        make -C CPP/7zip/Bundles/Format7zF -f ../../cmpl_gcc_x64.mak mkdir && make -C CPP/7zip/Bundles/Format7zF -f ../../cmpl_gcc_x64.mak SystemDrive=1 RC=x86_64-w64-mingw32-windres CROSS_COMPILE=x86_64-w64-mingw32- DISABLE_RAR_COMPRESS=1 DISABLE_PKIMPLODE_COMPRESS=1 -j16
-        cp CPP/7zip/Bundles/Format7zF/b/g_x64/7z.dll bin/
-        make -C CPP/7zip/Bundles/SFXCon -f ../../cmpl_gcc_x64.mak mkdir && make -C CPP/7zip/Bundles/SFXCon -f ../../cmpl_gcc_x64.mak SystemDrive=1 RC=x86_64-w64-mingw32-windres CROSS_COMPILE=x86_64-w64-mingw32- -j16
-        cp CPP/7zip/Bundles/SFXCon/b/g_x64/7zCon.sfx.exe bin/7zCon.sfx
-        make -C CPP/7zip/UI/Client7z -f ../../cmpl_gcc_x64.mak mkdir && make -C CPP/7zip/UI/Client7z -f ../../cmpl_gcc_x64.mak SystemDrive=1 RC=x86_64-w64-mingw32-windres CROSS_COMPILE=x86_64-w64-mingw32- -j16
-        cp CPP/7zip/UI/Client7z/b/g_x64/7zcl.exe bin/
-        make -C CPP/7zip/UI/Console -f ../../cmpl_gcc_x64.mak mkdir && make -C CPP/7zip/UI/Console -f ../../cmpl_gcc_x64.mak SystemDrive=1 RC=x86_64-w64-mingw32-windres CROSS_COMPILE=x86_64-w64-mingw32- -j16
-        cp CPP/7zip/UI/Console/b/g_x64/7z.exe bin/
-        make -C C/Util/7z -f ../../../CPP/7zip/cmpl_gcc_x64.mak mkdir && make -C C/Util/7z -f ../../../CPP/7zip/cmpl_gcc_x64.mak SystemDrive=1 RC=x86_64-w64-mingw32-windres CROSS_COMPILE=x86_64-w64-mingw32- -j16
-        cp C/Util/7z/b/g_x64/7zdec.exe bin/
-        make -C C/Util/Lzma -f ../../../CPP/7zip/cmpl_gcc_x64.mak mkdir && make -C C/Util/Lzma -f ../../../CPP/7zip/cmpl_gcc_x64.mak SystemDrive=1 RC=x86_64-w64-mingw32-windres CROSS_COMPILE=x86_64-w64-mingw32- -j16
-        cp C/Util/Lzma/b/g_x64/7lzma.exe bin/
-        make -C CPP/7zip/Compress/Rar -f ../../cmpl_gcc_x64.mak mkdir && make -C CPP/7zip/Compress/Rar -f ../../cmpl_gcc_x64.mak SystemDrive=1 RC=x86_64-w64-mingw32-windres CROSS_COMPILE=x86_64-w64-mingw32- -j16
-        cp CPP/7zip/Compress/Rar/b/g_x64/Rar.dll bin/Codecs/
-        make -C CPP/7zip/Compress/Zstd -f ../../cmpl_gcc_x64.mak mkdir && make -C CPP/7zip/Compress/Zstd -f ../../cmpl_gcc_x64.mak SystemDrive=1 RC=x86_64-w64-mingw32-windres CROSS_COMPILE=x86_64-w64-mingw32- -j16
-        cp CPP/7zip/Compress/Zstd/b/g_x64/Zstd.dll bin/Codecs/
-        make -C CPP/7zip/Compress/Lz4 -f ../../cmpl_gcc_x64.mak mkdir && make -C CPP/7zip/Compress/Lz4 -f ../../cmpl_gcc_x64.mak SystemDrive=1 RC=x86_64-w64-mingw32-windres CROSS_COMPILE=x86_64-w64-mingw32- -j16
-        cp CPP/7zip/Compress/Lz4/b/g_x64/Lz4.dll bin/Codecs/
-        make -C CPP/7zip/Compress/Lz5 -f ../../cmpl_gcc_x64.mak mkdir && make -C CPP/7zip/Compress/Lz5 -f ../../cmpl_gcc_x64.mak SystemDrive=1 RC=x86_64-w64-mingw32-windres CROSS_COMPILE=x86_64-w64-mingw32- -j16
-        cp CPP/7zip/Compress/Lz5/b/g_x64/Lz5.dll bin/Codecs/
-        make -C CPP/7zip/Compress/Lizard -f ../../cmpl_gcc_x64.mak mkdir && make -C CPP/7zip/Compress/Lizard -f ../../cmpl_gcc_x64.mak SystemDrive=1 RC=x86_64-w64-mingw32-windres CROSS_COMPILE=x86_64-w64-mingw32- -j16
-        cp CPP/7zip/Compress/Lizard/b/g_x64/Lizard.dll bin/Codecs/
-        make -C CPP/7zip/Compress/Brotli -f ../../cmpl_gcc_x64.mak mkdir && make -C CPP/7zip/Compress/Brotli -f ../../cmpl_gcc_x64.mak SystemDrive=1 RC=x86_64-w64-mingw32-windres CROSS_COMPILE=x86_64-w64-mingw32- -j16
-        cp CPP/7zip/Compress/Brotli/b/g_x64/Brotli.dll bin/Codecs/
-        make -C CPP/7zip/Compress/FLzma2 -f ../../cmpl_gcc_x64.mak mkdir && make -C CPP/7zip/Compress/FLzma2 -f ../../cmpl_gcc_x64.mak SystemDrive=1 RC=x86_64-w64-mingw32-windres CROSS_COMPILE=x86_64-w64-mingw32- -j16
-        cp CPP/7zip/Compress/FLzma2/b/g_x64/FLzma2.dll bin/Codecs/
-        make -C CPP/7zip/Compress/Lzham -f ../../cmpl_gcc_x64.mak mkdir && make -C CPP/7zip/Compress/Lzham -f ../../cmpl_gcc_x64.mak SystemDrive=1 RC=x86_64-w64-mingw32-windres CROSS_COMPILE=x86_64-w64-mingw32- -j16
-        cp CPP/7zip/Compress/Lzham/b/g_x64/Lzham.dll bin/Codecs/
-        make -C CPP/7zip/Compress/PKImplode -f ../../cmpl_gcc_x64.mak mkdir && make -C CPP/7zip/Compress/PKImplode -f ../../cmpl_gcc_x64.mak SystemDrive=1 RC=x86_64-w64-mingw32-windres CROSS_COMPILE=x86_64-w64-mingw32- -j16
-        cp CPP/7zip/Compress/PKImplode/b/g_x64/PKImplode.dll bin/Codecs/
-        make -C CPP/7zip/Compress/Bcm -f ../../cmpl_gcc_x64.mak mkdir && make -C CPP/7zip/Compress/Bcm -f ../../cmpl_gcc_x64.mak SystemDrive=1 RC=x86_64-w64-mingw32-windres CROSS_COMPILE=x86_64-w64-mingw32- -j16
-        cp CPP/7zip/Compress/Bcm/b/g_x64/Bcm.dll bin/Codecs/
-        make -C CPP/7zip/Compress/Balz -f ../../cmpl_gcc_x64.mak mkdir && make -C CPP/7zip/Compress/Balz -f ../../cmpl_gcc_x64.mak SystemDrive=1 RC=x86_64-w64-mingw32-windres CROSS_COMPILE=x86_64-w64-mingw32- -j16
-        cp CPP/7zip/Compress/Balz/b/g_x64/Balz.dll bin/Codecs/
-        make -C CPP/7zip/Compress/Md5 -f ../../cmpl_gcc_x64.mak mkdir && make -C CPP/7zip/Compress/Md5 -f ../../cmpl_gcc_x64.mak SystemDrive=1 RC=x86_64-w64-mingw32-windres CROSS_COMPILE=x86_64-w64-mingw32- -j16
-        cp CPP/7zip/Compress/Md5/b/g_x64/Md5.dll bin/Codecs/
-        make -C CPP/7zip/Compress/Sha512 -f ../../cmpl_gcc_x64.mak mkdir && make -C CPP/7zip/Compress/Sha512 -f ../../cmpl_gcc_x64.mak SystemDrive=1 RC=x86_64-w64-mingw32-windres CROSS_COMPILE=x86_64-w64-mingw32- -j16
-        cp CPP/7zip/Compress/Sha512/b/g_x64/Sha512.dll bin/Codecs/
-        make -C CPP/7zip/Compress/Xxh64 -f ../../cmpl_gcc_x64.mak mkdir && make -C CPP/7zip/Compress/Xxh64 -f ../../cmpl_gcc_x64.mak SystemDrive=1 RC=x86_64-w64-mingw32-windres CROSS_COMPILE=x86_64-w64-mingw32- -j16
-        cp CPP/7zip/Compress/Xxh64/b/g_x64/Xxh64.dll bin/Codecs/
-        make -C CPP/7zip/Compress/Blake3 -f ../../cmpl_gcc_x64.mak mkdir && make -C CPP/7zip/Compress/Blake3 -f ../../cmpl_gcc_x64.mak SystemDrive=1 RC=x86_64-w64-mingw32-windres CROSS_COMPILE=x86_64-w64-mingw32- -j16
-        cp CPP/7zip/Compress/Blake3/b/g_x64/Blake3.dll bin/Codecs/
+
+        export CMPL=cmpl_gcc_x64
+        export OUTDIR=g_x64
+        export FLAGS="SystemDrive=1 RC=x86_64-w64-mingw32-windres CROSS_COMPILE=x86_64-w64-mingw32-"
+        ./build_win.sh
     - name: Build (Win32)
       if: ${{ matrix.os == 'ubuntu-20.04' && matrix.mode == 'win32' }}
       shell: bash
       run: |
         sudo apt update
         sudo apt install mingw-w64 -y
-        mkdir -p bin/Codecs
-        make -C CPP/7zip/Bundles/Alone -f ../../cmpl_gcc_x86.mak mkdir && make -C CPP/7zip/Bundles/Alone -f ../../cmpl_gcc_x86.mak SystemDrive=1 RC=i686-w64-mingw32-windres CROSS_COMPILE=i686-w64-mingw32- -j16
-        cp CPP/7zip/Bundles/Alone/b/g_x86/7za.exe bin/
-        make -C CPP/7zip/Bundles/Alone2 -f ../../cmpl_gcc_x86.mak mkdir && make -C CPP/7zip/Bundles/Alone2 -f ../../cmpl_gcc_x86.mak SystemDrive=1 RC=i686-w64-mingw32-windres CROSS_COMPILE=i686-w64-mingw32- DISABLE_RAR_COMPRESS=1 DISABLE_PKIMPLODE_COMPRESS=1 -j16
-        cp CPP/7zip/Bundles/Alone2/b/g_x86/7zz.exe bin/
-        make -C CPP/7zip/Bundles/Alone7z -f ../../cmpl_gcc_x86.mak mkdir && make -C CPP/7zip/Bundles/Alone7z -f ../../cmpl_gcc_x86.mak SystemDrive=1 RC=i686-w64-mingw32-windres CROSS_COMPILE=i686-w64-mingw32- -j16
-        cp CPP/7zip/Bundles/Alone7z/b/g_x86/7zr.exe bin/
-        make -C CPP/7zip/Bundles/Format7zF -f ../../cmpl_gcc_x86.mak mkdir && make -C CPP/7zip/Bundles/Format7zF -f ../../cmpl_gcc_x86.mak SystemDrive=1 RC=i686-w64-mingw32-windres CROSS_COMPILE=i686-w64-mingw32- DISABLE_RAR_COMPRESS=1 DISABLE_PKIMPLODE_COMPRESS=1 -j16
-        cp CPP/7zip/Bundles/Format7zF/b/g_x86/7z.dll bin/
-        make -C CPP/7zip/Bundles/SFXCon -f ../../cmpl_gcc_x86.mak mkdir && make -C CPP/7zip/Bundles/SFXCon -f ../../cmpl_gcc_x86.mak SystemDrive=1 RC=i686-w64-mingw32-windres CROSS_COMPILE=i686-w64-mingw32- -j16
-        cp CPP/7zip/Bundles/SFXCon/b/g_x86/7zCon.sfx.exe bin/7zCon.sfx
-        make -C CPP/7zip/UI/Client7z -f ../../cmpl_gcc_x86.mak mkdir && make -C CPP/7zip/UI/Client7z -f ../../cmpl_gcc_x86.mak SystemDrive=1 RC=i686-w64-mingw32-windres CROSS_COMPILE=i686-w64-mingw32- -j16
-        cp CPP/7zip/UI/Client7z/b/g_x86/7zcl.exe bin/
-        make -C CPP/7zip/UI/Console -f ../../cmpl_gcc_x86.mak mkdir && make -C CPP/7zip/UI/Console -f ../../cmpl_gcc_x86.mak SystemDrive=1 RC=i686-w64-mingw32-windres CROSS_COMPILE=i686-w64-mingw32- -j16
-        cp CPP/7zip/UI/Console/b/g_x86/7z.exe bin/
-        make -C C/Util/7z -f ../../../CPP/7zip/cmpl_gcc_x86.mak mkdir && make -C C/Util/7z -f ../../../CPP/7zip/cmpl_gcc_x86.mak SystemDrive=1 RC=i686-w64-mingw32-windres CROSS_COMPILE=i686-w64-mingw32- -j16
-        cp C/Util/7z/b/g_x86/7zdec.exe bin/
-        make -C C/Util/Lzma -f ../../../CPP/7zip/cmpl_gcc_x86.mak mkdir && make -C C/Util/Lzma -f ../../../CPP/7zip/cmpl_gcc_x86.mak SystemDrive=1 RC=i686-w64-mingw32-windres CROSS_COMPILE=i686-w64-mingw32- -j16
-        cp C/Util/Lzma/b/g_x86/7lzma.exe bin/
-        make -C CPP/7zip/Compress/Rar -f ../../cmpl_gcc_x86.mak mkdir && make -C CPP/7zip/Compress/Rar -f ../../cmpl_gcc_x86.mak SystemDrive=1 RC=i686-w64-mingw32-windres CROSS_COMPILE=i686-w64-mingw32- -j16
-        cp CPP/7zip/Compress/Rar/b/g_x86/Rar.dll bin/Codecs/
-        make -C CPP/7zip/Compress/Zstd -f ../../cmpl_gcc_x86.mak mkdir && make -C CPP/7zip/Compress/Zstd -f ../../cmpl_gcc_x86.mak SystemDrive=1 RC=i686-w64-mingw32-windres CROSS_COMPILE=i686-w64-mingw32- -j16
-        cp CPP/7zip/Compress/Zstd/b/g_x86/Zstd.dll bin/Codecs/
-        make -C CPP/7zip/Compress/Lz4 -f ../../cmpl_gcc_x86.mak mkdir && make -C CPP/7zip/Compress/Lz4 -f ../../cmpl_gcc_x86.mak SystemDrive=1 RC=i686-w64-mingw32-windres CROSS_COMPILE=i686-w64-mingw32- -j16
-        cp CPP/7zip/Compress/Lz4/b/g_x86/Lz4.dll bin/Codecs/
-        make -C CPP/7zip/Compress/Lz5 -f ../../cmpl_gcc_x86.mak mkdir && make -C CPP/7zip/Compress/Lz5 -f ../../cmpl_gcc_x86.mak SystemDrive=1 RC=i686-w64-mingw32-windres CROSS_COMPILE=i686-w64-mingw32- -j16
-        cp CPP/7zip/Compress/Lz5/b/g_x86/Lz5.dll bin/Codecs/
-        make -C CPP/7zip/Compress/Lizard -f ../../cmpl_gcc_x86.mak mkdir && make -C CPP/7zip/Compress/Lizard -f ../../cmpl_gcc_x86.mak SystemDrive=1 RC=i686-w64-mingw32-windres CROSS_COMPILE=i686-w64-mingw32- -j16
-        cp CPP/7zip/Compress/Lizard/b/g_x86/Lizard.dll bin/Codecs/
-        make -C CPP/7zip/Compress/Brotli -f ../../cmpl_gcc_x86.mak mkdir && make -C CPP/7zip/Compress/Brotli -f ../../cmpl_gcc_x86.mak SystemDrive=1 RC=i686-w64-mingw32-windres CROSS_COMPILE=i686-w64-mingw32- -j16
-        cp CPP/7zip/Compress/Brotli/b/g_x86/Brotli.dll bin/Codecs/
-        make -C CPP/7zip/Compress/FLzma2 -f ../../cmpl_gcc_x86.mak mkdir && make -C CPP/7zip/Compress/FLzma2 -f ../../cmpl_gcc_x86.mak SystemDrive=1 RC=i686-w64-mingw32-windres CROSS_COMPILE=i686-w64-mingw32- -j16
-        cp CPP/7zip/Compress/FLzma2/b/g_x86/FLzma2.dll bin/Codecs/
-        make -C CPP/7zip/Compress/Lzham -f ../../cmpl_gcc_x86.mak mkdir && make -C CPP/7zip/Compress/Lzham -f ../../cmpl_gcc_x86.mak SystemDrive=1 RC=i686-w64-mingw32-windres CROSS_COMPILE=i686-w64-mingw32- -j16
-        cp CPP/7zip/Compress/Lzham/b/g_x86/Lzham.dll bin/Codecs/
-        make -C CPP/7zip/Compress/PKImplode -f ../../cmpl_gcc_x86.mak mkdir && make -C CPP/7zip/Compress/PKImplode -f ../../cmpl_gcc_x86.mak SystemDrive=1 RC=i686-w64-mingw32-windres CROSS_COMPILE=i686-w64-mingw32- -j16
-        cp CPP/7zip/Compress/PKImplode/b/g_x86/PKImplode.dll bin/Codecs/
-        make -C CPP/7zip/Compress/Bcm -f ../../cmpl_gcc_x86.mak mkdir && make -C CPP/7zip/Compress/Bcm -f ../../cmpl_gcc_x86.mak SystemDrive=1 RC=i686-w64-mingw32-windres CROSS_COMPILE=i686-w64-mingw32- -j16
-        cp CPP/7zip/Compress/Bcm/b/g_x86/Bcm.dll bin/Codecs/
-        make -C CPP/7zip/Compress/Balz -f ../../cmpl_gcc_x86.mak mkdir && make -C CPP/7zip/Compress/Balz -f ../../cmpl_gcc_x86.mak SystemDrive=1 RC=i686-w64-mingw32-windres CROSS_COMPILE=i686-w64-mingw32- -j16
-        cp CPP/7zip/Compress/Balz/b/g_x86/Balz.dll bin/Codecs/
-        make -C CPP/7zip/Compress/Md5 -f ../../cmpl_gcc_x86.mak mkdir && make -C CPP/7zip/Compress/Md5 -f ../../cmpl_gcc_x86.mak SystemDrive=1 RC=i686-w64-mingw32-windres CROSS_COMPILE=i686-w64-mingw32- -j16
-        cp CPP/7zip/Compress/Md5/b/g_x86/Md5.dll bin/Codecs/
-        make -C CPP/7zip/Compress/Sha512 -f ../../cmpl_gcc_x86.mak mkdir && make -C CPP/7zip/Compress/Sha512 -f ../../cmpl_gcc_x86.mak SystemDrive=1 RC=i686-w64-mingw32-windres CROSS_COMPILE=i686-w64-mingw32- -j16
-        cp CPP/7zip/Compress/Sha512/b/g_x86/Sha512.dll bin/Codecs/
-        make -C CPP/7zip/Compress/Xxh64 -f ../../cmpl_gcc_x86.mak mkdir && make -C CPP/7zip/Compress/Xxh64 -f ../../cmpl_gcc_x86.mak SystemDrive=1 RC=i686-w64-mingw32-windres CROSS_COMPILE=i686-w64-mingw32- -j16
-        cp CPP/7zip/Compress/Xxh64/b/g_x86/Xxh64.dll bin/Codecs/
-        make -C CPP/7zip/Compress/Blake3 -f ../../cmpl_gcc_x86.mak mkdir && make -C CPP/7zip/Compress/Blake3 -f ../../cmpl_gcc_x86.mak SystemDrive=1 RC=i686-w64-mingw32-windres CROSS_COMPILE=i686-w64-mingw32- -j16
-        cp CPP/7zip/Compress/Blake3/b/g_x86/Blake3.dll bin/Codecs/
+
+        export CMPL=cmpl_gcc_x86
+        export OUTDIR=g_x86
+        export FLAGS="SystemDrive=1 RC=i686-w64-mingw32-windres CROSS_COMPILE=i686-w64-mingw32-"
+        ./build_win.sh
     - name: Upload (Linux/GCC-x64)
       if: ${{ matrix.os == 'ubuntu-20.04' && matrix.mode == 'gcc-x64' }}
       uses: actions/upload-artifact@v2
@@ -418,6 +139,12 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: linux-clang
+        path: bin
+    - name: Upload (Linux/android-aarch64)
+      if: ${{ matrix.os == 'ubuntu-20.04' && matrix.mode == 'android-aarch64' }}
+      uses: actions/upload-artifact@v2
+      with:
+        name: android-aarch64
         path: bin
     - name: Upload (macOS)
       if: ${{ matrix.os == 'macos-latest' }}
