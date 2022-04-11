@@ -54,6 +54,10 @@ endif
 endif
 endif
 
+ifneq ($(findstring android,$(CC)),)
+LDFLAGS_STATIC_2 = -stdlib=libc++ -static-libstdc++
+endif
+
 LDFLAGS_STATIC = -DNDEBUG $(LDFLAGS_STATIC_2)
 
 ifndef O

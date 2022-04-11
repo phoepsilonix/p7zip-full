@@ -56,6 +56,7 @@ jobs:
         export CMPL=cmpl_gcc_x64
         export OUTDIR=g_x64
         export FLAGS=""
+        export CFLAGS_ADDITIONAL=""
         ./build_linux.sh
     - name: Build (Linux/GCC-x86)
       if: ${{ matrix.os == 'ubuntu-20.04' && matrix.mode == 'gcc-x86' }}
@@ -69,6 +70,7 @@ jobs:
         export CMPL=cmpl_gcc_x86
         export OUTDIR=g_x86
         export FLAGS="CROSS_COMPILE=i686-linux-gnu-"
+        export CFLAGS_ADDITIONAL=""
         ./build_linux.sh
     - name: Build (Linux/Clang)
       if: ${{ matrix.os == 'ubuntu-20.04' && matrix.mode == 'clang' }}
@@ -76,6 +78,7 @@ jobs:
         export CMPL=cmpl_clang_x64
         export OUTDIR=c_x64
         export FLAGS=""
+        export CFLAGS_ADDITIONAL=""
         ./build_linux.sh
     - name: Build (Linux/android-aarch64)
       if: ${{ matrix.os == 'ubuntu-20.04' && matrix.mode == 'android-aarch64' }}
@@ -90,7 +93,8 @@ jobs:
         # it seems (on clang) -march=armv8-a+crypto must be specified on command line or __ARM_FEATURE_CRYPTO will not be enabled.
         export CMPL=cmpl_clang_arm64
         export OUTDIR=c_arm64
-        export FLAGS="CROSS_COMPILE=${TARGET}${API}- CFLAGS_ADDITIONAL=-march=armv8-a+crypto -Wno-error"
+        export FLAGS="CROSS_COMPILE=${TARGET}${API}-"
+        export CFLAGS_ADDITIONAL="-march=armv8-a+crypto -Wno-error"
         ./build_linux.sh
     - name: Build (macOS)
       if: ${{ matrix.os == 'macos-latest' }}
@@ -111,6 +115,7 @@ jobs:
         export CMPL=cmpl_gcc_x64
         export OUTDIR=g_x64
         export FLAGS="SystemDrive=1 RC=x86_64-w64-mingw32-windres CROSS_COMPILE=x86_64-w64-mingw32-"
+        export CFLAGS_ADDITIONAL=""
         ./build_win.sh
     - name: Build (Win32)
       if: ${{ matrix.os == 'ubuntu-20.04' && matrix.mode == 'win32' }}
@@ -122,6 +127,7 @@ jobs:
         export CMPL=cmpl_gcc_x86
         export OUTDIR=g_x86
         export FLAGS="SystemDrive=1 RC=i686-w64-mingw32-windres CROSS_COMPILE=i686-w64-mingw32-"
+        export CFLAGS_ADDITIONAL=""
         ./build_win.sh
     - name: Upload (Linux/GCC-x64)
       if: ${{ matrix.os == 'ubuntu-20.04' && matrix.mode == 'gcc-x64' }}
