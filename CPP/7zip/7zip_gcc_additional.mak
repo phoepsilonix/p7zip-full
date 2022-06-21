@@ -2,10 +2,6 @@ ifneq ($(findstring mingw32,$(CC)),)
   DCMAKE_SYSTEM_NAME := -DCMAKE_SYSTEM_NAME=Windows
 endif
 
-ifneq ($(findstring linux,$(CC)),)
-  DCMAKE_SYSTEM_NAME := -DCMAKE_SYSTEM_NAME=Linux
-endif
-
 # Build MT API 
 $O/lz4-mt_common.o: ../../../../Codecs/zstdmt/lib/lz4-mt_common.c
 	$(CC) $(CFLAGS) $< -I ../../../../Codecs/lz4/lib

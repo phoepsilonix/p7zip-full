@@ -7,7 +7,6 @@
 #include <unistd.h>
 #include <errno.h>
 #include "../../Windows/FileFind.h"
-#include "../../Windows/TimeUtils.h"
 #endif
 
 #ifdef SUPPORT_DEVICE_FILE
@@ -348,11 +347,6 @@ STDMETHODIMP CInFileStream::GetProps(UInt64 *size, FILETIME *cTime, FILETIME *aT
     return GetLastError_HRESULT();
 
   if (size) *size = (UInt64)st.st_size;
-  #ifdef NOTIMESPEC
-  if (cTime) NWindows::NTime::UnixTimeToFileTime(st.st_ctime, *cTime);
-  if (aTime) NWindows::NTime::UnixTimeToFileTime(st.st_atime, *aTime);
-  if (mTime) NWindows::NTime::UnixTimeToFileTime(st.st_mtime, *mTime);
-  #else
   #ifdef __APPLE__
   if (cTime) NWindows::NFile::NFind::timespec_To_FILETIME(st.st_ctimespec, *cTime);
   if (aTime) NWindows::NFile::NFind::timespec_To_FILETIME(st.st_atimespec, *aTime);
@@ -361,7 +355,6 @@ STDMETHODIMP CInFileStream::GetProps(UInt64 *size, FILETIME *cTime, FILETIME *aT
   if (cTime) NWindows::NFile::NFind::timespec_To_FILETIME(st.st_ctim, *cTime);
   if (aTime) NWindows::NFile::NFind::timespec_To_FILETIME(st.st_atim, *aTime);
   if (mTime) NWindows::NFile::NFind::timespec_To_FILETIME(st.st_mtim, *mTime);
-  #endif
   #endif
   if (attrib) *attrib = NWindows::NFile::NFind::Get_WinAttribPosix_From_PosixMode(st.st_mode);
 
@@ -388,11 +381,6 @@ STDMETHODIMP CInFileStream::GetProps2(CStreamFileProps *props)
   props->NumLinks = (UInt32)st.st_nlink; // we reduce to UInt32 from (nlink_t) that is (unsigned long)
   props->Attrib = NWindows::NFile::NFind::Get_WinAttribPosix_From_PosixMode(st.st_mode);
 
-  #ifdef NOTIMESPEC
-  NWindows::NTime::UnixTimeToFileTime(st.st_ctime, props->CTime);
-  NWindows::NTime::UnixTimeToFileTime(st.st_atime, props->ATime);
-  NWindows::NTime::UnixTimeToFileTime(st.st_mtime,props->MTime);
-  #else
   #ifdef __APPLE__
   NWindows::NFile::NFind::timespec_To_FILETIME(st.st_ctimespec, props->CTime);
   NWindows::NFile::NFind::timespec_To_FILETIME(st.st_atimespec, props->ATime);
@@ -401,7 +389,6 @@ STDMETHODIMP CInFileStream::GetProps2(CStreamFileProps *props)
   NWindows::NFile::NFind::timespec_To_FILETIME(st.st_ctim, props->CTime);
   NWindows::NFile::NFind::timespec_To_FILETIME(st.st_atim, props->ATime);
   NWindows::NFile::NFind::timespec_To_FILETIME(st.st_mtim, props->MTime);
-  #endif
   #endif
 
   /*

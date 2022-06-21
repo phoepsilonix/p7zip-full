@@ -957,7 +957,7 @@ static bool FILETME_To_timespec(const FILETIME *ft, timespec &ts)
 bool SetDirTime(CFSTR path, const FILETIME *cTime, const FILETIME *aTime, const FILETIME *mTime)
 {
   // need testing
-#ifndef UTIMENSAT
+#if 1
   struct utimbuf buf;
   struct stat st;
   UNUSED_VAR(cTime)
