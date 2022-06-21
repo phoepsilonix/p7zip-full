@@ -920,7 +920,6 @@ bool GetCurrentDir(FString &path)
   // #define UTIME_OMIT -2
 #endif
 
-#if 0
 static bool FILETME_To_timespec(const FILETIME *ft, timespec &ts)
 {
   if (ft)
@@ -949,7 +948,6 @@ static bool FILETME_To_timespec(const FILETIME *ft, timespec &ts)
     return false;
   }
 }
-#endif
 
 
 
@@ -957,7 +955,7 @@ static bool FILETME_To_timespec(const FILETIME *ft, timespec &ts)
 bool SetDirTime(CFSTR path, const FILETIME *cTime, const FILETIME *aTime, const FILETIME *mTime)
 {
   // need testing
-#if 1
+  /*
   struct utimbuf buf;
   struct stat st;
   UNUSED_VAR(cTime)
@@ -992,9 +990,9 @@ bool SetDirTime(CFSTR path, const FILETIME *cTime, const FILETIME *aTime, const 
   }
 
   return utime(path, &buf) == 0;
-#else
+  */
 
-  if (!aTime && !mTime) return true;
+  // if (!aTime && !mTime) return true;
 
   struct timespec times[2];
   UNUSED_VAR(cTime)
@@ -1009,7 +1007,6 @@ bool SetDirTime(CFSTR path, const FILETIME *cTime, const FILETIME *aTime, const 
   const int flags = 0; // follow link
     // = AT_SYMLINK_NOFOLLOW; // don't follow link
   return utimensat(AT_FDCWD, path, times, flags) == 0;
-#endif
 }
 
 
