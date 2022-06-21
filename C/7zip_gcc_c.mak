@@ -89,8 +89,8 @@ DEL_OBJ_EXE = -$(RM) $(PROGPATH) $(PROGPATH_STATIC) $(OBJS)
 endif
 
 
-
-CFLAGS = $(LOCAL_FLAGS) $(CFLAGS_BASE2) $(CFLAGS_BASE) -std=c99 $(CC_SHARED) -o $@
+# gnu99 for utimensat
+CFLAGS = $(LOCAL_FLAGS) $(CFLAGS_BASE2) $(CFLAGS_BASE) -std=gnu99 $(CC_SHARED) -o $@
 
 
 ifdef IS_MINGW
