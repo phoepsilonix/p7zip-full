@@ -920,7 +920,7 @@ bool GetCurrentDir(FString &path)
   // #define UTIME_OMIT -2
 #endif
 
-#ifdef UTIMENSAT
+#if 0
 static bool FILETME_To_timespec(const FILETIME *ft, timespec &ts)
 {
   if (ft)
