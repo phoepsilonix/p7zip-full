@@ -16,8 +16,6 @@
 #endif
 #endif
 
-#endif
-
 #ifndef _7ZIP_ST
 #include "../../../Windows/Synchronization.h"
 #endif
