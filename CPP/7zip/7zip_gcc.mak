@@ -33,6 +33,11 @@ CFLAGS_BASE = -O2 $(CFLAGS_BASE_LIST) $(CFLAGS_WARN_WALL) $(CFLAGS_WARN) \
 
 ifdef SystemDrive
 IS_MINGW = 1
+else
+ifdef SYSTEMDRIVE
+# ifdef OS
+IS_MINGW = 1
+endif
 endif
 
 ifdef IS_MINGW
@@ -103,21 +108,30 @@ PROGPATH_STATIC = $(O)/$(PROG)s$(SHARED_EXT)
 	
 ifdef IS_MINGW
 
-# RM = del
+ifdef MSYSTEM
 RM = rm -rf
 MY_MKDIR=mkdir -p
-LIB2_GUI = -lole32 -lgdi32 -lcomctl32 -lcomdlg32
+DEL_OBJ_EXE = -$(RM) $(PROGPATH) $(PROGPATH_STATIC) $(OBJS)
+LIB_HTMLHELP=-lhtmlhelp
+else
+RM = del
+MY_MKDIR=mkdir
+DEL_OBJ_EXE = -$(RM) $(O)\*.o $(O)\$(PROG).exe $(O)\$(PROG).dll
+endif
+
+LIB2_GUI = -lole32 -lgdi32 -lcomctl32 -lcomdlg32 $(LIB_HTMLHELP)
 LIB2 = -loleaut32 -luuid -ladvapi32 -luser32 $(LIB2_GUI)
 
 CXXFLAGS_EXTRA = -DUNICODE -D_UNICODE
 # -Wno-delete-non-virtual-dtor
 
-DEL_OBJ_EXE = -$(RM) $(O)/*.o $(O)/*.a $(O)/$(PROG).exe $(O)/$(PROG).dll
  
 else
 
 RM = rm -rf
 MY_MKDIR=mkdir -p
+DEL_OBJ_EXE = -$(RM) $(PROGPATH) $(PROGPATH_STATIC) $(OBJS)
+
 # CFLAGS_BASE := $(CFLAGS_BASE) -D_7ZIP_ST
 # CXXFLAGS_EXTRA = -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE
 
@@ -125,9 +139,6 @@ MY_MKDIR=mkdir -p
 # LOCAL_LIBS_DLL=$(LOCAL_LIBS) -ldl
 LIB2 = -pthread -ldl
 
-
-
-DEL_OBJ_EXE = -$(RM) $(PROGPATH) $(PROGPATH_STATIC) $(OBJS)
 
 endif
 

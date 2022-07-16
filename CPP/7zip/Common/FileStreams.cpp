@@ -11,7 +11,7 @@
 #include <grp.h>
 #include <pwd.h>
 
-// for major minor
+// for major()/minor():
 #if defined(__APPLE__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__bsdi__) || defined(__DragonFly__)
 #include <sys/types.h>
 #else

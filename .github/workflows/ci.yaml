@@ -114,7 +114,7 @@ jobs:
 
         export CMPL=cmpl_gcc_x64
         export OUTDIR=g_x64
-        export FLAGS="SystemDrive=1 RC=x86_64-w64-mingw32-windres CROSS_COMPILE=x86_64-w64-mingw32-"
+        export FLAGS="MSYSTEM=1 SystemDrive=1 RC=x86_64-w64-mingw32-windres CROSS_COMPILE=x86_64-w64-mingw32-"
         export CFLAGS_ADDITIONAL=""
         ./build_win.sh
     - name: Build (Win32)
@@ -126,7 +126,7 @@ jobs:
 
         export CMPL=cmpl_gcc_x86
         export OUTDIR=g_x86
-        export FLAGS="SystemDrive=1 RC=i686-w64-mingw32-windres CROSS_COMPILE=i686-w64-mingw32-"
+        export FLAGS="MSYSTEM=1 SystemDrive=1 RC=i686-w64-mingw32-windres CROSS_COMPILE=i686-w64-mingw32-"
         export CFLAGS_ADDITIONAL=""
         ./build_win.sh
     - name: Upload (Linux/GCC-x64)
