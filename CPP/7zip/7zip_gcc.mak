@@ -112,7 +112,8 @@ ifdef MSYSTEM
 RM = rm -rf
 MY_MKDIR=mkdir -p
 DEL_OBJ_EXE = -$(RM) $(PROGPATH) $(PROGPATH_STATIC) $(OBJS)
-LIB_HTMLHELP=-lhtmlhelp
+LIB_HTMLHELP=
+#-lhtmlhelp
 else
 RM = del
 MY_MKDIR=mkdir
