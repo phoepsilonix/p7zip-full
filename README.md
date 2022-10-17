@@ -1,3 +1,16 @@
+This repository's goal was these:
+
+- to provide automated p7zip binary generator for Windows / macOS (x86-64/arm64) / Linux / Android
+- to provide standalone Codecs plugin for PKImplode / BALZ / BCM
+
+These goals have been already acheived. You can put Codecs directory to the same directory as 7z.so/dll (from official 7-zip or jinfeihan57/p7zip).
+
+I'd like to have these patch merged into jinfeihan57/p7zip, but I had issue in resolving conflict, so I have given up.
+
+This repo has been archived (might be temporary unarchived when I got interested but it will happen rarely).
+
+----
+
 Refer https://github.com/cielavenir/p7zip/blob/main/.github/workflows/ci.yaml for building manually.
 
 # 7zz with extension method
