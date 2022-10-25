@@ -48,6 +48,10 @@ This is the place for 7zz (Well known as 7zip-21.02 Linux version) to include ma
    
 1. [PKImplode] is LZ variant used in PKZIP. Implementation adopted from StormLib 9.24.
 
+1. [BALZ] is ROLZ based compressor.
+
+1. [BCM] is BWT+CM based compressor.
+
 ## Build Binary
 #### (Currently only supports CLI, if you want to do GUI please contact us)
 1. Download src:
