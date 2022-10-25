@@ -7,6 +7,8 @@ These goals have been already acheived. You can put Codecs directory to the same
 
 I'd like to have these patch merged into jinfeihan57/p7zip, but I had issue in resolving conflict, so I have given up.
 
+Excuse: to utilize git's 3-way merge, I have suggested https://github.com/jinfeihan57/p7zip/issues/179 , but it was not adopted.
+
 This repo has been archived (might be temporary unarchived when I got interested but it will happen rarely).
 
 ----
