@@ -16,7 +16,7 @@ This repo has been archived (might be temporary unarchived when I got interested
 Refer https://github.com/cielavenir/p7zip/blob/main/.github/workflows/ci.yaml for building manually.
 
 # 7zz with extension method
-This is the place for 7zz (Well known as 7zip-21.02 Linux version) to include major modern codecs such as Brotli, Fast LZMA2, LZ4, LZ5, Lizard and Zstd. In order to support multithreading for those addional codecs, this project depends on the [Multithreading Library](https://github.com/mcmilk/zstdmt).
+This is the place for 7zz (Well known as 7zip-22.01 Linux version) to include major modern codecs such as Brotli, Fast LZMA2, LZ4, LZ5, Lizard and Zstd. In order to support multithreading for those addional codecs, this project depends on the [Multithreading Library](https://github.com/mcmilk/zstdmt).
 
 ## Codec overview
 1. [Zstandard] v1.5.2 is a real-time compression algorithm, providing high compression ratios. It offers a very wide range of compression / speed trade-off, while being backed by a very fast decoder.
@@ -46,11 +46,11 @@ This is the place for 7zz (Well known as 7zip-21.02 Linux version) to include ma
    - Level: 9 best compression
    - Level: 10 best with extreme parsing (can be very slow) NOT RECOMMEND
    
-1. [PKImplode] is LZ variant used in PKZIP. Implementation adopted from StormLib 9.24.
+1. PKImplode is LZ variant used in PKZIP. Implementation adopted from [StormLib] 9.24.
 
 1. [BALZ] is ROLZ based compressor.
 
-1. [BCM] is BWT+CM based compressor.
+1. BCM v1.60 is BWT+CM based compressor.
 
 ## Build Binary
 #### (Currently only supports CLI, if you want to do GUI please contact us)
@@ -209,13 +209,17 @@ Hashers:
 
 ## Version Information
 
-- 7zz Version 21.02 alpha
-  - [LZ4] Version 1.9.3
-  - [Zstandard] Version 1.5.0
+- 7zz Version 22.01
+  - [LZ4] Version 1.9.4
+  - [Zstandard] Version 1.5.2
   - [Fast LZMA2] Version v1.0.1
   - [Brotli] Version v1.0.9
   - [LZ5] Version v1.5
   - [Lizard] Version 1.0
+  - [LZHAM] Version 1.1
+  - [StormLib] Version 9.24
+  - [BALZ] Version 1.20
+  - BCM Version 1.60
 
 ## Working Plan
  - [check here]()
@@ -227,3 +231,5 @@ Hashers:
 [Brotli]:https://github.com/google/brotli/
 [LZ5]:https://github.com/inikep/lz5/
 [Lizard]:https://github.com/inikep/lizard/
+[StormLib]:https://github.com/ladislav-zezula/StormLib
+[BALZ]:https://sourceforge.net/projects/balz/
