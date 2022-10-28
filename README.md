@@ -1,3 +1,7 @@
+Retrying to contact jinfeihan57 by https://github.com/jinfeihan57/p7zip/issues/179#issuecomment-1294270250 , let's see how it will go...
+
+----
+
 This repository's goal was these:
 
 - to provide automated p7zip binary generator for Windows / macOS (x86-64/arm64) / Linux / Android
