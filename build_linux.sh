@@ -3,6 +3,15 @@ set -e
 
 CMPL=${CMPL:-cmpl_gcc_x64}
 OUTDIR=${OUTDIR:-g_x64}
+CPPFLAGS="-Wp,-D_FORTIFY_SOURCE=2 -D_FORTIFY_SOURCE=2"
+if [[ $CC == "clang" ]];then
+CFLAGS_ADD="$CPPFLAGS -march=x86-64 -mtune=generic -O2 -pipe -fno-plt -fexceptions -Wformat -Werror=format-security -Wtautological-compare -g -gdwarf-5 -gz -fPIC -fPIE -fpie -ffunction-sections -fdata-sections -fcf-protection -fstack-protector-all -fstack-clash-protection -fno-sanitize-recover=all -U_FORTIFY_SOURCE -fstack-protector -ftrapv -Wformat-security -fcf-protection=full -flto=full"
+LDFLAGS_ADD="-fuse-ld=lld -fPIC -fPIE -pie -Wl,-z,noexecstack -fno-plt -Wl,--gc-sections,-z,relro,-z,now,-z,combreloc,-z,notext -flto=full"
+else
+CFLAGS_ADD="$CPPFLAGS -march=x86-64 -mtune=generic -O2 -pipe -fno-plt -fexceptions -Wformat -Werror=format-security -Wtautological-compare -g -gdwarf-5 -gz -fPIC -fPIE -fpie -ffunction-sections -fdata-sections -fcf-protection -fstack-protector-all -fstack-clash-protection -fno-sanitize-recover=all -U_FORTIFY_SOURCE -fstack-protector -ftrapv -Wformat-security -fcf-protection=full -flto=auto"
+LDFLAGS_ADD="-fuse-ld=lld -fPIC -fPIE -pie -Wl,-z,noexecstack -fno-plt -Wl,--gc-sections,-z,relro,-z,now,-z,combreloc,-z,notext -flto=auto -fuse-linker-plugin -ffat-lto-objects"
+fi
+CXXFLAGS_ADD="$CFLAGS -Wp,-D_GLIBCXX_ASSERTIONS"
 
 mkdir -p bin/Codecs
 make -C CPP/7zip/Bundles/Alone -f ../../${CMPL}.mak mkdir && make -C CPP/7zip/Bundles/Alone -f ../../${CMPL}.mak CFLAGS_ADDITIONAL="${CFLAGS_ADDITIONAL}" ${FLAGS} -j16
