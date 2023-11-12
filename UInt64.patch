@@ -1,0 +1,34 @@
+diff --git a/fast-lzma2.h b/fast-lzma2.h
+index 1ad31fe..619dcce 100644
+--- a/fast-lzma2.h
++++ b/fast-lzma2.h
+@@ -17,6 +17,7 @@ extern "C" {
+ 
+ /* ======   Dependency   ======*/
+ #include <stddef.h>   /* size_t */
++#include "../../C/7zTypes.h"
+ 
+ 
+ /* =====   FL2LIB_API : control library symbols visibility   ===== */
+@@ -327,7 +328,7 @@ FL2LIB_API size_t FL2LIB_CALL FL2_getNextCompressedBuffer(FL2_CStream* fcs, FL2_
+  *  Returns the number of bytes processed since the stream was initialized. This is a synthetic
+  *  estimate because the match finder does not proceed sequentially through the data. If
+  *  outputSize is not NULL, returns the number of bytes of compressed data generated. */
+-FL2LIB_API unsigned long long FL2LIB_CALL FL2_getCStreamProgress(const FL2_CStream * fcs, unsigned long long *outputSize);
++FL2LIB_API UInt64 FL2LIB_CALL FL2_getCStreamProgress(const FL2_CStream * fcs, UInt64 *outputSize);
+ 
+ /*! FL2_waitCStream() :
+  *  Waits for compression to end. This function returns after the timeout set using
+diff --git a/fl2_compress.c b/fl2_compress.c
+index 0ffeab0..d05eda9 100644
+--- a/fl2_compress.c
++++ b/fl2_compress.c
+@@ -1078,7 +1078,7 @@ FL2LIB_API size_t FL2LIB_CALL FL2_getNextCompressedBuffer(FL2_CStream* fcs, FL2_
+     return cbuf->size;
+ }
+ 
+-FL2LIB_API unsigned long long FL2LIB_CALL FL2_getCStreamProgress(const FL2_CStream * fcs, unsigned long long *outputSize)
++FL2LIB_API UInt64 FL2LIB_CALL FL2_getCStreamProgress(const FL2_CStream * fcs, UInt64 *outputSize)
+ {
+     if (outputSize != NULL)
+         *outputSize = fcs->streamCsize + fcs->progressOut;

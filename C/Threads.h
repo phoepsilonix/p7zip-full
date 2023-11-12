@@ -11,7 +11,7 @@
 #if defined(__linux__)
 #if !defined(__APPLE__) && !defined(_AIX) && !defined(__ANDROID__)
 #ifndef _7ZIP_AFFINITY_DISABLE
-#define _7ZIP_AFFINITY_SUPPORTED
+//#define _7ZIP_AFFINITY_SUPPORTED
 // #pragma message(" ==== _7ZIP_AFFINITY_SUPPORTED")
 // #define _GNU_SOURCE
 #endif

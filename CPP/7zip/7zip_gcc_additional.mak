@@ -33,7 +33,8 @@ $O/threading.o: ../../../../Codecs/zstdmt/lib/threading.c
 # Build zstd lib static
 $O/libzstd.a: ../../../../Codecs/zstd/lib/zstd.h
 	$(RM) zstd_build
-	cmake -DZSTD_BUILD_STATIC=ON -DZSTD_BUILD_SHARED=OFF -DZSTD_BUILD_PROGRAMS=OFF -S ../../../../Codecs/zstd/build/cmake -B zstd_build
+	cmake -DCMAKE_LINKER="$(LD)" -DCMAKE_C_COMPILER="$(CODEC_CC)" -DCMAKE_CXX_COMPILER="$(CODEC_CXX)" \
+		-DZSTD_BUILD_STATIC=ON -DZSTD_BUILD_SHARED=OFF -DZSTD_BUILD_PROGRAMS=OFF -S ../../../../Codecs/zstd/build/cmake -B zstd_build
 	make -C zstd_build -j
 	cp zstd_build/lib/libzstd.a $O
 
@@ -52,7 +53,7 @@ $O/ZstdHandler.o: ../../Archive/ZstdHandler.cpp
 # Build lz4 lib static
 $O/liblz4.a: ../../../../Codecs/lz4/lib/lz4.h
 	$(RM) lz4_build
-	cmake $(DCMAKE_SYSTEM_NAME) -DBUILD_STATIC_LIBS=ON -DBUILD_SHARED_LIBS=OFF -DLZ4_BUILD_CLI=OFF -DLZ4_BUILD_LEGACY_LZ4C=OFF -S ../../../../Codecs/lz4/build/cmake -B lz4_build
+	cmake -DCMAKE_LINKER="$(LD)" -DCMAKE_C_COMPILER="$(CODEC_CC)" -DCMAKE_CXX_COMPILER="$(CODEC_CXX)" $(DCMAKE_SYSTEM_NAME) -DBUILD_STATIC_LIBS=ON -DBUILD_SHARED_LIBS=OFF -DLZ4_BUILD_CLI=OFF -DLZ4_BUILD_LEGACY_LZ4C=OFF -S ../../../../Codecs/lz4/build/cmake -B lz4_build
 	make -C lz4_build -j
 	cp lz4_build/liblz4.a $O
 
@@ -79,7 +80,7 @@ $O/Lz4Handler.o: ../../Archive/Lz4Handler.cpp
 $O/libbrotlienc-static.a $O/libbrotlidec-static.a: $O/libbrotlicommon-static.a
 $O/libbrotlicommon-static.a: ../../../../Codecs/brotli/c/include/brotli/decode.h
 	$(RM) brotli_build
-	cmake $(DCMAKE_SYSTEM_NAME) -S ../../../../Codecs/brotli -B brotli_build
+	cmake -DCMAKE_LINKER="$(LD)" -DCMAKE_C_COMPILER="$(CODEC_CC)" -DCMAKE_CXX_COMPILER="$(CODEC_CXX)" $(DCMAKE_SYSTEM_NAME) -S ../../../../Codecs/brotli -B brotli_build
 	make -C brotli_build -j
 	cp brotli_build/libbrotlicommon-static.a $O
 	cp brotli_build/libbrotlidec-static.a $O
@@ -137,7 +138,7 @@ $O/Lz5Handler.o: ../../Archive/Lz5Handler.cpp
 $O/liblzhamdecomp.a: $O/liblzhamcomp.a
 $O/liblzhamcomp.a: ../../../../Codecs/lzham_codec_devel/lzhamcomp/lzham_comp.h
 	$(RM) lzham_build
-	cmake $(DCMAKE_SYSTEM_NAME) -DBUILD_X64=ON -DBUILD_SHARED_LIBS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -S ../../../../Codecs/lzham_codec_devel -B lzham_build
+	cmake -DCMAKE_LINKER="$(LD)" -DCMAKE_C_COMPILER=""$(CODEC_CC_NOPIE)" $(CODEC_C_TARGET)" -DCMAKE_CXX_COMPILER=""$(CODEC_CXX_NOPIE)" $(CODEC_CXX_TARGET)" $(DCMAKE_SYSTEM_NAME) -DBUILD_X64=ON -DBUILD_SHARED_LIBS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -S ../../../../Codecs/lzham_codec_devel -B lzham_build
 	make -C lzham_build -j lzhamcomp lzhamdecomp
 	cp lzham_build/lzhamcomp/liblzhamcomp.a $O
 	cp lzham_build/lzhamdecomp/liblzhamdecomp.a $O
