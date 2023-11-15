@@ -1,12 +1,12 @@
 // InBuffer.h
 
-#ifndef __IN_BUFFER_H
-#define __IN_BUFFER_H
+#ifndef ZIP7_INC_IN_BUFFER_H
+#define ZIP7_INC_IN_BUFFER_H
 
 #include "../../Common/MyException.h"
 #include "../IStream.h"
 
-#ifndef _NO_EXCEPTIONS
+#ifndef Z7_NO_EXCEPTIONS
 struct CInBufferException: public CSystemException
 {
   CInBufferException(HRESULT errorCode): CSystemException(errorCode) {}
@@ -31,7 +31,7 @@ protected:
   Byte ReadByte_FromNewBlock();
 
 public:
-  #ifdef _NO_EXCEPTIONS
+  #ifdef Z7_NO_EXCEPTIONS
   HRESULT ErrorCode;
   #endif
   UInt32 NumExtraBytes;
@@ -42,7 +42,7 @@ public:
   // it doesn't include unused data in buffer
   // it doesn't include virtual Extra bytes after the end of real stream data
   UInt64 GetStreamSize() const { return _processedSize + (size_t)(_buf - _bufBase); }
-  
+
   // the size of virtual data that was read from this object
   // it doesn't include unused data in buffers
   // it includes any virtual Extra bytes after the end of real data
@@ -51,7 +51,7 @@ public:
   bool WasFinished() const { return _wasFinished; }
 
   void SetStream(ISequentialInStream *stream) { _stream = stream; }
-  
+
   void SetBuf(Byte *buf, size_t bufSize, size_t end, size_t pos)
   {
     _bufBase = buf;
@@ -60,15 +60,15 @@ public:
     _buf = buf + pos;
     _bufLim = buf + end;
     _wasFinished = false;
-    #ifdef _NO_EXCEPTIONS
+    #ifdef Z7_NO_EXCEPTIONS
     ErrorCode = S_OK;
     #endif
     NumExtraBytes = 0;
   }
 
   void Init() throw();
-  
-  MY_FORCE_INLINE
+
+  Z7_FORCE_INLINE
   bool ReadByte(Byte &b)
   {
     if (_buf >= _bufLim)
@@ -77,7 +77,7 @@ public:
     return true;
   }
 
-  MY_FORCE_INLINE
+  Z7_FORCE_INLINE
   bool ReadByte_FromBuf(Byte &b)
   {
     if (_buf >= _bufLim)
@@ -85,15 +85,15 @@ public:
     b = *_buf++;
     return true;
   }
-  
-  MY_FORCE_INLINE
+
+  Z7_FORCE_INLINE
   Byte ReadByte()
   {
     if (_buf >= _bufLim)
       return ReadByte_FromNewBlock();
     return *_buf++;
   }
-  
+
   size_t ReadBytes(Byte *buf, size_t size);
   size_t Skip(size_t size);
 };

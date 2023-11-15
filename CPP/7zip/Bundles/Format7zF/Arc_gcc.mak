@@ -14,7 +14,7 @@ endif
 
 ifdef ST_MODE
 
-LOCAL_FLAGS_ST = -D_7ZIP_ST
+LOCAL_FLAGS_ST = -DZ7_ST
 
 ifdef IS_MINGW
 MT_OBJS = \
@@ -37,30 +37,7 @@ MT_OBJS = \
 
 endif
 
-ADDITIONAL_CODECS_OBJS = \
-  $O/lz4-mt_common.o \
-  $O/lz4-mt_compress.o \
-  $O/lz4-mt_decompress.o \
-  $O/brotli-mt_common.o \
-  $O/brotli-mt_compress.o \
-  $O/brotli-mt_decompress.o \
-  $O/lizard-mt_common.o \
-  $O/lizard-mt_compress.o \
-  $O/lizard-mt_decompress.o \
-  $O/lz5-mt_common.o \
-  $O/lz5-mt_compress.o \
-  $O/lz5-mt_decompress.o \
-  $O/threading.o \
-  $O/lz4.o \
-  $O/lz4hc.o \
-  $O/lz4frame.o \
-  $O/xxhash.o \
-  $O/lz5.o \
-  $O/lz5hc.o \
-  $O/lz5frame.o \
-  $O/lizard_compress.o \
-  $O/lizard_decompress.o \
-  $O/lizard_frame.o \
+
 
 COMMON_OBJS = \
   $O/CRC.o \
@@ -158,11 +135,6 @@ AR_OBJS = \
   $O/XarHandler.o \
   $O/XzHandler.o \
   $O/ZHandler.o \
-  $O/ZstdHandler.o \
-  $O/LizardHandler.o \
-  $O/Lz5Handler.o \
-  $O/Lz4Handler.o \
-  $O/LzHandler.o \
 
 AR_COMMON_OBJS = \
   $O/CoderMixer2.o \
@@ -297,22 +269,6 @@ COMPRESS_OBJS = \
   $O/ZlibDecoder.o \
   $O/ZlibEncoder.o \
   $O/ZDecoder.o \
-  $O/ZstdDecoder.o \
-  $O/ZstdEncoder.o \
-  $O/ZstdRegister.o \
-  $O/Lz4Decoder.o \
-  $O/Lz4Encoder.o \
-  $O/Lz4Register.o \
-  $O/BrotliDecoder.o \
-  $O/BrotliEncoder.o \
-  $O/BrotliRegister.o \
-  $O/LizardDecoder.o \
-  $O/LizardEncoder.o \
-  $O/LizardRegister.o \
-  $O/Lz5Decoder.o \
-  $O/Lz5Encoder.o \
-  $O/Lz5Register.o \
-  $O/LzhamRegister.o \
 
 ifdef DISABLE_RAR
 DISABLE_RAR_COMPRESS=1
@@ -326,16 +282,6 @@ COMPRESS_OBJS += \
   $O/Rar3Vm.o \
   $O/Rar5Decoder.o \
   $O/RarCodecsRegister.o \
-
-endif
-
-ifndef DISABLE_PKIMPLODE_COMPRESS
-PKIMPLODE_OBJS += \
-  $O/PKImplodeDecoder.o \
-  $O/PKImplodeEncoder.o \
-  $O/PKImplodeRegister.o \
-  $O/explode.o \
-  $O/implode.o \
 
 endif
 
@@ -360,20 +306,6 @@ CRYPTO_OBJS += \
 
 endif
 
-HASHES_OBJS = \
-  $O/Md2Reg.o \
-  $O/Md4Reg.o \
-  $O/Md5Reg.o \
-  $O/Sha384Reg.o \
-  $O/Sha512Reg.o \
-  $O/XXH32Reg.o \
-  $O/XXH64Reg.o \
-  $O/Blake3Reg.o \
-  $O/md2.o \
-  $O/md4.o \
-  $O/md5.o \
-  $O/sha512.o \
-  $O/blake3.o \
 
 C_OBJS = \
   $O/7zBuf2.o \
@@ -419,30 +351,7 @@ C_OBJS = \
   $O/Sha256Opt.o \
   $O/Sha1.o \
   $O/Sha1Opt.o \
-
-FASTLZMA2_OBJS = \
-  $O/FastLzma2Register.o \
-  $O/FastLzma2Encoder.o \
-  $O/dict_buffer.o \
-  $O/fl2_common.o \
-  $O/fl2_compress.o \
-  $O/fl2_pool.o \
-  $O/fl2_threading.o \
-  $O/lzma2_enc.o \
-  $O/radix_bitpack.o \
-  $O/radix_mf.o \
-  $O/radix_struct.o \
-  $O/range_enc.o \
-  $O/fl2util.o \
-
-ZSTD_STATIC_LIB = $O/libzstd.a
-# LZ4_STATIC_LIB = $O/liblz4.a
-BROTLI_STATIC_LIB = $O/libbrotlienc-static.a \
-  $O/libbrotlidec-static.a \
-  $O/libbrotlicommon-static.a 
-# LIZARD_STATIC_LIB = $O/liblizard.a
-# LZ5_STATIC_LIB = $O/liblz5.a
-LZHAM_STATIC_LIB = $O/lzham_lib.o $O/liblzhamcomp.a $O/liblzhamdecomp.a
+  $O/SwapBytes.o \
 
 ARC_OBJS = \
   $(LZMA_DEC_OPT_OBJS) \
@@ -450,6 +359,7 @@ ARC_OBJS = \
   $(MT_OBJS) \
   $(COMMON_OBJS) \
   $(WIN_OBJS) \
+  $(7ZIP_COMMON_OBJS) \
   $(AR_OBJS) \
   $(AR_COMMON_OBJS) \
   $(7Z_OBJS) \
@@ -465,13 +375,5 @@ ARC_OBJS = \
   $(ZIP_OBJS) \
   $(COMPRESS_OBJS) \
   $(CRYPTO_OBJS) \
-  $(7ZIP_COMMON_OBJS) \
-  $(ADDITIONAL_CODECS_OBJS) \
-  $(HASHES_OBJS) \
-  $(PKIMPLODE_OBJS) \
-  $(FASTLZMA2_OBJS) \
-  $(ZSTD_STATIC_LIB) \
-  $(BROTLI_STATIC_LIB) \
-  $(LZHAM_STATIC_LIB) \
 
-
+# we need empty line after last line above

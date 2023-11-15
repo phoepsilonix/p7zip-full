@@ -575,7 +575,7 @@ HRESULT CDecoder::CodeReal(ISequentialInStream *inStream, ISequentialOutStream *
 
 
 STDMETHODIMP CDecoder::Code(ISequentialInStream *inStream, ISequentialOutStream *outStream,
-    const UInt64 *inSize, const UInt64 *outSize, ICompressProgressInfo *progress)
+    const UInt64 *inSize, const UInt64 *outSize, ICompressProgressInfo *progress) noexcept
 {
   try { return CodeReal(inStream, outStream, inSize, outSize, progress);  }
   catch(const CInBufferException &e)  { return e.ErrorCode; }
@@ -583,13 +583,13 @@ STDMETHODIMP CDecoder::Code(ISequentialInStream *inStream, ISequentialOutStream 
   catch(...) { return S_FALSE; }
 }
 
-STDMETHODIMP CDecoder::GetInStreamProcessedSize(UInt64 *value)
+STDMETHODIMP CDecoder::GetInStreamProcessedSize(UInt64 *value) noexcept
 {
   *value = processedIn;
   return S_OK;
 }
 
-STDMETHODIMP CEncoder::SetCoderProperties(const PROPID * propIDs, const PROPVARIANT * coderProps, UInt32 numProps)
+STDMETHODIMP CEncoder::SetCoderProperties(const PROPID * propIDs, const PROPVARIANT * coderProps, UInt32 numProps) noexcept
 {
   for (UInt32 i = 0; i < numProps; i++){
 	const PROPVARIANT & prop = coderProps[i];
@@ -626,7 +626,7 @@ HRESULT CEncoder::CodeReal(ISequentialInStream *inStream, ISequentialOutStream *
 
 
 STDMETHODIMP CEncoder::Code(ISequentialInStream *inStream, ISequentialOutStream *outStream,
-    const UInt64 *inSize, const UInt64 *outSize, ICompressProgressInfo *progress)
+    const UInt64 *inSize, const UInt64 *outSize, ICompressProgressInfo *progress) noexcept
 {
   try { return CodeReal(inStream, outStream, inSize, outSize, progress);  }
   catch(const CInBufferException &e)  { return e.ErrorCode; }
@@ -634,7 +634,7 @@ STDMETHODIMP CEncoder::Code(ISequentialInStream *inStream, ISequentialOutStream 
   catch(...) { return S_FALSE; }
 }
 
-STDMETHODIMP CEncoder::GetInStreamProcessedSize(UInt64 *value)
+STDMETHODIMP CEncoder::GetInStreamProcessedSize(UInt64 *value) noexcept
 {
   *value = processedIn;
   return S_OK;

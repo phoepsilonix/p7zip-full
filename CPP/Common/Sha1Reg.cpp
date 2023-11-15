@@ -26,9 +26,9 @@ public:
     Sha1_InitState(Sha());
   }
 
-  MY_UNKNOWN_IMP2(IHasher, ICompressSetCoderProperties)
+  MY_UNKNOWN_IMP2(IHasher,ICompressSetCoderProperties)
   INTERFACE_IHasher(;)
-  STDMETHOD(SetCoderProperties)(const PROPID *propIDs, const PROPVARIANT *props, UInt32 numProps);
+  STDMETHODIMP(SetCoderProperties)(const PROPID *propIDs, const PROPVARIANT *props, UInt32 numProps) noexcept;
 };
 
 STDMETHODIMP_(void) CSha1Hasher::Init() throw()
@@ -47,7 +47,7 @@ STDMETHODIMP_(void) CSha1Hasher::Final(Byte *digest) throw()
 }
 
 
-STDMETHODIMP CSha1Hasher::SetCoderProperties(const PROPID *propIDs, const PROPVARIANT *coderProps, UInt32 numProps)
+STDMETHODIMP CSha1Hasher::SetCoderProperties(const PROPID *propIDs, const PROPVARIANT *coderProps, UInt32 numProps) noexcept
 {
   unsigned algo = 0;
   for (UInt32 i = 0; i < numProps; i++)

@@ -1,58 +1,9 @@
-CFLAGS_WARN_CLANG_3_8_UNIQ = \
-  -Wno-reserved-id-macro \
-  -Wno-old-style-cast \
-  -Wno-c++11-long-long \
-  -Wno-unused-macros \
+CFLAGS_WARN = -Weverything -Wfatal-errors -Wno-poison-system-directories
+CXX_STD_FLAGS = -std=c++98
+CXX_STD_FLAGS = -std=c++11
+CXX_STD_FLAGS = -std=c++14
+CXX_STD_FLAGS = -std=c++17
+CXX_STD_FLAGS = -std=c++20
+CXX_STD_FLAGS = -std=c++23
 
-CFLAGS_WARN_CLANG_3_8 = \
-  $(CFLAGS_WARN_CLANG_3_8_UNIQ) \
-  -Wno-unknown-warning-option \
-  -Wno-extra-semi \
-  -Wno-sign-conversion \
-  -Wno-language-extension-token \
-  -Wno-global-constructors \
-  -Wno-non-virtual-dtor \
-  -Wno-switch-enum \
-  -Wno-covered-switch-default \
-  -Wno-cast-qual \
-  -Wno-padded \
-  -Wno-exit-time-destructors \
-  -Wno-weak-vtables \
-
-CFLAGS_WARN_CLANG_12= $(CFLAGS_WARN_CLANG_3_8) \
-  -Wno-extra-semi-stmt \
-  -Wno-zero-as-null-pointer-constant \
-  -Wno-deprecated-dynamic-exception-spec \
-  -Wno-c++98-compat-pedantic \
-  -Wno-atomic-implicit-seq-cst \
-  -Wconversion \
-  -Wno-sign-conversion \
-  -Wno-suggest-override \
-  -Wno-suggest-destructor-override \
-
-CFLAGS_WARN_CLANG_ADDITIONAL = \
-  -Wno-suggest-override \
-  -Wno-suggest-destructor-override \
-  -Wno-documentation \
-  -Wno-documentation-unknown-command \
-  -Wno-used-but-marked-unused \
-  -Wno-undef \
-  -Wno-implicit-fallthrough \
-  -Wno-empty-translation-unit \
-  -Wno-vla \
-  -Wno-bad-function-cast \
-  -Wno-missing-prototypes \
-  -Wno-cast-align \
-  -Wno-shorten-64-to-32 \
-  -Wno-implicit-int-conversion \
-  -Wno-conditional-uninitialized \
-  -Wno-missing-variable-declarations \
-  -Wno-newline-eof \
-
-CFLAGS_WARN_MAC = \
-  -Wno-poison-system-directories \
-  -Wno-c++11-long-long \
-  -Wno-atomic-implicit-seq-cst \
-
-
-CFLAGS_WARN = $(CFLAGS_WARN_CLANG_12) $(CFLAGS_WARN_CLANG_ADDITIONAL) $(CFLAGS_WARN_MAC)
+CXX_STD_FLAGS = -std=c++11

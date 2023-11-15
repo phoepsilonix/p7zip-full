@@ -53,9 +53,9 @@ public:
     ICompressWriteCoderProperties)
 
   STDMETHOD(Code)(ISequentialInStream *inStream, ISequentialOutStream *outStream,
-    const UInt64 *inSize, const UInt64 *outSize, ICompressProgressInfo *progress);
-  STDMETHOD(SetCoderProperties)(const PROPID *propIDs, const PROPVARIANT *props, UInt32 numProps);
-  STDMETHOD(WriteCoderProperties)(ISequentialOutStream *outStream);
+    const UInt64 *inSize, const UInt64 *outSize, ICompressProgressInfo *progress) noexcept;
+  STDMETHOD(SetCoderProperties)(const PROPID *propIDs, const PROPVARIANT *props, UInt32 numProps) noexcept;
+  STDMETHOD(WriteCoderProperties)(ISequentialOutStream *outStream) noexcept;
 
   CFastEncoder();
   virtual ~CFastEncoder();

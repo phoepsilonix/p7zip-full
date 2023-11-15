@@ -1,4 +1,3 @@
-IS_MAC=1
 PLATFORM=arm64
 O=b/m_$(PLATFORM)
 IS_X64=

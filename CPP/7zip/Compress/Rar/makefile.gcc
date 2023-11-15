@@ -21,9 +21,11 @@ SYS_OBJS = \
 endif
 
 LOCAL_FLAGS = \
-  -DEXTERNAL_CODECS \
   $(LOCAL_FLAGS_WIN) \
   $(LOCAL_FLAGS_ST) \
+
+#  -DZ7_EXTERNAL_CODECS \
+
 
 COMMON_OBJS = \
   $O/InBuffer.o \

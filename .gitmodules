@@ -25,3 +25,6 @@
 [submodule "Codecs/fast-lzma2"]
 	path = Codecs/fast-lzma2
 	url = https://github.com/conor42/fast-lzma2.git
+[submodule "p7zip_test_utils"]
+	path = p7zip_test_utils
+	url = https://github.com/jinfeihan57/p7zip_test_utils.git

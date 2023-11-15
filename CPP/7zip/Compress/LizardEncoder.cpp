@@ -4,7 +4,7 @@
 #include "LizardEncoder.h"
 #include "LizardDecoder.h"
 
-#ifndef EXTRACT_ONLY
+#ifndef Z7_EXTRACT_ONLY
 namespace NCompress
 {
   namespace NLIZARD
@@ -25,7 +25,7 @@ namespace NCompress
         LIZARDMT_freeCCtx(_ctx);
     }
 
-    STDMETHODIMP CEncoder::SetCoderProperties(const PROPID *propIDs, const PROPVARIANT *coderProps, UInt32 numProps)
+    STDMETHODIMP CEncoder::SetCoderProperties(const PROPID *propIDs, const PROPVARIANT *coderProps, UInt32 numProps) noexcept
     {
       _props.clear();
 
@@ -64,14 +64,14 @@ namespace NCompress
       return S_OK;
     }
 
-    STDMETHODIMP CEncoder::WriteCoderProperties(ISequentialOutStream *outStream)
+    STDMETHODIMP CEncoder::WriteCoderProperties(ISequentialOutStream *outStream) noexcept
     {
       return WriteStream(outStream, &_props, sizeof(_props));
     }
 
     STDMETHODIMP CEncoder::Code(ISequentialInStream *inStream,
                                 ISequentialOutStream *outStream, const UInt64 * /*inSize*/,
-                                const UInt64 * /*outSize */, ICompressProgressInfo *progress)
+                                const UInt64 * /*outSize */, ICompressProgressInfo *progress) noexcept
     {
       LIZARDMT_RdWr_t rdwr;
       size_t result;
@@ -117,7 +117,7 @@ namespace NCompress
       return res;
     }
 
-    STDMETHODIMP CEncoder::SetNumberOfThreads(UInt32 numThreads)
+    STDMETHODIMP CEncoder::SetNumberOfThreads(UInt32 numThreads) noexcept
     {
       const UInt32 kNumThreadsMax = LIZARDMT_THREAD_MAX;
       if (numThreads < 1)

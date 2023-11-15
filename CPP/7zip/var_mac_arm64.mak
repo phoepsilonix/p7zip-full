@@ -1,4 +1,3 @@
-IS_MAC=1
 PLATFORM=arm64
 O=b/m_$(PLATFORM)
 IS_X64=
@@ -7,6 +6,6 @@ IS_ARM64=1
 CROSS_COMPILE=
 MY_ARCH=-arch arm64
 USE_ASM=1
-export CC=$(CROSS_COMPILE)clang
-export CXX=$(CROSS_COMPILE)clang++
+CC=$(CROSS_COMPILE)clang
+CXX=$(CROSS_COMPILE)clang++
 USE_CLANG=1

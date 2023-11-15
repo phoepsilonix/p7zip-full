@@ -86,7 +86,7 @@ namespace NCompress
     {
     }
 
-    STDMETHODIMP CDecoder::SetDecoderProperties2(const Byte *prop, UInt32 size)
+    STDMETHODIMP CDecoder::SetDecoderProperties2(const Byte *prop, UInt32 size) noexcept
     {
       DProps *pProps = (DProps *)prop;
 
@@ -98,7 +98,7 @@ namespace NCompress
       return S_OK;
     }
 
-    STDMETHODIMP CDecoder::SetNumberOfThreads(UInt32 numThreads)
+    STDMETHODIMP CDecoder::SetNumberOfThreads(UInt32 numThreads) noexcept
     {
       const UInt32 kNumThreadsMax = LIZARDMT_THREAD_MAX;
       if (numThreads < 1)
@@ -165,7 +165,7 @@ namespace NCompress
     }
 
     STDMETHODIMP CDecoder::Code(ISequentialInStream *inStream, ISequentialOutStream *outStream,
-                                const UInt64 * /*inSize */, const UInt64 *outSize, ICompressProgressInfo *progress)
+                                const UInt64 * /*inSize */, const UInt64 *outSize, ICompressProgressInfo *progress) noexcept
     {
       SetOutStreamSize(outSize);
       return CodeSpec(inStream, outStream, progress);

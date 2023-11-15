@@ -7,9 +7,16 @@
 
 MY_ARCH_2 = $(MY_ARCH)
 
+O=b/c_$(PLATFORM)
 MY_ASM = uasm
 ifdef USE_JWASM
 MY_ASM = jwasm
+endif
+
+ifndef RC
+RC=windres.exe --target=pe-x86-64
+RC=windres.exe -F pe-i386
+RC=windres.exe
 endif
 
 
@@ -18,17 +25,23 @@ PROGPATH_STATIC = $(O)/$(PROG)s
 
 
 ifneq ($(CC), xlc)
-CFLAGS_WARN_WALL = -Wall -Werror -Wextra
+CFLAGS_WARN_WALL = -Wall -Wextra
 endif
 
 # for object file
+# -Wa,-aln=test.s
+# -save-temps
 CFLAGS_BASE_LIST = -c
 # CFLAGS_BASE_LIST = -S
 CFLAGS_BASE = -O2 $(CFLAGS_BASE_LIST) $(CFLAGS_WARN_WALL) $(CFLAGS_WARN) \
  -DNDEBUG -D_REENTRANT -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE \
- $(CFLAGS_ADDITIONAL)
+ -fPIC $(CFLAGS_ADD)
 
-# -D_7ZIP_AFFINITY_DISABLE
+FLAGS_FLTO = -ffunction-sections
+FLAGS_FLTO = -flto
+FLAGS_FLTO =
+# 
+# -DZ7_AFFINITY_DISABLE
 
 
 ifdef SystemDrive
@@ -42,9 +55,7 @@ endif
 
 ifdef IS_MINGW
 LDFLAGS_STATIC_2 = -static
-CFLAGS_BASE += -Wno-cast-function-type
 else
-CFLAGS_BASE += -fPIC
 ifndef DEF_FILE
 ifndef IS_NOT_STANDALONE
 ifndef MY_DYNAMIC_LINK
@@ -56,10 +67,6 @@ endif
 endif
 endif
 endif
-endif
-
-ifneq ($(findstring android,$(CC)),)
-LDFLAGS_STATIC_2 = -stdlib=libc++ -static-libstdc++
 endif
 
 LDFLAGS_STATIC = -DNDEBUG $(LDFLAGS_STATIC_2)
@@ -81,7 +88,7 @@ SHARED_EXT=.dll
 LDFLAGS = -shared -DEF $(DEF_FILE) $(LDFLAGS_STATIC)
 else
 SHARED_EXT=.so
-LDFLAGS = -shared -fPIC $(LDFLAGS_STATIC) 
+LDFLAGS = -shared -fPIC $(LDFLAGS_STATIC)
 CC_SHARED=-fPIC
 endif
 
@@ -89,8 +96,9 @@ endif
 else
 
 LDFLAGS = $(LDFLAGS_STATIC)
-# -s is not required for clang, do we need it for GGC ???
-# -s
+# -s is not required for clang, do we need it for GCC ???
+
+LDFLAGS += $(LDFLAGS_ADD)
 
 #-static -static-libgcc -static-libstdc++
 
@@ -102,7 +110,6 @@ endif
 
 endif
 
-LDFLAGS += $(LDFLAGS_ADD)
 
 PROGPATH = $(O)/$(PROG)$(SHARED_EXT)
 PROGPATH_STATIC = $(O)/$(PROG)s$(SHARED_EXT)
@@ -110,19 +117,18 @@ PROGPATH_STATIC = $(O)/$(PROG)s$(SHARED_EXT)
 ifdef IS_MINGW
 
 ifdef MSYSTEM
-RM = rm -rf
+RM = rm -f
 MY_MKDIR=mkdir -p
 DEL_OBJ_EXE = -$(RM) $(PROGPATH) $(PROGPATH_STATIC) $(OBJS)
-LIB_HTMLHELP=
-#-lhtmlhelp
+LIB_HTMLHELP=-lhtmlhelp
 else
 RM = del
 MY_MKDIR=mkdir
 DEL_OBJ_EXE = -$(RM) $(O)\*.o $(O)\$(PROG).exe $(O)\$(PROG).dll
 endif
 
-LIB2_GUI = -lole32 -lgdi32 -lcomctl32 -lcomdlg32 $(LIB_HTMLHELP)
-LIB2 = -loleaut32 -luuid -ladvapi32 -luser32 $(LIB2_GUI)
+LIB2_GUI = -lOle32 -lGdi32 -lComctl32 -lComdlg32 -lShell32 $(LIB_HTMLHELP)
+LIB2 = -loleaut32 -luuid -ladvapi32 -lUser32 $(LIB2_GUI)
 
 CXXFLAGS_EXTRA = -DUNICODE -D_UNICODE
 # -Wno-delete-non-virtual-dtor
@@ -134,50 +140,51 @@ RM = rm -rf
 MY_MKDIR=mkdir -p
 DEL_OBJ_EXE = -$(RM) $(PROGPATH) $(PROGPATH_STATIC) $(OBJS)
 
-# CFLAGS_BASE := $(CFLAGS_BASE) -D_7ZIP_ST
+# CFLAGS_BASE := $(CFLAGS_BASE) -DZ7_ST
 # CXXFLAGS_EXTRA = -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE
 
 # LOCAL_LIBS=-lpthread
 # LOCAL_LIBS_DLL=$(LOCAL_LIBS) -ldl
-LIB2 = -pthread -ldl
+LIB2 = -lpthread -ldl
 
 
 endif
 
 
 
-CFLAGS = $(MY_ARCH_2) $(LOCAL_FLAGS) $(CFLAGS_BASE2) $(CFLAGS_BASE) -std=c99 $(CC_SHARED) $(CFLAGS_ADD) -o $@
+CFLAGS = $(MY_ARCH_2) $(LOCAL_FLAGS) $(CFLAGS_BASE2) $(CFLAGS_BASE) $(FLAGS_FLTO) $(CC_SHARED) -o $@
+
 
 ifdef IS_MINGW
-  ifdef IS_X64
-    AFLAGS_ABI = -win64
-  else
-    AFLAGS_ABI = -coff -DABI_CDECL
-  endif
-  AFLAGS = -nologo $(AFLAGS_ABI) -Fo$(O)/$(basename $(<F)).o
+
+ifdef IS_X64
+AFLAGS_ABI = -win64
 else
-  ifdef IS_MAC
-    ifdef IS_X64
-      AFLAGS_ABI = -macho64 -DABI_MAC
-    else
-      AFLGGS_ABI = -UNSUPPORTED_CONFIGURATION
-    endif
-  else
-    LD_arch += -Wl,--no-undefined -Wl,-z,noexecstack
-    ifdef IS_X64
-      AFLAGS_ABI = -elf64 -DABI_LINUX
-    else
-      AFLAGS_ABI = -elf -DABI_LINUX -DABI_CDECL
-      # -DABI_CDECL
-      # -DABI_LINUX
-      # -DABI_CDECL
-    endif
-  endif
-  AFLAGS = -nologo $(AFLAGS_ABI) -Fo$(O)/
+AFLAGS_ABI = -coff -DABI_CDECL
+# -DABI_CDECL
+# -DABI_LINUX
+# -DABI_CDECL
 endif
+AFLAGS = -nologo $(AFLAGS_ABI) -Fo$(O)/$(basename $(<F)).o
+
+else  # IS_MINGW
+
+ifdef IS_X64
+AFLAGS_ABI = -elf64 -DABI_LINUX
+else
+AFLAGS_ABI = -elf -DABI_LINUX -DABI_CDECL
+# -DABI_CDECL
+# -DABI_LINUX
+# -DABI_CDECL
+endif
+AFLAGS = -nologo $(AFLAGS_ABI) -Fo$(O)/
+
+endif  # IS_MINGW
+
+
 
 ifdef USE_ASM
-CONSOLE_ASM_FLAGS=-D_7ZIP_ASM
+CONSOLE_ASM_FLAGS=-DZ7_7ZIP_ASM
 else
 CONSOLE_ASM_FLAGS=
 endif
@@ -186,7 +193,7 @@ CXX_WARN_FLAGS =
 #-Wno-invalid-offsetof
 #-Wno-reorder
 
-CXXFLAGS = $(MY_ARCH_2) $(LOCAL_FLAGS) $(CXXFLAGS_BASE2) $(CFLAGS_BASE) $(CXXFLAGS_EXTRA) -std=c++11 $(CC_SHARED) -o $@ $(CXX_WARN_FLAGS) $(CFLAGS_ADD)
+CXXFLAGS = $(MY_ARCH_2) $(LOCAL_FLAGS) $(CXXFLAGS_BASE2) $(CFLAGS_BASE) $(FLAGS_FLTO) $(CXXFLAGS_EXTRA) $(CC_SHARED) $(CXX_WARN_FLAGS) $(CXX_STD_FLAGS) $(CXXFLAGS_ADD) -o $@
 
 STATIC_TARGET=
 ifdef COMPL_STATIC
@@ -201,7 +208,20 @@ mkdir: $(O)
 $(O):
 	$(MY_MKDIR) $(O)
 
-LFLAGS_ALL = -s $(MY_ARCH_2) $(LDFLAGS) $(LD_arch) $(OBJS) $(MY_LIBS) $(LIB2)
+# LDFLAGS3= -flto
+# LDFLAGS3= -Wl,--gc-sections
+# -Wl,--print-gc-sections
+
+ifneq ($(CC), $(CROSS_COMPILE)clang)
+LFLAGS_STRIP = -s
+endif
+
+LFLAGS_ALL = $(LFLAGS_STRIP) $(MY_ARCH_2) $(LDFLAGS) $(FLAGS_FLTO) $(LD_arch) $(OBJS) $(MY_LIBS) $(LIB2)
+
+# -s : GCC : Remove all symbol table and relocation information from the executable.
+# -s : CLANG : unsupported
+# -s
+
 $(PROGPATH): $(OBJS)
 	$(CXX) -o $(PROGPATH) $(LFLAGS_ALL)
 
@@ -214,9 +234,15 @@ $(PROGPATH_STATIC): $(OBJS)
 
 
 ifndef NO_DEFAULT_RES
-RC ?= windres
 $O/resource.o: resource.rc
-	$(RC) $(RFLAGS) resource.rc $O/resource.o
+	$(RC) $(RFLAGS) resource.rc $@
+
+# windres.exe : in old version mingw:
+# $(RFLAGS) resource.rc $O/resource.o
+# windres.exe : in new version mingw:
+# $(RC) $(RFLAGS) resource.rc -FO $@
+
+
 endif
 
 $O/LzmaAlone.o: LzmaAlone.cpp
@@ -392,6 +418,8 @@ $O/MemBlocks.o: ../../Common/MemBlocks.cpp
 $O/MethodId.o: ../../Common/MethodId.cpp
 	$(CXX) $(CXXFLAGS) $<
 $O/MethodProps.o: ../../Common/MethodProps.cpp
+	$(CXX) $(CXXFLAGS) $<
+$O/MultiOutStream.o: ../../Common/MultiOutStream.cpp
 	$(CXX) $(CXXFLAGS) $<
 $O/OffsetStream.o: ../../Common/OffsetStream.cpp
 	$(CXX) $(CXXFLAGS) $<
@@ -1154,10 +1182,19 @@ $O/Sha256.o: ../../../../C/Sha256.c
 	$(CC) $(CFLAGS) $<
 $O/Sort.o: ../../../../C/Sort.c
 	$(CC) $(CFLAGS) $<
+$O/SwapBytes.o: ../../../../C/SwapBytes.c
+	$(CC) $(CFLAGS) $<
 $O/Xz.o: ../../../../C/Xz.c
 	$(CC) $(CFLAGS) $<
 $O/XzCrc64.o: ../../../../C/XzCrc64.c
 	$(CC) $(CFLAGS) $<
+$O/XzDec.o: ../../../../C/XzDec.c
+	$(CC) $(CFLAGS) $<
+$O/XzEnc.o: ../../../../C/XzEnc.c
+	$(CC) $(CFLAGS) $<
+$O/XzIn.o: ../../../../C/XzIn.c
+	$(CC) $(CFLAGS) $<
+
 
 ifdef USE_ASM
 ifdef IS_X64
@@ -1171,13 +1208,13 @@ endif
 endif
 
 ifdef USE_X86_ASM
-$O/7zCrcOpt.o: ../../../../Asm/x86/7zCrcOpt.asm $(O)
+$O/7zCrcOpt.o: ../../../../Asm/x86/7zCrcOpt.asm
 	$(MY_ASM) $(AFLAGS) $<
-$O/XzCrc64Opt.o: ../../../../Asm/x86/XzCrc64Opt.asm $(O)
+$O/XzCrc64Opt.o: ../../../../Asm/x86/XzCrc64Opt.asm
 	$(MY_ASM) $(AFLAGS) $<
-$O/Sha1Opt.o: ../../../../Asm/x86/Sha1Opt.asm $(O)
+$O/Sha1Opt.o: ../../../../Asm/x86/Sha1Opt.asm
 	$(MY_ASM) $(AFLAGS) $<
-$O/Sha256Opt.o: ../../../../Asm/x86/Sha256Opt.asm $(O)
+$O/Sha256Opt.o: ../../../../Asm/x86/Sha256Opt.asm
 	$(MY_ASM) $(AFLAGS) $<
 
 ifndef USE_JWASM
@@ -1197,30 +1234,26 @@ endif
 
 
 ifdef USE_X86_ASM_AES
-$O/AesOpt.o: ../../../../Asm/x86/AesOpt.asm $(O)
+$O/AesOpt.o: ../../../../Asm/x86/AesOpt.asm
 	$(MY_ASM) $(AFLAGS) $<
 else
 $O/AesOpt.o: ../../../../C/AesOpt.c
 	$(CC) $(CFLAGS) $<
 endif
 
-ifdef IS_MAC
-$O/LzFindOpt.o: ../../../../C/LzFindOpt.c
-	$(CC) $(CFLAGS) $<
-else
+
 ifdef USE_X64_ASM
-$O/LzFindOpt.o: ../../../../Asm/x86/LzFindOpt.asm $(O)
+$O/LzFindOpt.o: ../../../../Asm/x86/LzFindOpt.asm
 	$(MY_ASM) $(AFLAGS) $<
 else
 $O/LzFindOpt.o: ../../../../C/LzFindOpt.c
 	$(CC) $(CFLAGS) $<
 endif
-endif
 
 ifdef USE_LZMA_DEC_ASM
 
 ifdef IS_X64
-$O/LzmaDecOpt.o: ../../../../Asm/x86/LzmaDecOpt.asm $(O)
+$O/LzmaDecOpt.o: ../../../../Asm/x86/LzmaDecOpt.asm
 	$(MY_ASM) $(AFLAGS) $<
 endif
 
@@ -1230,7 +1263,7 @@ $O/LzmaDecOpt.o: ../../../../Asm/arm64/LzmaDecOpt.S ../../../../Asm/arm64/7zAsm.
 endif
 
 $O/LzmaDec.o: ../../../../C/LzmaDec.c
-	$(CC) $(CFLAGS) -D_LZMA_DEC_OPT $<
+	$(CC) $(CFLAGS) -DZ7_LZMA_DEC_OPT $<
 
 else
 
@@ -1240,13 +1273,6 @@ $O/LzmaDec.o: ../../../../C/LzmaDec.c
 endif
 
 
-
-$O/XzDec.o: ../../../../C/XzDec.c
-	$(CC) $(CFLAGS) $<
-$O/XzEnc.o: ../../../../C/XzEnc.c
-	$(CC) $(CFLAGS) $<
-$O/XzIn.o: ../../../../C/XzIn.c
-	$(CC) $(CFLAGS) $<
 
 
 $O/7zMain.o: ../../../../C/Util/7z/7zMain.c
@@ -1269,7 +1295,7 @@ predef_cxx:
 predef: predef_cc predef_cxx
 
 
-clean: clean2
+clean:
 	-$(DEL_OBJ_EXE)
 
 include ../../7zip_gcc_additional.mak

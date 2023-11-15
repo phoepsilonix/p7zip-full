@@ -36,7 +36,7 @@ CEncoder::CEncoder(): typ(0), dsize(4096){
   memset(&CmpStruct, 0, sizeof(TCmpStruct));
 }
 
-STDMETHODIMP CEncoder::SetCoderProperties(const PROPID * propIDs, const PROPVARIANT * coderProps, UInt32 numProps)
+STDMETHODIMP CEncoder::SetCoderProperties(const PROPID * propIDs, const PROPVARIANT * coderProps, UInt32 numProps) noexcept
 {
   typ = 0;
   dsize = 4096;
@@ -77,7 +77,7 @@ HRESULT CEncoder::CodeReal(ISequentialInStream *inStream, ISequentialOutStream *
 
 
 STDMETHODIMP CEncoder::Code(ISequentialInStream *inStream, ISequentialOutStream *outStream,
-    const UInt64 *inSize, const UInt64 *outSize, ICompressProgressInfo *progress)
+    const UInt64 *inSize, const UInt64 *outSize, ICompressProgressInfo *progress) noexcept
 {
   try { return CodeReal(inStream, outStream, inSize, outSize, progress);  }
   catch(const CInBufferException &e)  { return e.ErrorCode; }
@@ -85,7 +85,7 @@ STDMETHODIMP CEncoder::Code(ISequentialInStream *inStream, ISequentialOutStream 
   catch(...) { return S_FALSE; }
 }
 
-STDMETHODIMP CEncoder::GetInStreamProcessedSize(UInt64 *value)
+STDMETHODIMP CEncoder::GetInStreamProcessedSize(UInt64 *value) noexcept
 {
   *value = processedIn;
   return S_OK;

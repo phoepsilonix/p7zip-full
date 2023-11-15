@@ -10,7 +10,7 @@
 #include "ZstdDecoder.h"
 #include "ZstdEncoder.h"
 
-#ifndef EXTRACT_ONLY
+#ifndef Z7_EXTRACT_ONLY
 namespace NCompress {
 namespace NZSTD {
 
@@ -38,7 +38,7 @@ CEncoder::~CEncoder() {
 
 STDMETHODIMP CEncoder::SetCoderProperties(const PROPID *propIDs,
                                           const PROPVARIANT *coderProps,
-                                          UInt32 numProps) {
+                                          UInt32 numProps) noexcept {
   _props.clear();
 
   for (UInt32 i = 0; i < numProps; i++) {
@@ -202,7 +202,7 @@ STDMETHODIMP CEncoder::SetCoderProperties(const PROPID *propIDs,
   return S_OK;
 }
 
-STDMETHODIMP CEncoder::WriteCoderProperties(ISequentialOutStream *outStream) {
+STDMETHODIMP CEncoder::WriteCoderProperties(ISequentialOutStream *outStream) noexcept {
   return WriteStream(outStream, &_props, sizeof(_props));
 }
 
@@ -210,7 +210,7 @@ STDMETHODIMP CEncoder::Code(ISequentialInStream *inStream,
                             ISequentialOutStream *outStream,
                             const UInt64 * /*inSize*/,
                             const UInt64 * /*outSize */,
-                            ICompressProgressInfo *progress) {
+                            ICompressProgressInfo *progress) noexcept {
   ZSTD_EndDirective ZSTD_todo = ZSTD_e_continue;
   ZSTD_outBuffer outBuff;
   ZSTD_inBuffer inBuff;
@@ -396,7 +396,7 @@ STDMETHODIMP CEncoder::Code(ISequentialInStream *inStream,
   }
 }
 
-STDMETHODIMP CEncoder::SetNumberOfThreads(UInt32 numThreads) {
+STDMETHODIMP CEncoder::SetNumberOfThreads(UInt32 numThreads) noexcept {
   const UInt32 kNumThreadsMax = ZSTD_THREAD_MAX;
   if (numThreads < 1)
     numThreads = 1;

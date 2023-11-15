@@ -24,6 +24,7 @@ public:
 
   MY_UNKNOWN_IMP1(IHasher)
   INTERFACE_IHasher(;)
+  STDMETHODIMP(SetCoderProperties)(const PROPID *propIDs, const PROPVARIANT *props, UInt32 numProps) noexcept;
 };
 
 STDMETHODIMP_(void) CSHA512Hasher::Init() throw()

@@ -12,7 +12,7 @@
 #include "../ICoder.h"
 #include "../Common/StreamUtils.h"
 
-#ifndef EXTRACT_ONLY
+#ifndef Z7_EXTRACT_ONLY
 namespace NCompress
 {
   namespace NLIZARD
@@ -58,13 +58,13 @@ namespace NCompress
       MY_ADDREF_RELEASE
 
       STDMETHOD(Code)
-      (ISequentialInStream *inStream, ISequentialOutStream *outStream, const UInt64 *inSize, const UInt64 *outSize, ICompressProgressInfo *progress);
+      (ISequentialInStream *inStream, ISequentialOutStream *outStream, const UInt64 *inSize, const UInt64 *outSize, ICompressProgressInfo *progress) noexcept;
       STDMETHOD(SetCoderProperties)
-      (const PROPID *propIDs, const PROPVARIANT *props, UInt32 numProps);
+      (const PROPID *propIDs, const PROPVARIANT *props, UInt32 numProps) noexcept;
       STDMETHOD(WriteCoderProperties)
-      (ISequentialOutStream *outStream);
+      (ISequentialOutStream *outStream) noexcept;
       STDMETHOD(SetNumberOfThreads)
-      (UInt32 numThreads);
+      (UInt32 numThreads) noexcept;
 
       CEncoder();
       virtual ~CEncoder();

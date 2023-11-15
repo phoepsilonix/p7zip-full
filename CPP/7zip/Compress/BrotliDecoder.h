@@ -75,13 +75,13 @@ namespace NCompress
 
       MY_ADDREF_RELEASE
       STDMETHOD(Code)
-      (ISequentialInStream *inStream, ISequentialOutStream *outStream, const UInt64 *inSize, const UInt64 *outSize, ICompressProgressInfo *progress);
+      (ISequentialInStream *inStream, ISequentialOutStream *outStream, const UInt64 *inSize, const UInt64 *outSize, ICompressProgressInfo *progress) noexcept;
       STDMETHOD(SetDecoderProperties2)
-      (const Byte *data, UInt32 size);
+      (const Byte *data, UInt32 size) noexcept;
       STDMETHOD(SetOutStreamSize)
       (const UInt64 *outSize);
       STDMETHOD(SetNumberOfThreads)
-      (UInt32 numThreads);
+      (UInt32 numThreads) noexcept;
 
 #ifndef NO_READ_FROM_CODER
       STDMETHOD(SetInStream)

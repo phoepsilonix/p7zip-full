@@ -10,7 +10,7 @@
 #include "../Common/StreamUtils.h"
 #include "../ICoder.h"
 
-#ifndef EXTRACT_ONLY
+#ifndef Z7_EXTRACT_ONLY
 namespace NCompress {
 namespace NZSTD {
 
@@ -74,11 +74,11 @@ public:
   STDMETHOD(Code)
   (ISequentialInStream *inStream, ISequentialOutStream *outStream,
    const UInt64 *inSize, const UInt64 *outSize,
-   ICompressProgressInfo *progress);
+   ICompressProgressInfo *progress) noexcept;
   STDMETHOD(SetCoderProperties)
-  (const PROPID *propIDs, const PROPVARIANT *props, UInt32 numProps);
-  STDMETHOD(WriteCoderProperties)(ISequentialOutStream *outStream);
-  STDMETHOD(SetNumberOfThreads)(UInt32 numThreads);
+  (const PROPID *propIDs, const PROPVARIANT *props, UInt32 numProps) noexcept;
+  STDMETHOD(WriteCoderProperties)(ISequentialOutStream *outStream) noexcept;
+  STDMETHOD(SetNumberOfThreads)(UInt32 numThreads) noexcept;
 
   CEncoder();
   virtual ~CEncoder();

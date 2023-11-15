@@ -1,7 +1,7 @@
 // ZipHeader.h
 
-#ifndef __ARCHIVE_ZIP_HEADER_H
-#define __ARCHIVE_ZIP_HEADER_H
+#ifndef ZIP7_INC_ARCHIVE_ZIP_HEADER_H
+#define ZIP7_INC_ARCHIVE_ZIP_HEADER_H
 
 #include "../../../Common/MyTypes.h"
 
@@ -80,9 +80,6 @@ namespace NFileHeader
     const Byte kExtractVersion_LZMA = 63;
     const Byte kExtractVersion_PPMd = 63;
     const Byte kExtractVersion_Xz = 20; // test it
-
-    const Byte kExtractVersion_Zstd = 20; // WinZip mark it
-    const Byte kExtractVersion_PKImploding = 25;
   }
 
   namespace NExtraID
