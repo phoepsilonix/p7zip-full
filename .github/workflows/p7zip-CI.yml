@@ -25,7 +25,7 @@ jobs:
     - name: install
       if: ${{ matrix.os == 'macos-latest' }}
       run: |
-        brew install lld
+        brew install llvm git
     - name: submodule update
       run: |
         git submodule update --init
