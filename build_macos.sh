@@ -3,9 +3,9 @@ set -e
 
 export CC=clang
 export CXX=clang++
-export LD=ld.lld
+export LD=ld.mold
 export CFLAGS_ADD="-Wno-error=unused-command-line-argument -Wno-error=unused-but-set-variable -Wno-error=unused-but-set-parameter"
-export LDFLAGS_ADD="-fuse-ld=lld -Wno-error=unused-command-line-argument"
+export LDFLAGS_ADD="-fuse-ld=mold -Wno-error=unused-command-line-argument"
 
 ARTIFACTS_DIR=bin/p7zip/
 mkdir -p ${ARTIFACTS_DIR}/Codecs
