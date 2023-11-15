@@ -2,7 +2,9 @@ name: p7zip-CI
 
 on:
   push:
-    branches: [ "main" ]
+    tags:
+      - '*'
+    branches: [ "master" ]
 
 jobs:
   build:
@@ -45,9 +47,16 @@ jobs:
         cd $PROJECT_ROOT/p7zip_test_utils/check
         bash ../../check_7z.sh $PROJECT_ROOT/bin/p7zip/7z
         bash check.sh $PROJECT_ROOT/bin/p7zip/7zz
-    - name: Upload (Linux/Clang)
+    - name: create archive
       if: ${{ matrix.os == 'ubuntu-latest' && matrix.mode == 'clang' }}
-      uses: actions/upload-artifact@v2
+      run: |
+        mkdir -p release
+        cd bin
+        ./p7zip/7zz a ../release/p7zip-linux-x86_64-clang.7z ./p7zip/
+    - name: Create release
+      uses: ncipollo/release-action@v1
+      if: ${{ matrix.os == 'ubuntu-latest' && matrix.mode == 'clang' }}
       with:
-        name: p7zip-linux-x86_64-clang
-        path: bin
+        omitBody: true
+        artifacts: 'release/*'
+        token: ${{ secrets.GITHUB_TOKEN }}
