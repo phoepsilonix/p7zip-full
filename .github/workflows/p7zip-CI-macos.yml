@@ -23,9 +23,8 @@ jobs:
         git submodule update --init
         cd Codecs/fast-lzma2/
         patch -p1 -i ../../UInt64.patch
-    - uses: rui314/setup-mold@v1
+    - uses: rui314/setup-mold@staging
       with:
-        mold-version: 2.3.3
         make-default: true
     - name: Set up UASM (macOS)
       if: ${{ matrix.os == 'macos-latest' }}
