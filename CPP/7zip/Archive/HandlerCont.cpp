@@ -14,14 +14,18 @@
 
 namespace NArchive {
 
-STDMETHODIMP CHandlerCont::Extract(const UInt32 *indices, UInt32 numItems,
-    Int32 testMode, IArchiveExtractCallback *extractCallback)
+namespace NExt {
+API_FUNC_IsArc IsArc_Ext(const Byte *p, size_t size);
+}
+
+Z7_COM7F_IMF(CHandlerCont::Extract(const UInt32 *indices, UInt32 numItems,
+    Int32 testMode, IArchiveExtractCallback *extractCallback))
 {
   COM_TRY_BEGIN
-  bool allFilesMode = (numItems == (UInt32)(Int32)-1);
+  const bool allFilesMode = (numItems == (UInt32)(Int32)-1);
   if (allFilesMode)
   {
-    RINOK(GetNumberOfItems(&numItems));
+    RINOK(GetNumberOfItems(&numItems))
   }
   if (numItems == 0)
     return S_OK;
@@ -52,14 +56,14 @@ STDMETHODIMP CHandlerCont::Extract(const UInt32 *indices, UInt32 numItems,
   {
     lps->InSize = totalSize;
     lps->OutSize = totalSize;
-    RINOK(lps->SetCur());
+    RINOK(lps->SetCur())
     CMyComPtr<ISequentialOutStream> outStream;
-    Int32 askMode = testMode ?
+    const Int32 askMode = testMode ?
         NExtract::NAskMode::kTest :
         NExtract::NAskMode::kExtract;
-    Int32 index = allFilesMode ? i : indices[i];
+    const UInt32 index = allFilesMode ? i : indices[i];
     
-    RINOK(extractCallback->GetStream(index, &outStream, askMode));
+    RINOK(extractCallback->GetStream(index, &outStream, askMode))
 
     UInt64 pos, size;
     int opRes = GetItem_ExtractInfo(index, pos, size);
@@ -67,14 +71,14 @@ STDMETHODIMP CHandlerCont::Extract(const UInt32 *indices, UInt32 numItems,
     if (!testMode && !outStream)
       continue;
     
-    RINOK(extractCallback->PrepareOperation(askMode));
+    RINOK(extractCallback->PrepareOperation(askMode))
 
     if (opRes == NExtract::NOperationResult::kOK)
     {
-      RINOK(_stream->Seek(pos, STREAM_SEEK_SET, NULL));
+      RINOK(InStream_SeekSet(_stream, pos))
       streamSpec->Init(size);
     
-      RINOK(copyCoder->Code(inStream, outStream, NULL, NULL, progress));
+      RINOK(copyCoder->Code(inStream, outStream, NULL, NULL, progress))
       
       opRes = NExtract::NOperationResult::kDataError;
       
@@ -85,14 +89,14 @@ STDMETHODIMP CHandlerCont::Extract(const UInt32 *indices, UInt32 numItems,
     }
     
     outStream.Release();
-    RINOK(extractCallback->SetOperationResult(opRes));
+    RINOK(extractCallback->SetOperationResult(opRes))
   }
   
   return S_OK;
   COM_TRY_END
 }
 
-STDMETHODIMP CHandlerCont::GetStream(UInt32 index, ISequentialInStream **stream)
+Z7_COM7F_IMF(CHandlerCont::GetStream(UInt32 index, ISequentialInStream **stream))
 {
   COM_TRY_BEGIN
   *stream = NULL;
@@ -105,13 +109,12 @@ STDMETHODIMP CHandlerCont::GetStream(UInt32 index, ISequentialInStream **stream)
 
 
 
-CHandlerImg::CHandlerImg():
-    _imgExt(NULL)
+CHandlerImg::CHandlerImg()
 {
-  ClearStreamVars();
+  Clear_HandlerImg_Vars();
 }
 
-STDMETHODIMP CHandlerImg::Seek(Int64 offset, UInt32 seekOrigin, UInt64 *newPosition)
+Z7_COM7F_IMF(CHandlerImg::Seek(Int64 offset, UInt32 seekOrigin, UInt64 *newPosition))
 {
   switch (seekOrigin)
   {
@@ -121,18 +124,24 @@ STDMETHODIMP CHandlerImg::Seek(Int64 offset, UInt32 seekOrigin, UInt64 *newPosit
     default: return STG_E_INVALIDFUNCTION;
   }
   if (offset < 0)
+  {
+    if (newPosition)
+      *newPosition = _virtPos;
     return HRESULT_WIN32_ERROR_NEGATIVE_SEEK;
-  _virtPos = offset;
+  }
+  _virtPos = (UInt64)offset;
   if (newPosition)
-    *newPosition = offset;
+    *newPosition = (UInt64)offset;
   return S_OK;
 }
 
 static const Byte k_GDP_Signature[] = { 'E', 'F', 'I', ' ', 'P', 'A', 'R', 'T' };
+// static const Byte k_Ext_Signature[] = { 0x53, 0xEF };
+// static const unsigned k_Ext_Signature_offset = 0x438;
 
 static const char *GetImgExt(ISequentialInStream *stream)
 {
-  const size_t kHeaderSize = 1 << 10;
+  const size_t kHeaderSize = 1 << 11;
   Byte buf[kHeaderSize];
   if (ReadStream_FAIL(stream, buf, kHeaderSize) == S_OK)
   {
@@ -142,6 +151,8 @@ static const char *GetImgExt(ISequentialInStream *stream)
         return "gpt";
       return "mbr";
     }
+    if (NExt::IsArc_Ext(buf, kHeaderSize) == k_IsArc_Res_YES)
+      return "ext";
   }
   return NULL;
 }
@@ -151,9 +162,18 @@ void CHandlerImg::CloseAtError()
   Stream.Release();
 }
 
-STDMETHODIMP CHandlerImg::Open(IInStream *stream,
+void CHandlerImg::Clear_HandlerImg_Vars()
+{
+  _imgExt = NULL;
+  _size = 0;
+  ClearStreamVars();
+  Reset_VirtPos();
+  Reset_PosInArc();
+}
+
+Z7_COM7F_IMF(CHandlerImg::Open(IInStream *stream,
     const UInt64 * /* maxCheckStartPosition */,
-    IArchiveOpenCallback * openCallback)
+    IArchiveOpenCallback * openCallback))
 {
   COM_TRY_BEGIN
   {
@@ -165,9 +185,16 @@ STDMETHODIMP CHandlerImg::Open(IInStream *stream,
       if (res == S_OK)
       {
         CMyComPtr<ISequentialInStream> inStream;
-        HRESULT res2 = GetStream(0, &inStream);
+        const HRESULT res2 = GetStream(0, &inStream);
         if (res2 == S_OK && inStream)
           _imgExt = GetImgExt(inStream);
+        // _imgExt = GetImgExt(this); // for debug
+        /*  we reset (_virtPos) to support cases, if some code will
+            call Read() from Handler object instead of GetStream() object. */
+        Reset_VirtPos();
+        // optional: we reset (_posInArc). if real seek position of stream will be changed in external code
+        Reset_PosInArc();
+        // optional: here we could also reset seek positions in parent streams..
         return S_OK;
       }
     }
@@ -182,14 +209,36 @@ STDMETHODIMP CHandlerImg::Open(IInStream *stream,
   COM_TRY_END
 }
 
-STDMETHODIMP CHandlerImg::GetNumberOfItems(UInt32 *numItems)
+Z7_COM7F_IMF(CHandlerImg::GetNumberOfItems(UInt32 *numItems))
 {
   *numItems = 1;
   return S_OK;
 }
 
-STDMETHODIMP CHandlerImg::Extract(const UInt32 *indices, UInt32 numItems,
-    Int32 testMode, IArchiveExtractCallback *extractCallback)
+
+Z7_CLASS_IMP_NOQIB_1(
+  CHandlerImgProgress
+  , ICompressProgressInfo
+)
+public:
+  CHandlerImg &Handler;
+  CMyComPtr<ICompressProgressInfo> _ratioProgress;
+
+  CHandlerImgProgress(CHandlerImg &handler) : Handler(handler) {}
+};
+
+
+Z7_COM7F_IMF(CHandlerImgProgress::SetRatioInfo(const UInt64 *inSize, const UInt64 *outSize))
+{
+  UInt64 inSize2;
+  if (Handler.Get_PackSizeProcessed(inSize2))
+    inSize = &inSize2;
+  return _ratioProgress->SetRatioInfo(inSize, outSize);
+}
+  
+
+Z7_COM7F_IMF(CHandlerImg::Extract(const UInt32 *indices, UInt32 numItems,
+    Int32 testMode, IArchiveExtractCallback *extractCallback))
 {
   COM_TRY_BEGIN
   if (numItems == 0)
@@ -197,19 +246,15 @@ STDMETHODIMP CHandlerImg::Extract(const UInt32 *indices, UInt32 numItems,
   if (numItems != (UInt32)(Int32)-1 && (numItems != 1 || indices[0] != 0))
     return E_INVALIDARG;
 
-  RINOK(extractCallback->SetTotal(_size));
+  RINOK(extractCallback->SetTotal(_size))
   CMyComPtr<ISequentialOutStream> outStream;
-  Int32 askMode = testMode ?
+  const Int32 askMode = testMode ?
       NExtract::NAskMode::kTest :
       NExtract::NAskMode::kExtract;
-  RINOK(extractCallback->GetStream(0, &outStream, askMode));
+  RINOK(extractCallback->GetStream(0, &outStream, askMode))
   if (!testMode && !outStream)
     return S_OK;
-  RINOK(extractCallback->PrepareOperation(askMode));
-
-  CLocalProgress *lps = new CLocalProgress;
-  CMyComPtr<ICompressProgressInfo> progress = lps;
-  lps->Init(extractCallback, false);
+  RINOK(extractCallback->PrepareOperation(askMode))
 
   int opRes = NExtract::NOperationResult::kDataError;
   
@@ -222,6 +267,19 @@ STDMETHODIMP CHandlerImg::Extract(const UInt32 *indices, UInt32 numItems,
 
   if (hres == S_OK && inStream)
   {
+    CLocalProgress *lps = new CLocalProgress;
+    CMyComPtr<ICompressProgressInfo> progress = lps;
+    lps->Init(extractCallback, false);
+    
+    if (Init_PackSizeProcessed())
+    {
+      CHandlerImgProgress *imgProgressSpec = new CHandlerImgProgress(*this);
+      CMyComPtr<ICompressProgressInfo> imgProgress = imgProgressSpec;
+      imgProgressSpec->_ratioProgress = progress;
+      progress.Release();
+      progress = imgProgress;
+    }
+
     NCompress::CCopyCoder *copyCoderSpec = new NCompress::CCopyCoder();
     CMyComPtr<ICompressCoder> copyCoder = copyCoderSpec;
 
@@ -269,7 +327,7 @@ HRESULT ReadZeroTail(ISequentialInStream *stream, bool &areThereNonZeros, UInt64
   for (;;)
   {
     UInt32 size = 0;
-    HRESULT(stream->Read(buf, kBufSize, &size));
+    RINOK(stream->Read(buf, kBufSize, &size))
     if (size == 0)
       return S_OK;
     for (UInt32 i = 0; i < size; i++)

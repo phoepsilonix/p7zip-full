@@ -1,5 +1,5 @@
 /* PpmdHandler.cpp -- PPMd format handler
-2015-11-30 : Igor Pavlov : Public domain
+2020 : Igor Pavlov : Public domain
 This code is based on:
   PPMd var.H (2001) / var.I (2002): Dmitry Shkarin : Public domain
   Carryless rangecoder (1999): Dmitry Subbotin : Public domain */
@@ -33,13 +33,13 @@ struct CBuf
 {
   Byte *Buf;
   
-  CBuf(): Buf(0) {}
+  CBuf(): Buf(NULL) {}
   ~CBuf() { ::MidFree(Buf); }
   bool Alloc()
   {
     if (!Buf)
       Buf = (Byte *)::MidAlloc(kBufSize);
-    return (Buf != 0);
+    return (Buf != NULL);
   }
 };
 
@@ -59,13 +59,17 @@ struct CItem
   unsigned Restor;
 
   HRESULT ReadHeader(ISequentialInStream *s, UInt32 &headerSize);
-  bool IsSupported() const { return Ver == 7 || (Ver == 8 && Restor <= 1); }
+  bool IsSupported() const
+  {
+    return (Ver == 7 && Order >= PPMD7_MIN_ORDER)
+        || (Ver == 8 && Order >= PPMD8_MIN_ORDER && Restor < PPMD8_RESTORE_METHOD_UNSUPPPORTED);
+  }
 };
 
 HRESULT CItem::ReadHeader(ISequentialInStream *s, UInt32 &headerSize)
 {
   Byte h[kHeaderSize];
-  RINOK(ReadStream_FALSE(s, h, kHeaderSize));
+  RINOK(ReadStream_FALSE(s, h, kHeaderSize))
   if (GetUi32(h) != kSignature)
     return S_FALSE;
   Attrib = GetUi32(h + 4);
@@ -92,11 +96,10 @@ HRESULT CItem::ReadHeader(ISequentialInStream *s, UInt32 &headerSize)
   return res;
 }
 
-class CHandler:
-  public IInArchive,
-  public IArchiveOpenSeq,
-  public CMyUnknownImp
-{
+
+Z7_CLASS_IMP_CHandler_IInArchive_1(
+  IArchiveOpenSeq
+)
   CItem _item;
   UInt32 _headerSize;
   bool _packSize_Defined;
@@ -104,11 +107,6 @@ class CHandler:
   CMyComPtr<ISequentialInStream> _stream;
 
   void GetVersion(NCOM::CPropVariant &prop);
-
-public:
-  MY_UNKNOWN_IMP2(IInArchive, IArchiveOpenSeq)
-  INTERFACE_IInArchive(;)
-  STDMETHOD(OpenSeq)(ISequentialInStream *stream);
 };
 
 static const Byte kProps[] =
@@ -144,7 +142,7 @@ void CHandler::GetVersion(NCOM::CPropVariant &prop)
   prop = s;
 }
 
-STDMETHODIMP CHandler::GetArchiveProperty(PROPID propID, PROPVARIANT *value)
+Z7_COM7F_IMF(CHandler::GetArchiveProperty(PROPID propID, PROPVARIANT *value))
 {
   NCOM::CPropVariant prop;
   switch (propID)
@@ -157,13 +155,13 @@ STDMETHODIMP CHandler::GetArchiveProperty(PROPID propID, PROPVARIANT *value)
 }
 
 
-STDMETHODIMP CHandler::GetNumberOfItems(UInt32 *numItems)
+Z7_COM7F_IMF(CHandler::GetNumberOfItems(UInt32 *numItems))
 {
   *numItems = 1;
   return S_OK;
 }
 
-STDMETHODIMP CHandler::GetProperty(UInt32 /* index */, PROPID propID, PROPVARIANT *value)
+Z7_COM7F_IMF(CHandler::GetProperty(UInt32 /* index */, PROPID propID, PROPVARIANT *value))
 {
   COM_TRY_BEGIN
   NCOM::CPropVariant prop;
@@ -174,7 +172,7 @@ STDMETHODIMP CHandler::GetProperty(UInt32 /* index */, PROPID propID, PROPVARIAN
     {
       // time can be in Unix format ???
       FILETIME utc;
-      if (NTime::DosTimeToFileTime(_item.Time, utc))
+      if (NTime::DosTime_To_FileTime(_item.Time, utc))
         prop = utc;
       break;
     }
@@ -187,12 +185,12 @@ STDMETHODIMP CHandler::GetProperty(UInt32 /* index */, PROPID propID, PROPVARIAN
   COM_TRY_END
 }
 
-STDMETHODIMP CHandler::Open(IInStream *stream, const UInt64 *, IArchiveOpenCallback *)
+Z7_COM7F_IMF(CHandler::Open(IInStream *stream, const UInt64 *, IArchiveOpenCallback *))
 {
   return OpenSeq(stream);
 }
 
-STDMETHODIMP CHandler::OpenSeq(ISequentialInStream *stream)
+Z7_COM7F_IMF(CHandler::OpenSeq(ISequentialInStream *stream))
 {
   COM_TRY_BEGIN
   HRESULT res;
@@ -210,7 +208,7 @@ STDMETHODIMP CHandler::OpenSeq(ISequentialInStream *stream)
   COM_TRY_END
 }
 
-STDMETHODIMP CHandler::Close()
+Z7_COM7F_IMF(CHandler::Close())
 {
   _packSize = 0;
   _packSize_Defined = false;
@@ -218,91 +216,11 @@ STDMETHODIMP CHandler::Close()
   return S_OK;
 }
 
-static const UInt32 kTopValue = (1 << 24);
-static const UInt32 kBot = (1 << 15);
 
-struct CRangeDecoder
-{
-  IPpmd7_RangeDec vt;
-  UInt32 Range;
-  UInt32 Code;
-  UInt32 Low;
-  CByteInBufWrap *Stream;
-
-public:
-  bool Init()
-  {
-    Code = 0;
-    Low = 0;
-    Range = 0xFFFFFFFF;
-    for (int i = 0; i < 4; i++)
-      Code = (Code << 8) | Stream->ReadByte();
-    return Code < 0xFFFFFFFF;
-  }
-
-  void Normalize()
-  {
-    while ((Low ^ (Low + Range)) < kTopValue ||
-       Range < kBot && ((Range = (0 - Low) & (kBot - 1)), 1))
-    {
-      Code = (Code << 8) | Stream->ReadByte();
-      Range <<= 8;
-      Low <<= 8;
-    }
-  }
-
-  CRangeDecoder();
-};
-
-
-extern "C" {
-
-#define GET_RangeDecoder CRangeDecoder *p = CONTAINER_FROM_VTBL(pp, CRangeDecoder, vt);
-
-static UInt32 Range_GetThreshold(const IPpmd7_RangeDec *pp, UInt32 total)
-{
-  GET_RangeDecoder
-  return p->Code / (p->Range /= total);
-}
-
-static void Range_Decode(const IPpmd7_RangeDec *pp, UInt32 start, UInt32 size)
-{
-  GET_RangeDecoder
-  start *= p->Range;
-  p->Low += start;
-  p->Code -= start;
-  p->Range *= size;
-  p->Normalize();
-}
-
-static UInt32 Range_DecodeBit(const IPpmd7_RangeDec *pp, UInt32 size0)
-{
-  GET_RangeDecoder
-  if (p->Code / (p->Range >>= 14) < size0)
-  {
-    Range_Decode(&p->vt, 0, size0);
-    return 0;
-  }
-  else
-  {
-    Range_Decode(&p->vt, size0, (1 << 14) - size0);
-    return 1;
-  }
-}
-
-}
-
-CRangeDecoder::CRangeDecoder()
-{
-  vt.GetThreshold = Range_GetThreshold;
-  vt.Decode = Range_Decode;
-  vt.DecodeBit = Range_DecodeBit;
-}
 
 struct CPpmdCpp
 {
   unsigned Ver;
-  CRangeDecoder _rc;
   CPpmd7 _ppmd7;
   CPpmd8 _ppmd8;
   
@@ -332,34 +250,34 @@ struct CPpmdCpp
     if (Ver == 7)
       Ppmd7_Init(&_ppmd7, order);
     else
-      Ppmd8_Init(&_ppmd8, order, restor);;
+      Ppmd8_Init(&_ppmd8, order, restor);
   }
     
   bool InitRc(CByteInBufWrap *inStream)
   {
     if (Ver == 7)
     {
-      _rc.Stream = inStream;
-      return _rc.Init();
+      _ppmd7.rc.dec.Stream = &inStream->vt;
+      return (Ppmd7a_RangeDec_Init(&_ppmd7.rc.dec) != 0);
     }
     else
     {
-      _ppmd8.Stream.In = &inStream->p;
-      return Ppmd8_RangeDec_Init(&_ppmd8) != 0;
+      _ppmd8.Stream.In = &inStream->vt;
+      return Ppmd8_Init_RangeDec(&_ppmd8) != 0;
     }
   }
 
   bool IsFinishedOK()
   {
     if (Ver == 7)
-      return Ppmd7z_RangeDec_IsFinishedOK(&_rc);
+      return Ppmd7z_RangeDec_IsFinishedOK(&_ppmd7.rc.dec);
     return Ppmd8_RangeDec_IsFinishedOK(&_ppmd8);
   }
 };
 
 
-STDMETHODIMP CHandler::Extract(const UInt32 *indices, UInt32 numItems,
-    Int32 testMode, IArchiveExtractCallback *extractCallback)
+Z7_COM7F_IMF(CHandler::Extract(const UInt32 *indices, UInt32 numItems,
+    Int32 testMode, IArchiveExtractCallback *extractCallback))
 {
   if (numItems == 0)
     return S_OK;
@@ -368,12 +286,12 @@ STDMETHODIMP CHandler::Extract(const UInt32 *indices, UInt32 numItems,
 
   // extractCallback->SetTotal(_packSize);
   UInt64 currentTotalPacked = 0;
-  RINOK(extractCallback->SetCompleted(&currentTotalPacked));
+  RINOK(extractCallback->SetCompleted(&currentTotalPacked))
   CMyComPtr<ISequentialOutStream> realOutStream;
-  Int32 askMode = testMode ?
+  const Int32 askMode = testMode ?
       NExtract::NAskMode::kTest :
       NExtract::NAskMode::kExtract;
-  RINOK(extractCallback->GetStream(0, &realOutStream, askMode));
+  RINOK(extractCallback->GetStream(0, &realOutStream, askMode))
   if (!testMode && !realOutStream)
     return S_OK;
 
@@ -411,19 +329,20 @@ STDMETHODIMP CHandler::Extract(const UInt32 *indices, UInt32 numItems,
     {
       lps->InSize = _packSize = inBuf.GetProcessed();
       lps->OutSize = outSize;
-      RINOK(lps->SetCur());
+      RINOK(lps->SetCur())
 
       size_t i;
       int sym = 0;
 
+      Byte *buf = outBuf.Buf;
       if (ppmd.Ver == 7)
       {
         for (i = 0; i < kBufSize; i++)
         {
-          sym = Ppmd7_DecodeSymbol(&ppmd._ppmd7, &ppmd._rc.vt);
+          sym = Ppmd7a_DecodeSymbol(&ppmd._ppmd7);
           if (inBuf.Extra || sym < 0)
             break;
-          outBuf.Buf[i] = (Byte)sym;
+          buf[i] = (Byte)sym;
         }
       }
       else
@@ -433,7 +352,7 @@ STDMETHODIMP CHandler::Extract(const UInt32 *indices, UInt32 numItems,
           sym = Ppmd8_DecodeSymbol(&ppmd._ppmd8);
           if (inBuf.Extra || sym < 0)
             break;
-          outBuf.Buf[i] = (Byte)sym;
+          buf[i] = (Byte)sym;
         }
       }
 
@@ -442,7 +361,7 @@ STDMETHODIMP CHandler::Extract(const UInt32 *indices, UInt32 numItems,
       _packSize_Defined = true;
       if (realOutStream)
       {
-        RINOK(WriteStream(realOutStream, outBuf.Buf, i));
+        RINOK(WriteStream(realOutStream, outBuf.Buf, i))
       }
 
       if (inBuf.Extra)
@@ -459,7 +378,7 @@ STDMETHODIMP CHandler::Extract(const UInt32 *indices, UInt32 numItems,
       }
     }
     
-    RINOK(inBuf.Res);
+    RINOK(inBuf.Res)
   }
   
   realOutStream.Release();
@@ -470,7 +389,7 @@ STDMETHODIMP CHandler::Extract(const UInt32 *indices, UInt32 numItems,
 static const Byte k_Signature[] = { 0x8F, 0xAF, 0xAC, 0x84 };
 
 REGISTER_ARC_I(
-  "Ppmd", "pmd", 0, 0xD,
+  "Ppmd", "pmd", NULL, 0xD,
   k_Signature,
   0,
   0,

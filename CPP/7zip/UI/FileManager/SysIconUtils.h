@@ -1,9 +1,13 @@
 // SysIconUtils.h
 
-#ifndef __SYS_ICON_UTILS_H
-#define __SYS_ICON_UTILS_H
+#ifndef ZIP7_INC_SYS_ICON_UTILS_H
+#define ZIP7_INC_SYS_ICON_UTILS_H
 
-#include "Common/MyString.h"
+#include "../../../Common/MyWindows.h"
+
+#include <CommCtrl.h>
+
+#include "../../../Common/MyString.h"
 
 struct CExtIconPair
 {
@@ -46,15 +50,6 @@ public:
 DWORD_PTR GetRealIconIndex(CFSTR path, DWORD attrib, int &iconIndex);
 int GetIconIndexForCSIDL(int csidl);
 
-#ifdef WIN32
-inline HIMAGELIST GetSysImageList(bool smallIcons)
-{
-  SHFILEINFO shellInfo;
-  return (HIMAGELIST)SHGetFileInfo(TEXT(""),
-      FILE_ATTRIBUTE_NORMAL | FILE_ATTRIBUTE_DIRECTORY,
-      &shellInfo, sizeof(shellInfo),
-      SHGFI_USEFILEATTRIBUTES | SHGFI_SYSICONINDEX | (smallIcons ? SHGFI_SMALLICON : SHGFI_ICON));
-}
-#endif
+HIMAGELIST GetSysImageList(bool smallIcons);
 
 #endif

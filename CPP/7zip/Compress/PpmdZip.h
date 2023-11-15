@@ -1,16 +1,16 @@
 // PpmdZip.h
 
-#ifndef __COMPRESS_PPMD_ZIP_H
-#define __COMPRESS_PPMD_ZIP_H
+#ifndef ZIP7_INC_COMPRESS_PPMD_ZIP_H
+#define ZIP7_INC_COMPRESS_PPMD_ZIP_H
 
 #include "../../../C/Alloc.h"
 #include "../../../C/Ppmd8.h"
 
 #include "../../Common/MyCom.h"
 
-#include "../Common/CWrappers.h"
-
 #include "../ICoder.h"
+
+#include "../Common/CWrappers.h"
 
 namespace NCompress {
 namespace NPpmdZip {
@@ -21,38 +21,29 @@ struct CBuf
 {
   Byte *Buf;
   
-  CBuf(): Buf(0) {}
+  CBuf(): Buf(NULL) {}
   ~CBuf() { ::MidFree(Buf); }
   bool Alloc()
   {
     if (!Buf)
       Buf = (Byte *)::MidAlloc(kBufSize);
-    return (Buf != 0);
+    return (Buf != NULL);
   }
 };
 
 
-class CDecoder :
-  public ICompressCoder,
-  public ICompressSetFinishMode,
-  public ICompressGetInStreamProcessedSize,
-  public CMyUnknownImp
-{
+Z7_CLASS_IMP_NOQIB_3(
+  CDecoder
+  , ICompressCoder
+  , ICompressSetFinishMode
+  , ICompressGetInStreamProcessedSize
+)
   CByteInBufWrap _inStream;
   CBuf _outStream;
   CPpmd8 _ppmd;
   bool _fullFileMode;
 public:
-  MY_UNKNOWN_IMP2(
-      ICompressSetFinishMode,
-      ICompressGetInStreamProcessedSize)
-
-  STDMETHOD(Code)(ISequentialInStream *inStream, ISequentialOutStream *outStream,
-      const UInt64 *inSize, const UInt64 *outSize, ICompressProgressInfo *progress);
-  STDMETHOD(SetFinishMode)(UInt32 finishMode);
-  STDMETHOD(GetInStreamProcessedSize)(UInt64 *value);
-
-  CDecoder(bool fullFileMode);
+  CDecoder(bool fullFileMode = true);
   ~CDecoder();
 };
 
@@ -74,20 +65,17 @@ struct CEncProps
   void Normalize(int level);
 };
 
-class CEncoder :
-  public ICompressCoder,
-  public ICompressSetCoderProperties,
-  public CMyUnknownImp
-{
+
+Z7_CLASS_IMP_NOQIB_2(
+  CEncoder
+  , ICompressCoder
+  , ICompressSetCoderProperties
+)
   CByteOutBufWrap _outStream;
   CBuf _inStream;
   CPpmd8 _ppmd;
   CEncProps _props;
 public:
-  MY_UNKNOWN_IMP1(ICompressSetCoderProperties)
-  STDMETHOD(Code)(ISequentialInStream *inStream, ISequentialOutStream *outStream,
-      const UInt64 *inSize, const UInt64 *outSize, ICompressProgressInfo *progress);
-  STDMETHOD(SetCoderProperties)(const PROPID *propIDs, const PROPVARIANT *props, UInt32 numProps);
   CEncoder();
   ~CEncoder();
 };

@@ -1,14 +1,14 @@
 // Compress/BZip2Decoder.h
 
-#ifndef __COMPRESS_BZIP2_DECODER_H
-#define __COMPRESS_BZIP2_DECODER_H
+#ifndef ZIP7_INC_COMPRESS_BZIP2_DECODER_H
+#define ZIP7_INC_COMPRESS_BZIP2_DECODER_H
 
 #include "../../Common/MyCom.h"
 
-// #define NO_READ_FROM_CODER
-// #define _7ZIP_ST
+// #define Z7_NO_READ_FROM_CODER
+// #define Z7_ST
 
-#ifndef _7ZIP_ST
+#ifndef Z7_ST
 #include "../../Windows/Synchronization.h"
 #include "../../Windows/Thread.h"
 #endif
@@ -73,8 +73,18 @@ struct CBitDecoder
   */
 
   SRes ReadByte(int &b);
+
+  CBitDecoder():
+    _buf(NULL),
+    _lim(NULL)
+  {
+    InitBitDecoder();
+  }
 };
 
+
+// 19.03: we allow additional 8 selectors to support files created by lbzip2.
+const UInt32 kNumSelectorsMax_Decoder = kNumSelectorsMax + 8;
 
 struct CBase: public CBitDecoder
 {
@@ -100,7 +110,7 @@ struct CBase: public CBitDecoder
 
 private:
   CMtf8Decoder mtf;
-  Byte selectors[kNumSelectorsMax];
+  Byte selectors[kNumSelectorsMax_Decoder];
   CHuffmanDecoder huffs[kNumTablesMax];
 
   Byte lens[kMaxAlphaSize];
@@ -124,7 +134,7 @@ public:
 
   ISequentialInStream *InStream;
 
-  #ifndef NO_READ_FROM_CODER
+  #ifndef Z7_NO_READ_FROM_CODER
   CMyComPtr<ISequentialInStream> InStreamRef;
   #endif
 
@@ -184,23 +194,51 @@ public:
 
   
  
-class CDecoder :
+class CDecoder:
   public ICompressCoder,
   public ICompressSetFinishMode,
   public ICompressGetInStreamProcessedSize,
-
-  #ifndef NO_READ_FROM_CODER
+  public ICompressReadUnusedFromInBuf,
+#ifndef Z7_NO_READ_FROM_CODER
   public ICompressSetInStream,
   public ICompressSetOutStreamSize,
   public ISequentialInStream,
-  #endif
-
-  #ifndef _7ZIP_ST
+#endif
+#ifndef Z7_ST
   public ICompressSetCoderMt,
-  #endif
-
+#endif
   public CMyUnknownImp
 {
+  Z7_COM_QI_BEGIN2(ICompressCoder)
+  Z7_COM_QI_ENTRY(ICompressSetFinishMode)
+  Z7_COM_QI_ENTRY(ICompressGetInStreamProcessedSize)
+  Z7_COM_QI_ENTRY(ICompressReadUnusedFromInBuf)
+#ifndef Z7_NO_READ_FROM_CODER
+  Z7_COM_QI_ENTRY(ICompressSetInStream)
+  Z7_COM_QI_ENTRY(ICompressSetOutStreamSize)
+  Z7_COM_QI_ENTRY(ISequentialInStream)
+#endif
+#ifndef Z7_ST
+  Z7_COM_QI_ENTRY(ICompressSetCoderMt)
+#endif
+  Z7_COM_QI_END
+  Z7_COM_ADDREF_RELEASE
+
+  Z7_IFACE_COM7_IMP(ICompressCoder)
+  Z7_IFACE_COM7_IMP(ICompressSetFinishMode)
+  Z7_IFACE_COM7_IMP(ICompressGetInStreamProcessedSize)
+  Z7_IFACE_COM7_IMP(ICompressReadUnusedFromInBuf)
+#ifndef Z7_NO_READ_FROM_CODER
+  Z7_IFACE_COM7_IMP(ICompressSetInStream)
+  Z7_IFACE_COM7_IMP(ICompressSetOutStreamSize)
+  Z7_IFACE_COM7_IMP_NONFINAL(ISequentialInStream)
+#endif
+public:
+#ifndef Z7_ST
+  Z7_IFACE_COM7_IMP(ICompressSetCoderMt)
+#endif
+
+private:
   Byte *_outBuf;
   size_t _outPos;
   UInt64 _outWritten;
@@ -224,7 +262,7 @@ public:
   CSpecState _spec;
   UInt32 *_counters;
 
-  #ifndef _7ZIP_ST
+  #ifndef Z7_ST
 
   struct CBlock
   {
@@ -293,6 +331,8 @@ public:
 
   void InitInputBuffer()
   {
+    // We use InitInputBuffer() before stream init.
+    // So don't read from stream here
     _inProcessed = 0;
     Base._buf = _inBuf;
     Base._lim = _inBuf;
@@ -302,7 +342,12 @@ public:
   UInt64 GetInputProcessedSize() const
   {
     // for NSIS case : we need also look the number of bits in bitDecoder
-    return _inProcessed + (Base._buf - _inBuf);
+    return _inProcessed + (size_t)(Base._buf - _inBuf);
+  }
+
+  UInt64 GetInStreamSize() const
+  {
+    return _inProcessed + (size_t)(Base._buf - _inBuf) - (Base._numBits >> 3);
   }
 
   UInt64 GetOutProcessedSize() const { return _outWritten + _outPos; }
@@ -321,58 +366,20 @@ public:
   HRESULT DecodeBlock(const CBlockProps &props);
   HRESULT DecodeStreams(ICompressProgressInfo *progress);
 
-  MY_QUERYINTERFACE_BEGIN2(ICompressCoder)
-  MY_QUERYINTERFACE_ENTRY(ICompressSetFinishMode)
-  MY_QUERYINTERFACE_ENTRY(ICompressGetInStreamProcessedSize)
-
-  #ifndef NO_READ_FROM_CODER
-  MY_QUERYINTERFACE_ENTRY(ICompressSetInStream)
-  MY_QUERYINTERFACE_ENTRY(ICompressSetOutStreamSize)
-  MY_QUERYINTERFACE_ENTRY(ISequentialInStream)
-  #endif
-
-  #ifndef _7ZIP_ST
-  MY_QUERYINTERFACE_ENTRY(ICompressSetCoderMt)
-  #endif
-
-  MY_QUERYINTERFACE_END
-  MY_ADDREF_RELEASE
-
-  
-  STDMETHOD(Code)(ISequentialInStream *inStream, ISequentialOutStream *outStream,
-      const UInt64 *inSize, const UInt64 *outSize, ICompressProgressInfo *progress);
-
-  STDMETHOD(SetFinishMode)(UInt32 finishMode);
-  STDMETHOD(GetInStreamProcessedSize)(UInt64 *value);
-
   UInt64 GetNumStreams() const { return Base.NumStreams; }
   UInt64 GetNumBlocks() const { return Base.NumBlocks; }
 
-  #ifndef NO_READ_FROM_CODER
-
-  STDMETHOD(SetInStream)(ISequentialInStream *inStream);
-  STDMETHOD(ReleaseInStream)();
-  STDMETHOD(SetOutStreamSize)(const UInt64 *outSize);
-  STDMETHOD(Read)(void *data, UInt32 size, UInt32 *processedSize);
-
-  #endif
-
-  #ifndef _7ZIP_ST
-  STDMETHOD(SetNumberOfThreads)(UInt32 numThreads);
-  #endif
-
   CDecoder();
-  ~CDecoder();
+  virtual ~CDecoder();
 };
 
 
 
-#ifndef NO_READ_FROM_CODER
+#ifndef Z7_NO_READ_FROM_CODER
 
-class CNsisDecoder : public CDecoder
+class CNsisDecoder Z7_final: public CDecoder
 {
-public:
-  STDMETHOD(Read)(void *data, UInt32 size, UInt32 *processedSize);
+  Z7_IFACE_COM7_IMP(ISequentialInStream)
 };
 
 #endif

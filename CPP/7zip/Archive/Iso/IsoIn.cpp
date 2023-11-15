@@ -48,9 +48,9 @@ bool CBootInitialEntry::Parse(const Byte *p)
 AString CBootInitialEntry::GetName() const
 {
   AString s (Bootable ? "Boot" : "NotBoot");
-  s += '-';
+  s.Add_Minus();
   
-  if (BootMediaType < ARRAY_SIZE(kMediaTypes))
+  if (BootMediaType < Z7_ARRAY_SIZE(kMediaTypes))
     s += kMediaTypes[BootMediaType];
   else
     s.Add_UInt32(BootMediaType);
@@ -65,10 +65,10 @@ AString CBootInitialEntry::GetName() const
         break;
     if (i == sizeof(VendorSpec))
     {
-      s += '-';
+      s.Add_Minus();
       for (i = 1; i < sizeof(VendorSpec); i++)
       {
-        char c = VendorSpec[i];
+        char c = (char)VendorSpec[i];
         if (c == 0)
           break;
         if (c == '\\' || c == '/')
@@ -134,7 +134,7 @@ UInt16 CInArchive::ReadUInt16()
   {
     if (b[i] != b[3 - i])
       IncorrectBigEndian = true;
-    val |= ((UInt16)(b[i]) << (8 * i));
+    val |= ((UInt32)(b[i]) << (8 * i));
   }
   return (UInt16)val;
 }
@@ -180,7 +180,7 @@ UInt32 CInArchive::ReadDigits(int numDigits)
     Byte b = ReadByte();
     if (b < '0' || b > '9')
     {
-      if (b == 0) // it's bug in some CD's
+      if (b == 0 || b == ' ') // it's bug in some CD's
         b = '0';
       else
         throw CHeaderErrorException();
@@ -299,10 +299,12 @@ void CInArchive::ReadVolumeDescriptor(CVolumeDescriptor &d)
 
 static const Byte kSig_CD001[5] = { 'C', 'D', '0', '0', '1' };
 
+/*
 static const Byte kSig_NSR02[5] = { 'N', 'S', 'R', '0', '2' };
 static const Byte kSig_NSR03[5] = { 'N', 'S', 'R', '0', '3' };
 static const Byte kSig_BEA01[5] = { 'B', 'E', 'A', '0', '1' };
 static const Byte kSig_TEA01[5] = { 'T', 'E', 'A', '0', '1' };
+*/
 
 static inline bool CheckSignature(const Byte *sig, const Byte *data)
 {
@@ -314,7 +316,9 @@ static inline bool CheckSignature(const Byte *sig, const Byte *data)
 
 void CInArchive::SeekToBlock(UInt32 blockIndex)
 {
-  HRESULT res = _stream->Seek((UInt64)blockIndex * VolDescs[MainVolDescIndex].LogicalBlockSize, STREAM_SEEK_SET, &_position);
+  const HRESULT res = _stream->Seek(
+      (Int64)((UInt64)blockIndex * VolDescs[MainVolDescIndex].LogicalBlockSize),
+      STREAM_SEEK_SET, &_position);
   if (res != S_OK)
     throw CSystemException(res);
   m_BufferPos = 0;
@@ -504,10 +508,10 @@ void CInArchive::ReadBootInfo()
 HRESULT CInArchive::Open2()
 {
   _position = 0;
-  RINOK(_stream->Seek(0, STREAM_SEEK_END, &_fileSize));
+  RINOK(InStream_GetSize_SeekToEnd(_stream, _fileSize))
   if (_fileSize < kStartPos)
     return S_FALSE;
-  RINOK(_stream->Seek(kStartPos, STREAM_SEEK_SET, &_position));
+  RINOK(_stream->Seek(kStartPos, STREAM_SEEK_SET, &_position))
 
   PhySize = _position;
   m_BufferPos = 0;
@@ -582,9 +586,11 @@ HRESULT CInArchive::Open2()
   
   if (VolDescs.IsEmpty())
     return S_FALSE;
-  for (MainVolDescIndex = VolDescs.Size() - 1; MainVolDescIndex > 0; MainVolDescIndex--)
+  for (MainVolDescIndex = (int)VolDescs.Size() - 1; MainVolDescIndex > 0; MainVolDescIndex--)
     if (VolDescs[MainVolDescIndex].IsJoliet())
       break;
+  /* FIXME: some volume can contain Rock Ridge, that is better than
+     Joliet volume. So we need some way to detect such case */
   // MainVolDescIndex = 0; // to read primary volume
   const CVolumeDescriptor &vd = VolDescs[MainVolDescIndex];
   if (vd.LogicalBlockSize != kBlockSize)
@@ -623,10 +629,10 @@ HRESULT CInArchive::Open2()
     const UInt64 kRemMax = 1 << 21;
     if (rem <= kRemMax)
     {
-      RINOK(_stream->Seek(PhySize, STREAM_SEEK_SET, NULL));
+      RINOK(InStream_SeekSet(_stream, PhySize))
       bool areThereNonZeros = false;
       UInt64 numZeros = 0;
-      RINOK(ReadZeroTail(_stream, areThereNonZeros, numZeros, kRemMax));
+      RINOK(ReadZeroTail(_stream, areThereNonZeros, numZeros, kRemMax))
       if (!areThereNonZeros)
         PhySize += numZeros;
     }
@@ -664,6 +670,24 @@ void CInArchive::Clear()
   BootEntries.Clear();
   SuspSkipSize = 0;
   IsSusp = false;
+}
+
+
+UInt64 CInArchive::GetBootItemSize(unsigned index) const
+{
+  const CBootInitialEntry &be = BootEntries[index];
+  UInt64 size = be.GetSize();
+       if (be.BootMediaType == NBootMediaType::k1d2Floppy)  size = 1200 << 10;
+  else if (be.BootMediaType == NBootMediaType::k1d44Floppy) size = 1440 << 10;
+  else if (be.BootMediaType == NBootMediaType::k2d88Floppy) size = 2880 << 10;
+  const UInt64 startPos = (UInt64)be.LoadRBA * kBlockSize;
+  if (startPos < _fileSize)
+  {
+    const UInt64 rem = _fileSize - startPos;
+    if (rem < size)
+      size = rem;
+  }
+  return size;
 }
 
 }}

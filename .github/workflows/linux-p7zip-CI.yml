@@ -1,0 +1,53 @@
+name: p7zip-CI
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    name: p7zip-full build
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            mode: "clang"
+
+    runs-on: ${{ matrix.os }}
+    steps:
+    - uses: actions/checkout@v2
+    - name: install
+      run: |
+        sudo apt install git clang llvm patchelf build-essential make cmake wget unzip
+    - name: submodule update
+      run: |
+        git submodule update --init
+        cd Codecs/fast-lzma2/
+        patch -p1 -i ../../UInt64.patch
+    - name: Setting Up (Linux)
+      if: ${{ matrix.os == 'ubuntu-latest' }}
+      run: |
+        wget https://github.com/Terraspace/UASM/files/9881874/uasm256_linux64.zip
+        unzip uasm256_linux64.zip uasm
+        chmod +x uasm
+        sudo cp uasm /usr/local/bin/
+    - name: Build (Linux/Clang)
+      if: ${{ matrix.os == 'ubuntu-latest' && matrix.mode == 'clang' }}
+      run: |
+        export CMPL=""
+        export OUTDIR=c_x64
+        export FLAGS=""
+        export CFLAGS_ADDITIONAL=""
+        ./build_linux.sh
+    - name: 7z check
+      run: |
+        export PROJECT_ROOT=`pwd`
+        cd $PROJECT_ROOT/p7zip_test_utils/check
+        bash ../../check_7z.sh $PROJECT_ROOT/bin/p7zip/7z
+        bash check.sh $PROJECT_ROOT/bin/p7zip/7zz
+    - name: Upload (Linux/Clang)
+      if: ${{ matrix.os == 'ubuntu-latest' && matrix.mode == 'clang' }}
+      uses: actions/upload-artifact@v2
+      with:
+        name: p7zip-linux-x86_64-clang
+        path: bin

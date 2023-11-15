@@ -3,15 +3,15 @@
 #define LZ4_STATIC_LINKING_ONLY
 #include "../../../C/Alloc.h"
 #include "../../../C/Threads.h"
-#include "../../../C/lz4/lz4.h"
-#include "../../../C/zstdmt/lz4-mt.h"
+#include "../../../Codecs/lz4/lib/lz4.h"
+#include "../../../Codecs/zstdmt/lib/lz4-mt.h"
 
 #include "../../Common/Common.h"
 #include "../../Common/MyCom.h"
 #include "../ICoder.h"
 #include "../Common/StreamUtils.h"
 
-#ifndef EXTRACT_ONLY
+#ifndef Z7_EXTRACT_ONLY
 namespace NCompress {
 namespace NLZ4 {
 
@@ -56,10 +56,10 @@ public:
   MY_QUERYINTERFACE_END
   MY_ADDREF_RELEASE
 
-  STDMETHOD (Code)(ISequentialInStream *inStream, ISequentialOutStream *outStream, const UInt64 *inSize, const UInt64 *outSize, ICompressProgressInfo *progress);
-  STDMETHOD (SetCoderProperties)(const PROPID *propIDs, const PROPVARIANT *props, UInt32 numProps);
-  STDMETHOD (WriteCoderProperties)(ISequentialOutStream *outStream);
-  STDMETHOD (SetNumberOfThreads)(UInt32 numThreads);
+  STDMETHOD (Code)(ISequentialInStream *inStream, ISequentialOutStream *outStream, const UInt64 *inSize, const UInt64 *outSize, ICompressProgressInfo *progress) noexcept;
+  STDMETHOD (SetCoderProperties)(const PROPID *propIDs, const PROPVARIANT *props, UInt32 numProps) noexcept;
+  STDMETHOD (WriteCoderProperties)(ISequentialOutStream *outStream) noexcept;
+  STDMETHOD (SetNumberOfThreads)(UInt32 numThreads) noexcept;
 
   CEncoder();
   virtual ~CEncoder();

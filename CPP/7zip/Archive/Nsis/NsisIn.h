@@ -1,7 +1,7 @@
 // NsisIn.h
 
-#ifndef __ARCHIVE_NSIS_IN_H
-#define __ARCHIVE_NSIS_IN_H
+#ifndef ZIP7_INC_ARCHIVE_NSIS_IN_H
+#define ZIP7_INC_ARCHIVE_NSIS_IN_H
 
 #include "../../../../C/CpuArch.h"
 
@@ -10,6 +10,8 @@
 #include "../../../Common/MyCom.h"
 #include "../../../Common/StringConvert.h"
 #include "../../../Common/UTFConvert.h"
+
+#include "../../Common/StreamUtils.h"
 
 #include "NsisDecode.h"
 
@@ -34,6 +36,11 @@ namespace NFlags
   const UInt32 kSilent = 2;
   const UInt32 kNoCrc = 4;
   const UInt32 kForceCrc = 8;
+  // NSISBI fork flags:
+  const UInt32 k_BI_LongOffset = 16;
+  const UInt32 k_BI_ExternalFileSupport = 32;
+  const UInt32 k_BI_ExternalFile = 64;
+  const UInt32 k_BI_IsStubInstaller = 128;
 }
 
 struct CFirstHeader
@@ -58,15 +65,12 @@ struct CBlockHeader
   UInt32 Offset;
   UInt32 Num;
 
-  void Parse(const Byte *p)
-  {
-    Offset = GetUi32(p);
-    Num = GetUi32(p + 4);
-  }
+  void Parse(const Byte *p, unsigned bhoSize);
 };
 
 struct CItem
 {
+  bool IsEmptyFile;
   bool IsCompressed;
   bool Size_Defined;
   bool CompressedSize_Defined;
@@ -76,7 +80,7 @@ struct CItem
   // bool UseFilter;
   
   UInt32 Attrib;
-  UInt32 Pos;
+  UInt32 Pos;       // = 0, if (IsEmptyFile == true)
   UInt32 Size;
   UInt32 CompressedSize;
   UInt32 EstimatedSize;
@@ -88,7 +92,10 @@ struct CItem
   AString NameA;
   UString NameU;
   
+  bool Is_PatchedUninstaller() const { return PatchSize != 0; }
+  
   CItem():
+      IsEmptyFile(false),
       IsCompressed(true),
       Size_Defined(false),
       CompressedSize_Defined(false),
@@ -159,6 +166,7 @@ public:
   CByteBuffer _data;
   CObjectVector<CItem> Items;
   bool IsUnicode;
+  bool Is64Bit;
 private:
   UInt32 _stringsPos;     // relative to _data
   UInt32 NumStringChars;
@@ -170,11 +178,11 @@ private:
   ENsisType NsisType;
   bool IsNsis200; // NSIS 2.03 and before
   bool IsNsis225; // NSIS 2.25 and before
-  
   bool LogCmdIsEnabled;
   int BadCmd; // -1: no bad command; in another cases lowest bad command id
 
   bool IsPark() const { return NsisType >= k_NsisType_Park1; }
+  bool IsNsis3_OrHigher() const { return NsisType == k_NsisType_Nsis3; }
 
   UInt64 _fileSize;
   
@@ -352,7 +360,7 @@ public:
 
   HRESULT SeekTo(UInt64 pos)
   {
-    return _stream->Seek(pos, STREAM_SEEK_SET, NULL);
+    return InStream_SeekSet(_stream, pos);
   }
 
   HRESULT SeekTo_DataStreamOffset()
@@ -431,7 +439,7 @@ public:
       if (s[0] == L'\\')
         s.DeleteFrontal(1);
     }
-    if (item.IsUninstaller && ExeStub.Size() == 0)
+    if (item.Is_PatchedUninstaller() && ExeStub.Size() == 0)
       s += ".nsis";
     return s;
   }

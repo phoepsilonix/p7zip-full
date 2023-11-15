@@ -1,48 +1,46 @@
 // OutMemStream.h
 
-#ifndef __OUT_MEM_STREAM_H
-#define __OUT_MEM_STREAM_H
+#ifndef ZIP7_INC_OUT_MEM_STREAM_H
+#define ZIP7_INC_OUT_MEM_STREAM_H
 
 #include "../../Common/MyCom.h"
 
 #include "MemBlocks.h"
 
-class COutMemStream:
-  public IOutStream,
-  public CMyUnknownImp
-{
+Z7_CLASS_IMP_NOQIB_1(
+  COutMemStream
+  , IOutStream
+)
+  Z7_IFACE_COM7_IMP(ISequentialOutStream)
+
   CMemBlockManagerMt *_memManager;
-  unsigned _curBlockIndex;
   size_t _curBlockPos;
+  unsigned _curBlockIndex;
   bool _realStreamMode;
 
   bool _unlockEventWasSent;
-  NWindows::NSynchronization::CAutoResetEventWFMO StopWritingEvent;
-  NWindows::NSynchronization::CAutoResetEventWFMO WriteToRealStreamEvent;
+  NWindows::NSynchronization::CAutoResetEvent_WFMO StopWritingEvent;
+  NWindows::NSynchronization::CAutoResetEvent_WFMO WriteToRealStreamEvent;
   // NWindows::NSynchronization::CAutoResetEvent NoLockEvent;
 
   HRESULT StopWriteResult;
   CMemLockBlocks Blocks;
 
-  UInt64 GetPos() const { return (UInt64)_curBlockIndex * _memManager->GetBlockSize() + _curBlockPos; }
-
   CMyComPtr<ISequentialOutStream> OutSeqStream;
   CMyComPtr<IOutStream> OutStream;
 
+  UInt64 GetPos() const { return (UInt64)_curBlockIndex * _memManager->GetBlockSize() + _curBlockPos; }
+
 public:
 
-  HRes CreateEvents(NWindows::NSynchronization::CSynchro *sync)
+  HRes CreateEvents(SYNC_PARAM_DECL(synchro))
   {
-    RINOK(StopWritingEvent.CreateIfNotCreated(sync));
-    return WriteToRealStreamEvent.CreateIfNotCreated(sync);
+    WRes wres = StopWritingEvent.CreateIfNotCreated_Reset(SYNC_WFMO(synchro));
+    if (wres == 0)
+      wres = WriteToRealStreamEvent.CreateIfNotCreated_Reset(SYNC_WFMO(synchro));
+    return HRESULT_FROM_WIN32(wres);
   }
 
-  HRes CreateEvents()
-  {
-    RINOK(StopWritingEvent.CreateIfNotCreated());
-    return WriteToRealStreamEvent.CreateIfNotCreated();
-  }
-  
   void SetOutStream(IOutStream *outStream)
   {
     OutStream = outStream;
@@ -61,7 +59,16 @@ public:
     OutSeqStream.Release();
   }
 
-  COutMemStream(CMemBlockManagerMt *memManager): _memManager(memManager)  { }
+  COutMemStream(CMemBlockManagerMt *memManager):
+      _memManager(memManager)
+  {
+    /*
+    #ifndef _WIN32
+    StopWritingEvent._sync       =
+    WriteToRealStreamEvent._sync =  &memManager->Synchro;
+    #endif
+    */
+  }
 
   ~COutMemStream() { Free(); }
   void Free();
@@ -92,12 +99,6 @@ public:
     StopWriteResult = res;
     StopWritingEvent.Set();
   }
-
-  MY_UNKNOWN_IMP
-
-  STDMETHOD(Write)(const void *data, UInt32 size, UInt32 *processedSize);
-  STDMETHOD(Seek)(Int64 offset, UInt32 seekOrigin, UInt64 *newPosition);
-  STDMETHOD(SetSize)(UInt64 newSize);
 };
 
 #endif

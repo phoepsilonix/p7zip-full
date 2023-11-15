@@ -1,6 +1,7 @@
 *.o
-bin/
-CPP/7zip/CMAKE/build
-*.pyc
-__pycache__/
-check/TMP_*
+_o
+b
+zstd_build
+lz4_build
+brotli_build
+lzham_build

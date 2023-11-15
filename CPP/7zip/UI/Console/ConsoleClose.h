@@ -1,25 +1,38 @@
-// ConsoleCloseUtils.h
+// ConsoleClose.h
 
-#ifndef __CONSOLECLOSEUTILS_H
-#define __CONSOLECLOSEUTILS_H
+#ifndef ZIP7_INC_CONSOLE_CLOSE_H
+#define ZIP7_INC_CONSOLE_CLOSE_H
 
 namespace NConsoleClose {
 
-bool TestBreakSignal();
+class CCtrlBreakException {};
 
-class CCtrlHandlerSetter
+#ifdef UNDER_CE
+
+inline bool TestBreakSignal() { return false; }
+struct CCtrlHandlerSetter {};
+
+#else
+
+extern unsigned g_BreakCounter;
+
+inline bool TestBreakSignal()
 {
+  return (g_BreakCounter != 0);
+}
+
+class CCtrlHandlerSetter Z7_final
+{
+  #ifndef _WIN32
   void (*memo_sig_int)(int);
   void (*memo_sig_term)(int);
+  #endif
 public:
   CCtrlHandlerSetter();
-  virtual ~CCtrlHandlerSetter();
+  ~CCtrlHandlerSetter();
 };
 
-class CCtrlBreakException 
-{};
-
-void CheckCtrlBreak();
+#endif
 
 }
 

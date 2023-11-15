@@ -37,7 +37,7 @@ enum EFolderOpType
 
 class CThreadFolderOperations: public CProgressThreadVirt
 {
-  HRESULT ProcessVirt();
+  HRESULT ProcessVirt() Z7_override;
 public:
   EFolderOpType OpType;
   UString Name;
@@ -48,30 +48,24 @@ public:
   CMyComPtr<IProgress> UpdateCallback;
   CUpdateCallback100Imp *UpdateCallbackSpec;
   
-  HRESULT Result;
-
-  CThreadFolderOperations(EFolderOpType opType): OpType(opType), Result(E_FAIL) {}
+  CThreadFolderOperations(EFolderOpType opType): OpType(opType) {}
   HRESULT DoOperation(CPanel &panel, const UString &progressTitle, const UString &titleError);
 };
   
 HRESULT CThreadFolderOperations::ProcessVirt()
 {
-  // FIXME NCOM::CComInitializer comInitializer;
-  switch(OpType)
+  NCOM::CComInitializer comInitializer;
+  switch ((int)OpType)
   {
     case FOLDER_TYPE_CREATE_FOLDER:
-      Result = FolderOperations->CreateFolder(Name, UpdateCallback);
-      break;
+      return FolderOperations->CreateFolder(Name, UpdateCallback);
     case FOLDER_TYPE_DELETE:
-      Result = FolderOperations->Delete(&Indices.Front(), Indices.Size(), UpdateCallback);
-      break;
+      return FolderOperations->Delete(&Indices.Front(), Indices.Size(), UpdateCallback);
     case FOLDER_TYPE_RENAME:
-      Result = FolderOperations->Rename(Index, Name, UpdateCallback);
-      break;
+      return FolderOperations->Rename(Index, Name, UpdateCallback);
     default:
-      Result = E_FAIL;
+      return E_FAIL;
   }
-  return Result;
 }
 
 
@@ -79,11 +73,10 @@ HRESULT CThreadFolderOperations::DoOperation(CPanel &panel, const UString &progr
 {
   UpdateCallbackSpec = new CUpdateCallback100Imp;
   UpdateCallback = UpdateCallbackSpec;
-  UpdateCallbackSpec->ProgressDialog = &ProgressDialog;
+  UpdateCallbackSpec->ProgressDialog = this;
 
-  // FIXME ProgressDialog.WaitMode = true;
-  ProgressDialog.Sync.FinalMessage.ErrorMessage.Title = titleError;
-  Result = S_OK;
+  WaitMode = true;
+  Sync.FinalMessage.ErrorMessage.Title = titleError;
 
   UpdateCallbackSpec->Init();
 
@@ -94,26 +87,25 @@ HRESULT CThreadFolderOperations::DoOperation(CPanel &panel, const UString &progr
     UpdateCallbackSpec->Password = fl.Password;
   }
 
+  MainWindow = panel._mainWindow; // panel.GetParent()
+  MainTitle = "7-Zip"; // LangString(IDS_APP_TITLE);
+  MainAddTitle = progressTitle + L' ';
 
-  ProgressDialog.MainWindow = panel._mainWindow; // panel.GetParent()
-  ProgressDialog.MainTitle = L"7-Zip"; // LangString(IDS_APP_TITLE);
-  ProgressDialog.MainAddTitle = progressTitle + L' ';
-
-  RINOK(Create(progressTitle, ProgressDialog.MainWindow));
+  RINOK(Create(progressTitle, MainWindow))
   return Result;
 }
 
 #ifndef _UNICODE
-typedef int (WINAPI * SHFileOperationWP)(LPSHFILEOPSTRUCTW lpFileOp);
+typedef int (WINAPI * Func_SHFileOperationW)(LPSHFILEOPSTRUCTW lpFileOp);
 #endif
 
 /*
 void CPanel::MessageBoxErrorForUpdate(HRESULT errorCode, UINT resourceID)
 {
   if (errorCode == E_NOINTERFACE)
-    MessageBoxErrorLang(IDS_OPERATION_IS_NOT_SUPPORTED);
+    MessageBox_Error_UnsupportOperation();
   else
-    MessageBoxError(errorCode, LangString(resourceID));
+    MessageBox_Error_HRESULT_Caption(errorCode, LangString(resourceID));
 }
 */
 
@@ -121,7 +113,7 @@ void CPanel::DeleteItems(bool NON_CE_VAR(toRecycleBin))
 {
   CDisableTimerProcessing disableTimerProcessing(*this);
   CRecordVector<UInt32> indices;
-  GetOperatedItemIndices(indices);
+  Get_ItemIndices_Operated(indices);
   if (indices.IsEmpty())
     return;
   CSelectedState state;
@@ -138,7 +130,7 @@ void CPanel::DeleteItems(bool NON_CE_VAR(toRecycleBin))
       CDynamicBuffer<CHAR> buffer;
       FOR_VECTOR (i, indices)
       {
-        const AString path = GetSystemString(GetItemFullPath(indices[i]));
+        const AString path (GetSystemString(GetItemFullPath(indices[i])));
         buffer.AddData(path, path.Len() + 1);
       }
       *buffer.GetCurPtrAndGrow(1) = 0;
@@ -146,7 +138,7 @@ void CPanel::DeleteItems(bool NON_CE_VAR(toRecycleBin))
       fo.hwnd = GetParent();
       fo.wFunc = FO_DELETE;
       fo.pFrom = (const CHAR *)buffer;
-      fo.pTo = 0;
+      fo.pTo = NULL;
       fo.fFlags = 0;
       if (toRecycleBin)
         fo.fFlags |= FOF_ALLOWUNDO;
@@ -155,8 +147,8 @@ void CPanel::DeleteItems(bool NON_CE_VAR(toRecycleBin))
       // fo.fFlags |= FOF_SILENT;
       // fo.fFlags |= FOF_WANTNUKEWARNING;
       fo.fAnyOperationsAborted = FALSE;
-      fo.hNameMappings = 0;
-      fo.lpszProgressTitle = 0;
+      fo.hNameMappings = NULL;
+      fo.lpszProgressTitle = NULL;
       /* int res = */ ::SHFileOperationA(&fo);
     }
     else
@@ -174,12 +166,11 @@ void CPanel::DeleteItems(bool NON_CE_VAR(toRecycleBin))
         buffer.AddData(path, path.Len() + 1);
       }
       *buffer.GetCurPtrAndGrow(1) = 0;
-#ifdef _WIN32
       if (maxLen >= MAX_PATH)
       {
         if (toRecycleBin)
         {
-          MessageBoxErrorLang(IDS_ERROR_LONG_PATH_TO_RECYCLE);
+          MessageBox_Error_LangID(IDS_ERROR_LONG_PATH_TO_RECYCLE);
           return;
         }
         useInternalDelete = true;
@@ -190,32 +181,30 @@ void CPanel::DeleteItems(bool NON_CE_VAR(toRecycleBin))
         fo.hwnd = GetParent();
         fo.wFunc = FO_DELETE;
         fo.pFrom = (const WCHAR *)buffer;
-        fo.pTo = 0;
+        fo.pTo = NULL;
         fo.fFlags = 0;
         if (toRecycleBin)
           fo.fFlags |= FOF_ALLOWUNDO;
         fo.fAnyOperationsAborted = FALSE;
-        fo.hNameMappings = 0;
-        fo.lpszProgressTitle = 0;
+        fo.hNameMappings = NULL;
+        fo.lpszProgressTitle = NULL;
         // int res;
         #ifdef _UNICODE
         /* res = */ ::SHFileOperationW(&fo);
         #else
-        SHFileOperationWP shFileOperationW = (SHFileOperationWP)
-          ::GetProcAddress(::GetModuleHandleW(L"shell32.dll"), "SHFileOperationW");
-        if (shFileOperationW == 0)
+        Func_SHFileOperationW
+           f_SHFileOperationW = Z7_GET_PROC_ADDRESS(
+        Func_SHFileOperationW, ::GetModuleHandleW(L"shell32.dll"),
+            "SHFileOperationW");
+        if (!f_SHFileOperationW)
           return;
-        /* res = */ shFileOperationW(&fo);
+        /* res = */ f_SHFileOperationW(&fo);
         #endif
       }
-#else
-      // FIXME - how to use the recycle bin undex Gnome or KDE ?
-      useInternalDelete = true;
-#endif
     }
     /*
     if (fo.fAnyOperationsAborted)
-      MessageBoxError(result, LangString(IDS_ERROR_DELETING, 0x03020217));
+      MessageBox_Error_HRESULT_Caption(result, LangString(IDS_ERROR_DELETING));
     */
     if (!useInternalDelete)
     {
@@ -234,7 +223,7 @@ void CPanel::DeleteItems(bool NON_CE_VAR(toRecycleBin))
   UString messageParam;
   if (indices.Size() == 1)
   {
-    int index = indices[0];
+    const unsigned index = indices[0];
     messageParam = GetItemRelPath2(index);
     if (IsItem_Folder(index))
     {
@@ -269,21 +258,19 @@ void CPanel::DeleteItems(bool NON_CE_VAR(toRecycleBin))
   RefreshListCtrl(state);
 }
 
-#ifdef _WIN32
 BOOL CPanel::OnBeginLabelEdit(LV_DISPINFOW * lpnmh)
 {
-  int realIndex = GetRealIndex(lpnmh->item);
+  const unsigned realIndex = GetRealIndex(lpnmh->item);
   if (realIndex == kParentIndex)
     return TRUE;
   if (IsThereReadOnlyFolder())
     return TRUE;
   return FALSE;
 }
-#endif
 
-bool IsCorrectFsName(const UString &name)
+static bool IsCorrectFsName(const UString &name)
 {
-  const UString lastPart = name.Ptr(name.ReverseFind_PathSepar() + 1);
+  const UString lastPart = name.Ptr((unsigned)(name.ReverseFind_PathSepar() + 1));
   return
       lastPart != L"." &&
       lastPart != L"..";
@@ -296,7 +283,6 @@ bool CPanel::CorrectFsPath(const UString &path2, UString &result)
   return ::CorrectFsPath(GetFsPath(), path2, result);
 }
 
-#ifdef _WIN32
 BOOL CPanel::OnEndLabelEdit(LV_DISPINFOW * lpnmh)
 {
   if (lpnmh->item.pszText == NULL)
@@ -309,7 +295,7 @@ BOOL CPanel::OnEndLabelEdit(LV_DISPINFOW * lpnmh)
   UString newName = lpnmh->item.pszText;
   if (!IsCorrectFsName(newName))
   {
-    MessageBoxError(E_INVALIDARG);
+    MessageBox_Error_HRESULT(E_INVALIDARG);
     return FALSE;
   }
 
@@ -318,7 +304,7 @@ BOOL CPanel::OnEndLabelEdit(LV_DISPINFOW * lpnmh)
     UString correctName;
     if (!CorrectFsPath(newName, correctName))
     {
-      MessageBoxError(E_INVALIDARG);
+      MessageBox_Error_HRESULT(E_INVALIDARG);
       return FALSE;
     }
     newName = correctName;
@@ -326,7 +312,7 @@ BOOL CPanel::OnEndLabelEdit(LV_DISPINFOW * lpnmh)
 
   SaveSelectedState(_selectedState);
 
-  int realIndex = GetRealIndex(lpnmh->item);
+  const unsigned realIndex = GetRealIndex(lpnmh->item);
   if (realIndex == kParentIndex)
     return FALSE;
   const UString prefix = GetItemPrefix(realIndex);
@@ -352,25 +338,28 @@ BOOL CPanel::OnEndLabelEdit(LV_DISPINFOW * lpnmh)
   // Can't use RefreshListCtrl here.
   // RefreshListCtrlSaveFocused();
   _selectedState.FocusedName = prefix + newName;
+  _selectedState.FocusedName_Defined = true;
   _selectedState.SelectFocused = true;
 
   // We need clear all items to disable GetText before Reload:
   // number of items can change.
-  // _listView.DeleteAllItems();
+  // DeleteListItems();
   // But seems it can still call GetText (maybe for current item)
   // so we can't delete items.
 
   _dontShowMode = true;
 
-  PostMessage(kReLoadMessage);
+  PostMsg(kReLoadMessage);
   return TRUE;
 }
-#endif
 
 bool Dlg_CreateFolder(HWND wnd, UString &destName);
 
 void CPanel::CreateFolder()
 {
+  if (IsHashFolder())
+    return;
+
   if (!CheckBeforeUpdate(IDS_CREATE_FOLDER_ERROR))
     return;
 
@@ -384,7 +373,7 @@ void CPanel::CreateFolder()
   
   if (!IsCorrectFsName(newName))
   {
-    MessageBoxError(E_INVALIDARG);
+    MessageBox_Error_HRESULT(E_INVALIDARG);
     return;
   }
 
@@ -393,7 +382,7 @@ void CPanel::CreateFolder()
     UString correctName;
     if (!CorrectFsPath(newName, correctName))
     {
-      MessageBoxError(E_INVALIDARG);
+      MessageBox_Error_HRESULT(E_INVALIDARG);
       return;
     }
     newName = correctName;
@@ -418,10 +407,11 @@ void CPanel::CreateFolder()
   {
     int pos = newName.Find(WCHAR_PATH_SEPARATOR);
     if (pos >= 0)
-      newName.DeleteFrom(pos);
+      newName.DeleteFrom((unsigned)(pos));
     if (!_mySelectMode)
       state.SelectedNames.Clear();
     state.FocusedName = newName;
+    state.FocusedName_Defined = true;
     state.SelectFocused = true;
   }
   RefreshTitleAlways();
@@ -430,6 +420,9 @@ void CPanel::CreateFolder()
 
 void CPanel::CreateFile()
 {
+  if (IsHashFolder())
+    return;
+
   if (!CheckBeforeUpdate(IDS_CREATE_FILE_ERROR))
     return;
 
@@ -453,25 +446,26 @@ void CPanel::CreateFile()
     UString correctName;
     if (!CorrectFsPath(newName, correctName))
     {
-      MessageBoxError(E_INVALIDARG);
+      MessageBox_Error_HRESULT(E_INVALIDARG);
       return;
     }
     newName = correctName;
   }
 
-  HRESULT result = _folderOperations->CreateFile(newName, 0);
+  const HRESULT result = _folderOperations->CreateFile(newName, NULL);
   if (result != S_OK)
   {
-    MessageBoxError(result, LangString(IDS_CREATE_FILE_ERROR));
+    MessageBox_Error_HRESULT_Caption(result, LangString(IDS_CREATE_FILE_ERROR));
     // MessageBoxErrorForUpdate(result, IDS_CREATE_FILE_ERROR);
     return;
   }
-  int pos = newName.Find(WCHAR_PATH_SEPARATOR);
+  const int pos = newName.Find(WCHAR_PATH_SEPARATOR);
   if (pos >= 0)
-    newName.DeleteFrom(pos);
+    newName.DeleteFrom((unsigned)pos);
   if (!_mySelectMode)
     state.SelectedNames.Clear();
   state.FocusedName = newName;
+  state.FocusedName_Defined = true;
   state.SelectFocused = true;
   RefreshListCtrl(state);
 }
@@ -487,13 +481,15 @@ void CPanel::RenameFile()
 
 void CPanel::ChangeComment()
 {
+  if (IsHashFolder())
+    return;
   if (!CheckBeforeUpdate(IDS_COMMENT))
     return;
   CDisableTimerProcessing disableTimerProcessing2(*this);
-  int index = _listView.GetFocusedItem();
+  const int index = _listView.GetFocusedItem();
   if (index < 0)
     return;
-  int realIndex = GetRealItemIndex(index);
+  const unsigned realIndex = GetRealItemIndex(index);
   if (realIndex == kParentIndex)
     return;
   CSelectedState state;
@@ -508,40 +504,25 @@ void CPanel::ChangeComment()
     else if (propVariant.vt != VT_EMPTY)
       return;
   }
-  UString name = GetItemRelPath2(realIndex);
+  const UString name = GetItemRelPath2(realIndex);
   CComboDialog dlg;
   dlg.Title = name;
-  dlg.Title += L" : ";
+  dlg.Title += " : ";
   AddLangString(dlg.Title, IDS_COMMENT);
   dlg.Value = comment;
   LangString(IDS_COMMENT2, dlg.Static);
   if (dlg.Create(GetParent()) != IDOK)
     return;
-  NCOM::CPropVariant propVariant = dlg.Value.Ptr();
+  NCOM::CPropVariant propVariant (dlg.Value);
 
   CDisableNotify disableNotify(*this);
-  HRESULT result = _folderOperations->SetProperty(realIndex, kpidComment, &propVariant, NULL);
+  const HRESULT result = _folderOperations->SetProperty(realIndex, kpidComment, &propVariant, NULL);
   if (result != S_OK)
   {
     if (result == E_NOINTERFACE)
-      MessageBoxErrorLang(IDS_OPERATION_IS_NOT_SUPPORTED);
+      MessageBox_Error_UnsupportOperation();
     else
-      MessageBoxError(result, L"Set Comment Error");
+      MessageBox_Error_HRESULT_Caption(result, L"Set Comment Error");
   }
   RefreshListCtrl(state);
 }
-
-// From CPP/7zip/UI/FileManager/BrowseDialog.cpp
-bool Dlg_CreateFolder(HWND wnd, UString &destName)
-{
-  destName.Empty();
-  CComboDialog dlg;
-  LangString(IDS_CREATE_FOLDER, dlg.Title);
-  LangString(IDS_CREATE_FOLDER_NAME, dlg.Static);
-  LangString(IDS_CREATE_FOLDER_DEFAULT_NAME, dlg.Value);
-  if (dlg.Create(wnd) != IDOK)
-    return false;
-  destName = dlg.Value;
-  return true;
-}
-

@@ -5,7 +5,7 @@
 #include "../../C/CpuArch.h"
 
 EXTERN_C_BEGIN
-#include "../../C/hashes/md4.h"
+#include "../../Codecs/hashes/md4.h"
 EXTERN_C_END
 
 #include "../Common/MyCom.h"

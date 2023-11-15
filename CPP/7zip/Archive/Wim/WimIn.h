@@ -1,7 +1,7 @@
 // Archive/WimIn.h
 
-#ifndef __ARCHIVE_WIM_IN_H
-#define __ARCHIVE_WIM_IN_H
+#ifndef ZIP7_INC_ARCHIVE_WIM_IN_H
+#define ZIP7_INC_ARCHIVE_WIM_IN_H
 
 #include "../../../../C/Alloc.h"
 
@@ -192,7 +192,7 @@ struct CSolid
   
   UInt64 UnpackSize;
   int Method;
-  int ChunkSizeBits;
+  unsigned ChunkSizeBits;
 
   UInt64 HeadersSize;
   // size_t NumChunks;
@@ -258,8 +258,8 @@ struct CHeader
   UInt32 NumImages;
   UInt32 BootIndex;
 
-  bool _IsOldVersion; // 1.10-
-  bool _IsNewVersion; // 1.13+ or 0.14
+  bool _isOldVersion; // 1.10-
+  bool _isNewVersion; // 1.13+ or 0.14
 
   CResource OffsetResource;
   CResource XmlResource;
@@ -295,8 +295,8 @@ struct CHeader
     return mask;
   }
 
-  bool IsOldVersion() const { return _IsOldVersion; }
-  bool IsNewVersion() const { return _IsNewVersion; }
+  bool IsOldVersion() const { return _isOldVersion; }
+  bool IsNewVersion() const { return _isNewVersion; }
   bool IsSolidVersion() const { return (Version == k_Version_Solid); }
 
   bool AreFromOnArchive(const CHeader &h)
@@ -457,7 +457,7 @@ public:
   bool RefCountError;
   bool HeadersError;
 
-  bool GetStartImageIndex() const { return IsOldVersion9 ? 0 : 1; }
+  unsigned GetStartImageIndex() const { return IsOldVersion9 ? 0 : 1; }
   unsigned GetDirAlignMask() const { return IsOldVersion9 ? 3 : 7; }
   
   // User Items can contain all images or just one image from all.
@@ -468,7 +468,7 @@ public:
   int ExludedItem;          // -1 : if there are no exclude items
   CUIntVector VirtualRoots; // we use them for old 1.10 WIM archives
 
-  bool ThereIsError() const { return RefCountError; }
+  bool ThereIsError() const { return RefCountError || HeadersError; }
 
   unsigned GetNumUserItemsInImage(unsigned imageIndex) const
   {
@@ -544,7 +544,10 @@ public:
     HeadersError = false;
   }
 
-  CDatabase(): RefCountError(false) {}
+  CDatabase():
+    RefCountError(false),
+    HeadersError(false)
+    {}
 
   void GetShortName(unsigned index, NWindows::NCOM::CPropVariant &res) const;
   void GetItemName(unsigned index1, NWindows::NCOM::CPropVariant &res) const;

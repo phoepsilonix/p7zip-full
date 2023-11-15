@@ -16,9 +16,9 @@ using namespace NWindows;
 
 void CMessagesDialog::AddMessageDirect(LPCWSTR message)
 {
-  int i = _messageList.GetItemCount();
+  const unsigned i = (unsigned)_messageList.GetItemCount();
   wchar_t sz[16];
-  ConvertUInt32ToString((UInt32)i, sz);
+  ConvertUInt32ToString(i, sz);
   _messageList.InsertItem(i, sz);
   _messageList.SetSubItem(i, 1, message);
 }
@@ -28,18 +28,18 @@ void CMessagesDialog::AddMessage(LPCWSTR message)
   UString s = message;
   while (!s.IsEmpty())
   {
-    int pos = s.Find(L'\n');
+    const int pos = s.Find(L'\n');
     if (pos < 0)
       break;
     AddMessageDirect(s.Left(pos));
-    s.DeleteFrontal(pos + 1);
+    s.DeleteFrontal((unsigned)pos + 1);
   }
   AddMessageDirect(s);
 }
 
 bool CMessagesDialog::OnInit()
 {
-  #ifdef LANG
+  #ifdef Z7_LANG
   LangSetWindowText(*this, IDD_MESSAGES);
   LangSetDlgItems(*this, NULL, 0);
   SetItemText(IDOK, LangString(IDS_CLOSE));
@@ -61,7 +61,6 @@ bool CMessagesDialog::OnInit()
 
 bool CMessagesDialog::OnSize(WPARAM /* wParam */, int xSize, int ySize)
 {
-#ifdef _WIN32
   int mx, my;
   GetMargins(8, mx, my);
   int bx, by;
@@ -73,6 +72,5 @@ bool CMessagesDialog::OnSize(WPARAM /* wParam */, int xSize, int ySize)
 
   MoveItem(IDOK, x, y, bx, by);
   _messageList.Move(mx, my, xSize - mx * 2, y - my * 2);
-#endif
   return false;
 }

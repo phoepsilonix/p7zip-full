@@ -1,7 +1,7 @@
 // FSFolder.h
 
-#ifndef __FS_FOLDER_H
-#define __FS_FOLDER_H
+#ifndef ZIP7_INC_FS_FOLDER_H
+#define ZIP7_INC_FS_FOLDER_H
 
 #include "../../../Common/MyCom.h"
 #include "../../../Common/MyBuffer.h"
@@ -17,9 +17,8 @@ namespace NFsFolder {
 
 class CFSFolder;
 
-#ifdef _WIN32
 #define FS_SHOW_LINKS_INFO
-#endif
+// #define FS_SHOW_CHANGE_TIME
 
 struct CDirItem: public NWindows::NFile::NFind::CFileInfo
 {
@@ -28,10 +27,13 @@ struct CDirItem: public NWindows::NFile::NFind::CFileInfo
   #endif
 
   #ifdef FS_SHOW_LINKS_INFO
+  FILETIME ChangeTime;
   UInt64 FileIndex;
   UInt32 NumLinks;
   bool FileInfo_Defined;
   bool FileInfo_WasRequested;
+  bool ChangeTime_Defined;
+  bool ChangeTime_WasRequested;
   #endif
 
   #ifndef UNDER_CE
@@ -76,7 +78,7 @@ struct CFsFolderStat
   HRESULT Enumerate();
 };
 
-class CFSFolder:
+class CFSFolder Z7_final:
   public IFolderFolder,
   public IArchiveGetRawProps,
   public IFolderCompare,
@@ -93,42 +95,36 @@ class CFSFolder:
   // public IFolderSetShowNtfsStreamsMode,
   public CMyUnknownImp
 {
-public:
-  MY_QUERYINTERFACE_BEGIN2(IFolderFolder)
-    MY_QUERYINTERFACE_ENTRY(IArchiveGetRawProps)
-    MY_QUERYINTERFACE_ENTRY(IFolderCompare)
+  Z7_COM_QI_BEGIN2(IFolderFolder)
+    Z7_COM_QI_ENTRY(IArchiveGetRawProps)
+    Z7_COM_QI_ENTRY(IFolderCompare)
     #ifdef USE_UNICODE_FSTRING
-    MY_QUERYINTERFACE_ENTRY(IFolderGetItemName)
+    Z7_COM_QI_ENTRY(IFolderGetItemName)
     #endif
-    MY_QUERYINTERFACE_ENTRY(IFolderWasChanged)
-    // MY_QUERYINTERFACE_ENTRY(IFolderOperationsDeleteToRecycleBin)
-    MY_QUERYINTERFACE_ENTRY(IFolderOperations)
-    MY_QUERYINTERFACE_ENTRY(IFolderCalcItemFullSize)
-    MY_QUERYINTERFACE_ENTRY(IFolderClone)
-    MY_QUERYINTERFACE_ENTRY(IFolderGetSystemIconIndex)
-    MY_QUERYINTERFACE_ENTRY(IFolderSetFlatMode)
-    // MY_QUERYINTERFACE_ENTRY(IFolderSetShowNtfsStreamsMode)
-  MY_QUERYINTERFACE_END
-  MY_ADDREF_RELEASE
+    Z7_COM_QI_ENTRY(IFolderWasChanged)
+    // Z7_COM_QI_ENTRY(IFolderOperationsDeleteToRecycleBin)
+    Z7_COM_QI_ENTRY(IFolderOperations)
+    Z7_COM_QI_ENTRY(IFolderCalcItemFullSize)
+    Z7_COM_QI_ENTRY(IFolderClone)
+    Z7_COM_QI_ENTRY(IFolderGetSystemIconIndex)
+    Z7_COM_QI_ENTRY(IFolderSetFlatMode)
+    // Z7_COM_QI_ENTRY(IFolderSetShowNtfsStreamsMode)
+  Z7_COM_QI_END
+  Z7_COM_ADDREF_RELEASE
 
-
-  INTERFACE_FolderFolder(;)
-  INTERFACE_IArchiveGetRawProps(;)
-  INTERFACE_FolderOperations(;)
-
-  STDMETHOD_(Int32, CompareItems)(UInt32 index1, UInt32 index2, PROPID propID, Int32 propIsRaw);
-
+  Z7_IFACE_COM7_IMP(IFolderFolder)
+  Z7_IFACE_COM7_IMP(IArchiveGetRawProps)
+  Z7_IFACE_COM7_IMP(IFolderCompare)
   #ifdef USE_UNICODE_FSTRING
-  INTERFACE_IFolderGetItemName(;)
+  Z7_IFACE_COM7_IMP(IFolderGetItemName)
   #endif
-  STDMETHOD(WasChanged)(Int32 *wasChanged);
-  STDMETHOD(Clone)(IFolderFolder **resultFolder);
-  STDMETHOD(CalcItemFullSize)(UInt32 index, IProgress *progress);
-
-  STDMETHOD(SetFlatMode)(Int32 flatMode);
-  // STDMETHOD(SetShowNtfsStreamsMode)(Int32 showStreamsMode);
-
-  STDMETHOD(GetSystemIconIndex)(UInt32 index, Int32 *iconIndex);
+  Z7_IFACE_COM7_IMP(IFolderWasChanged)
+  Z7_IFACE_COM7_IMP(IFolderOperations)
+  Z7_IFACE_COM7_IMP(IFolderCalcItemFullSize)
+  Z7_IFACE_COM7_IMP(IFolderClone)
+  Z7_IFACE_COM7_IMP(IFolderGetSystemIconIndex)
+  Z7_IFACE_COM7_IMP(IFolderSetFlatMode)
+  // Z7_IFACE_COM7_IMP(IFolderSetShowNtfsStreamsMode)
 
 private:
   FString _path;
@@ -144,11 +140,11 @@ private:
   // bool _scanAltStreams;
   bool _flatMode;
 
-  // FIXME NWindows::NFile::NFind::CFindChangeNotification _findChangeNotification;
+  #ifdef _WIN32
+  NWindows::NFile::NFind::CFindChangeNotification _findChangeNotification;
+  #endif
 
-  HRESULT GetItemsFullSize(const UInt32 *indices, UInt32 numItems, CFsFolderStat &stat);
-
-  HRESULT GetItemFullSize(unsigned index, UInt64 &size, IProgress *progress);
+  // HRESULT GetItemFullSize(unsigned index, UInt64 &size, IProgress *progress);
   void GetAbsPath(const wchar_t *name, FString &absPath);
   HRESULT BindToFolderSpec(CFSTR name, IFolderFolder **resultFolder);
 
@@ -158,12 +154,13 @@ private:
   
   #ifdef FS_SHOW_LINKS_INFO
   bool ReadFileInfo(CDirItem &di);
+  void ReadChangeTime(CDirItem &di);
   #endif
 
 public:
   HRESULT Init(const FString &path /* , IFolderFolder *parentFolder */);
   #if !defined(_WIN32) || defined(UNDER_CE)
-  HRESULT InitToRoot() { return Init(FSTRING_PATH_SEPARATOR /* , NULL */); }
+  HRESULT InitToRoot() { return Init((FString) FSTRING_PATH_SEPARATOR /* , NULL */); }
   #endif
 
   CFSFolder() : _flatMode(false)
@@ -203,12 +200,21 @@ struct CCopyStateIO
   int ErrorFileIndex;
   UString ErrorMessage;
 
-  CCopyStateIO(): DeleteSrcFile(false), TotalSize(0), StartPos(0) {}
+  CCopyStateIO(): TotalSize(0), StartPos(0), DeleteSrcFile(false) {}
 
-  HRESULT MyCopyFile(CFSTR inPath, CFSTR outPath);
+  HRESULT MyCopyFile(CFSTR inPath, CFSTR outPath, DWORD attrib = INVALID_FILE_ATTRIBUTES);
 };
 
 HRESULT SendLastErrorMessage(IFolderOperationsExtractCallback *callback, const FString &fileName);
+
+/* destDirPrefix is allowed to be:
+   "full_path\" or "full_path:" for alt streams */
+
+HRESULT CopyFileSystemItems(
+    const UStringVector &itemsPaths,
+    const FString &destDirPrefix,
+    bool moveMode,
+    IFolderOperationsExtractCallback *callback);
 
 }
 

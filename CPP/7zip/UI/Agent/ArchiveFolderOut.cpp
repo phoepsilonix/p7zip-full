@@ -27,27 +27,40 @@ void CAgentFolder::GetPathParts(UStringVector &pathParts, bool &isAltStreamFolde
     _proxy->GetDirPathParts(_proxyDirIndex, pathParts);
 }
 
-static bool DeleteEmptyFolderAndEmptySubFolders(const FString &path)
+static bool Delete_EmptyFolder_And_EmptySubFolders(const FString &path)
 {
-  NFind::CFileInfo fileInfo;
-  FString pathPrefix = path + FCHAR_PATH_SEPARATOR;
   {
-    NFind::CEnumerator enumerator(pathPrefix + FCHAR_ANY_MASK);
-    while (enumerator.Next(fileInfo))
+    const FString pathPrefix = path + FCHAR_PATH_SEPARATOR;
+    CObjectVector<FString> names;
     {
-      if (fileInfo.IsDir())
-        if (!DeleteEmptyFolderAndEmptySubFolders(pathPrefix + fileInfo.Name))
+      NFind::CDirEntry fileInfo;
+      NFind::CEnumerator enumerator;
+      enumerator.SetDirPrefix(pathPrefix);
+      for (;;)
+      {
+        bool found;
+        if (!enumerator.Next(fileInfo, found))
           return false;
+        if (!found)
+          break;
+        if (fileInfo.IsDir())
+          names.Add(fileInfo.Name);
+      }
     }
+    bool res = true;
+    FOR_VECTOR (i, names)
+    {
+      if (!Delete_EmptyFolder_And_EmptySubFolders(pathPrefix + names[i]))
+        res = false;
+    }
+    if (!res)
+      return false;
   }
-  /*
-  // we don't need clear readonly for folders
+  // we clear read-only attrib to remove read-only dir
   if (!SetFileAttrib(path, 0))
     return false;
-  */
   return RemoveDir(path);
 }
-
 
 HRESULT CAgentFolder::CommonUpdateOperation(
     AGENT_OP operation,
@@ -57,6 +70,9 @@ HRESULT CAgentFolder::CommonUpdateOperation(
     const UInt32 *indices, UInt32 numItems,
     IProgress *progress)
 {
+  if (moveMode && _agentSpec->_isHashHandler)
+    return E_NOTIMPL;
+
   if (!_agentSpec->CanUpdate())
     return E_NOTIMPL;
 
@@ -67,7 +83,7 @@ HRESULT CAgentFolder::CommonUpdateOperation(
   try
   {
 
-  RINOK(_agentSpec->SetFolder(this));
+  RINOK(_agentSpec->SetFolder(this))
 
   // ---------- Save FolderItem ----------
 
@@ -79,7 +95,7 @@ HRESULT CAgentFolder::CommonUpdateOperation(
   FStringVector processedPaths;
 
   CWorkDirTempFile tempFile;
-  RINOK(tempFile.CreateTempFile(us2fs(_agentSpec->_archiveFilePath)));
+  RINOK(tempFile.CreateTempFile(us2fs(_agentSpec->_archiveFilePath)))
   {
     CMyComPtr<IOutStream> tailStream;
     const CArc &arc = *_agentSpec->_archiveLink.GetArc();
@@ -90,8 +106,8 @@ HRESULT CAgentFolder::CommonUpdateOperation(
     {
       if (arc.Offset < 0)
         return E_NOTIMPL;
-      RINOK(arc.InStream->Seek(0, STREAM_SEEK_SET, NULL));
-      RINOK(NCompress::CopyStream_ExactSize(arc.InStream, tempFile.OutStream, arc.ArcStreamOffset, NULL));
+      RINOK(arc.InStream->Seek(0, STREAM_SEEK_SET, NULL))
+      RINOK(NCompress::CopyStream_ExactSize(arc.InStream, tempFile.OutStream, arc.ArcStreamOffset, NULL))
       CTailOutStream *tailStreamSpec = new CTailOutStream;
       tailStream = tailStreamSpec;
       tailStreamSpec->Stream = tempFile.OutStream;
@@ -101,7 +117,7 @@ HRESULT CAgentFolder::CommonUpdateOperation(
     
     HRESULT result;
 
-    switch (operation)
+    switch ((int)operation)
     {
       case AGENT_OP_Delete:
         result = _agentSpec->DeleteItems(tailStream, indices, numItems, updateCallback100);
@@ -112,13 +128,16 @@ HRESULT CAgentFolder::CommonUpdateOperation(
       case AGENT_OP_Rename:
         result = _agentSpec->RenameItem(tailStream, indices, numItems, newItemName, updateCallback100);
         break;
+      case AGENT_OP_Comment:
+        result = _agentSpec->CommentItem(tailStream, indices, numItems, newItemName, updateCallback100);
+        break;
       case AGENT_OP_CopyFromFile:
         result = _agentSpec->UpdateOneFile(tailStream, indices, numItems, newItemName, updateCallback100);
         break;
       case AGENT_OP_Uni:
         {
           Byte actionSetByte[NUpdateArchive::NPairState::kNumValues];
-          for (int i = 0; i < NUpdateArchive::NPairState::kNumValues; i++)
+          for (unsigned i = 0; i < NUpdateArchive::NPairState::kNumValues; i++)
             actionSetByte[i] = (Byte)actionSet->StateActions[i];
           result = _agentSpec->DoOperation2(
               moveMode ? &requestedPaths : NULL,
@@ -130,18 +149,18 @@ HRESULT CAgentFolder::CommonUpdateOperation(
         return E_FAIL;
     }
     
-    RINOK(result);
+    RINOK(result)
   }
 
   _agentSpec->KeepModeForNextOpen();
-  _agentSpec->Close();
+  _agent->Close();
   
   // before 9.26: if there was error for MoveToOriginal archive was closed.
   // now: we reopen archive after close
 
   // m_FolderItem = NULL;
   
-  HRESULT res = tempFile.MoveToOriginal(true);
+  const HRESULT res = tempFile.MoveToOriginal(true);
 
   // RINOK(res);
   if (res == S_OK)
@@ -157,7 +176,7 @@ HRESULT CAgentFolder::CommonUpdateOperation(
       {
         const FString &fs = requestedPaths[i];
         if (NFind::DoesDirExist(fs))
-          DeleteEmptyFolderAndEmptySubFolders(fs);
+          Delete_EmptyFolder_And_EmptySubFolders(fs);
       }
     }
   }
@@ -166,7 +185,7 @@ HRESULT CAgentFolder::CommonUpdateOperation(
     CMyComPtr<IArchiveOpenCallback> openCallback;
     if (updateCallback100)
       updateCallback100->QueryInterface(IID_IArchiveOpenCallback, (void **)&openCallback);
-    RINOK(_agentSpec->ReOpen(openCallback));
+    RINOK(_agent->ReOpen(openCallback))
   }
    
   // CAgent::ReOpen() deletes _proxy and _proxy2
@@ -180,7 +199,7 @@ HRESULT CAgentFolder::CommonUpdateOperation(
   // ---------- Restore FolderItem ----------
 
   CMyComPtr<IFolderFolder> archiveFolder;
-  RINOK(_agentSpec->BindToRootFolder(&archiveFolder));
+  RINOK(_agent->BindToRootFolder(&archiveFolder))
 
   // CAgent::BindToRootFolder() changes _proxy and _proxy2
   _proxy = _agentSpec->_proxy;
@@ -190,10 +209,10 @@ HRESULT CAgentFolder::CommonUpdateOperation(
   {
     FOR_VECTOR (i, pathParts)
     {
-      int next = _proxy->FindSubDir(_proxyDirIndex, pathParts[i]);
-      if (next < 0)
+      const int next = _proxy->FindSubDir(_proxyDirIndex, pathParts[i]);
+      if (next == -1)
         break;
-      _proxyDirIndex = next;
+      _proxyDirIndex = (unsigned)next;
     }
   }
   
@@ -205,19 +224,19 @@ HRESULT CAgentFolder::CommonUpdateOperation(
     }
     else FOR_VECTOR (i, pathParts)
     {
-      bool dirOnly = (i + 1 < pathParts.Size() || !isAltStreamFolder);
-      int index = _proxy2->FindItem(_proxyDirIndex, pathParts[i], dirOnly);
-      if (index < 0)
+      const bool dirOnly = (i + 1 < pathParts.Size() || !isAltStreamFolder);
+      const int index = _proxy2->FindItem(_proxyDirIndex, pathParts[i], dirOnly);
+      if (index == -1)
         break;
       
       const CProxyFile2 &file = _proxy2->Files[_proxy2->Dirs[_proxyDirIndex].Items[index]];
   
       if (dirOnly)
-        _proxyDirIndex = file.DirIndex;
+        _proxyDirIndex = (unsigned)file.DirIndex;
       else
       {
-        if (file.AltDirIndex >= 0)
-          _proxyDirIndex = file.AltDirIndex;
+        if (file.AltDirIndex != -1)
+          _proxyDirIndex = (unsigned)file.AltDirIndex;
         break;
       }
     }
@@ -274,9 +293,9 @@ HRESULT CAgentFolder::CommonUpdateOperation(
   {
     if (updateCallback100)
     {
-      UString s2 = L"Error: ";
+      UString s2 ("Error: ");
       s2 += s;
-      RINOK(updateCallback100->UpdateErrorMessage(s2));
+      RINOK(updateCallback100->UpdateErrorMessage(s2))
       return E_FAIL;
     }
     throw;
@@ -284,16 +303,15 @@ HRESULT CAgentFolder::CommonUpdateOperation(
 }
 
 
-
-STDMETHODIMP CAgentFolder::CopyFrom(Int32 moveMode,
-    const wchar_t *fromFolderPath, // test it
+Z7_COM7F_IMF(CAgentFolder::CopyFrom(Int32 moveMode,
+    const wchar_t *fromFolderPath, /* test it */
     const wchar_t * const *itemsPaths,
     UInt32 numItems,
-    IProgress *progress)
+    IProgress *progress))
 {
   COM_TRY_BEGIN
   {
-    RINOK(_agentSpec->SetFiles(fromFolderPath, itemsPaths, numItems));
+    RINOK(_agentSpec->SetFiles(fromFolderPath, itemsPaths, numItems))
     return CommonUpdateOperation(AGENT_OP_Uni, (moveMode != 0), NULL,
         &NUpdateArchive::k_ActionSet_Add,
         NULL, 0, progress);
@@ -301,20 +319,16 @@ STDMETHODIMP CAgentFolder::CopyFrom(Int32 moveMode,
   COM_TRY_END
 }
 
-STDMETHODIMP CAgentFolder::CopyFromFile(UInt32 destIndex, const wchar_t *itemPath, IProgress *progress)
+Z7_COM7F_IMF(CAgentFolder::CopyFromFile(UInt32 destIndex, const wchar_t *itemPath, IProgress *progress))
 {
   COM_TRY_BEGIN
-  CUIntVector indices;
-  indices.Add(destIndex);
-  {
-    return CommonUpdateOperation(AGENT_OP_CopyFromFile, false, itemPath,
-        &NUpdateArchive::k_ActionSet_Add,
-        &indices.Front(), indices.Size(), progress);
-  }
+  return CommonUpdateOperation(AGENT_OP_CopyFromFile, false, itemPath,
+      &NUpdateArchive::k_ActionSet_Add,
+      &destIndex, 1, progress);
   COM_TRY_END
 }
 
-STDMETHODIMP CAgentFolder::Delete(const UInt32 *indices, UInt32 numItems, IProgress *progress)
+Z7_COM7F_IMF(CAgentFolder::Delete(const UInt32 *indices, UInt32 numItems, IProgress *progress))
 {
   COM_TRY_BEGIN
   return CommonUpdateOperation(AGENT_OP_Delete, false, NULL,
@@ -322,7 +336,7 @@ STDMETHODIMP CAgentFolder::Delete(const UInt32 *indices, UInt32 numItems, IProgr
   COM_TRY_END
 }
 
-STDMETHODIMP CAgentFolder::CreateFolder(const wchar_t *name, IProgress *progress)
+Z7_COM7F_IMF(CAgentFolder::CreateFolder(const wchar_t *name, IProgress *progress))
 {
   COM_TRY_BEGIN
   
@@ -336,7 +350,7 @@ STDMETHODIMP CAgentFolder::CreateFolder(const wchar_t *name, IProgress *progress
   }
   else
   {
-    if (_proxy->FindSubDir(_proxyDirIndex, name) >= 0)
+    if (_proxy->FindSubDir(_proxyDirIndex, name) != -1)
       return ERROR_ALREADY_EXISTS;
   }
   
@@ -344,23 +358,29 @@ STDMETHODIMP CAgentFolder::CreateFolder(const wchar_t *name, IProgress *progress
   COM_TRY_END
 }
 
-STDMETHODIMP CAgentFolder::Rename(UInt32 index, const wchar_t *newName, IProgress *progress)
+Z7_COM7F_IMF(CAgentFolder::Rename(UInt32 index, const wchar_t *newName, IProgress *progress))
 {
   COM_TRY_BEGIN
-  CUIntVector indices;
-  indices.Add(index);
   return CommonUpdateOperation(AGENT_OP_Rename, false, newName, NULL,
-      &indices.Front(), indices.Size(), progress);
+      &index, 1, progress);
   COM_TRY_END
 }
 
-STDMETHODIMP CAgentFolder::CreateFile(const wchar_t * /* name */, IProgress * /* progress */)
+Z7_COM7F_IMF(CAgentFolder::CreateFile(const wchar_t * /* name */, IProgress * /* progress */))
 {
   return E_NOTIMPL;
 }
 
-STDMETHODIMP CAgentFolder::SetProperty(UInt32 /* index */, PROPID /* propID */,
-    const PROPVARIANT * /* value */, IProgress * /* progress */)
+Z7_COM7F_IMF(CAgentFolder::SetProperty(UInt32 index, PROPID propID,
+    const PROPVARIANT *value, IProgress *progress))
 {
-  return E_NOTIMPL;
+  COM_TRY_BEGIN
+  if (propID != kpidComment || value->vt != VT_BSTR)
+    return E_NOTIMPL;
+  if (!_agentSpec || !_agentSpec->GetTypeOfArc(_agentSpec->GetArc()).IsEqualTo_Ascii_NoCase("zip"))
+    return E_NOTIMPL;
+  
+  return CommonUpdateOperation(AGENT_OP_Comment, false, value->bstrVal, NULL,
+      &index, 1, progress);
+  COM_TRY_END
 }

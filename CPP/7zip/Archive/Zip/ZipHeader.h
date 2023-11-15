@@ -1,7 +1,7 @@
 // ZipHeader.h
 
-#ifndef __ARCHIVE_ZIP_HEADER_H
-#define __ARCHIVE_ZIP_HEADER_H
+#ifndef ZIP7_INC_ARCHIVE_ZIP_HEADER_H
+#define ZIP7_INC_ARCHIVE_ZIP_HEADER_H
 
 #include "../../../Common/MyTypes.h"
 
@@ -56,8 +56,10 @@ namespace NFileHeader
       
       kTerse = 18,
       kLz77 = 19,
+      kZstdPk = 20,
       
-      kZstd = 93,
+      kZstdWz = 93,
+      kMP3 = 94,
       kXz = 95,
       kJpeg = 96,
       kWavPack = 97,
@@ -78,7 +80,6 @@ namespace NFileHeader
     const Byte kExtractVersion_LZMA = 63;
     const Byte kExtractVersion_PPMd = 63;
     const Byte kExtractVersion_Xz = 20; // test it
-    const Byte kExtractVersion_Zstd = 20; // WinZip mark it
   }
 
   namespace NExtraID
@@ -87,12 +88,17 @@ namespace NFileHeader
     {
       kZip64 = 0x01,
       kNTFS = 0x0A,
+      kUnix0 = 0x0D,                // Info-ZIP : (UNIX) PK
       kStrongEncrypt = 0x17,
-      kUnixTime = 0x5455,
-      kUnixExtra = 0x5855,
+      kIzNtSecurityDescriptor = 0x4453,
+      kUnixTime = 0x5455,           // "UT" (time) Info-ZIP
+      kUnix1 = 0x5855,              // Info-ZIP
       kIzUnicodeComment = 0x6375,
       kIzUnicodeName = 0x7075,
-      kWzAES = 0x9901
+      kUnix2 = 0x7855,              // Info-ZIP
+      kUnixN = 0x7875,              // Info-ZIP
+      kWzAES = 0x9901,
+      kApkAlign = 0xD935
     };
   }
 
@@ -133,6 +139,7 @@ namespace NFileHeader
     const unsigned kDescriptorUsedMask = 1 << 3;
     const unsigned kStrongEncrypted = 1 << 6;
     const unsigned kUtf8 = 1 << 11;
+    const unsigned kAltStream = 1 << 14;
 
     const unsigned kImplodeDictionarySizeMask = 1 << 1;
     const unsigned kImplodeLiteralsOnMask     = 1 << 2;

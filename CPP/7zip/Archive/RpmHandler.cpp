@@ -19,7 +19,7 @@
 
 #include "HandlerCont.h"
 
-// #define _SHOW_RPM_METADATA
+// #define Z7_RPM_SHOW_METADATA
 
 using namespace NWindows;
 
@@ -169,7 +169,7 @@ struct CEntry
 };
 
 
-#ifdef _SHOW_RPM_METADATA
+#ifdef Z7_RPM_SHOW_METADATA
 struct CMetaFile
 {
   UInt32 Tag;
@@ -178,8 +178,10 @@ struct CMetaFile
 };
 #endif
 
-class CHandler: public CHandlerCont
+Z7_class_CHandler_final: public CHandlerCont
 {
+  Z7_IFACE_COM7_IMP(IInArchive_Cont)
+
   UInt64 _headersSize; // is equal to start offset of payload data
   UInt64 _payloadSize;
   UInt64 _size;
@@ -207,7 +209,7 @@ class CHandler: public CHandlerCont
 
   CLead _lead;
 
-  #ifdef _SHOW_RPM_METADATA
+  #ifdef Z7_RPM_SHOW_METADATA
   AString _metadata;
   CRecordVector<CMetaFile> _metaFiles;
   #endif
@@ -215,11 +217,7 @@ class CHandler: public CHandlerCont
   void SetTime(NCOM::CPropVariant &prop) const
   {
     if (_time_Defined && _buildTime != 0)
-    {
-      FILETIME ft;
-      NTime::UnixTimeToFileTime(_buildTime, ft);
-      prop = ft;
-    }
+      PropVariant_SetFrom_UnixTime(prop, _buildTime);
   }
 
   void SetStringProp(const AString &s, NCOM::CPropVariant &prop) const
@@ -238,15 +236,12 @@ class CHandler: public CHandlerCont
   HRESULT ReadHeader(ISequentialInStream *stream, bool isMainHeader);
   HRESULT Open2(ISequentialInStream *stream);
 
-  virtual int GetItem_ExtractInfo(UInt32 /* index */, UInt64 &pos, UInt64 &size) const
+  virtual int GetItem_ExtractInfo(UInt32 /* index */, UInt64 &pos, UInt64 &size) const Z7_override
   {
     pos = _headersSize;
     size = _size;
     return NExtract::NOperationResult::kOK;
   }
-
-public:
-  INTERFACE_IInArchive_Cont(;)
 };
 
 static const Byte kArcProps[] =
@@ -255,7 +250,7 @@ static const Byte kArcProps[] =
   kpidCpu,
   kpidHostOS,
   kpidCTime
-  #ifdef _SHOW_RPM_METADATA
+  #ifdef Z7_RPM_SHOW_METADATA
   , kpidComment
   #endif
 };
@@ -278,7 +273,7 @@ void CHandler::AddCPU(AString &s) const
   {
     if (_lead.Type == kRpmType_Bin)
     {
-      if (_lead.Cpu < ARRAY_SIZE(k_CPUs))
+      if (_lead.Cpu < Z7_ARRAY_SIZE(k_CPUs))
         s += k_CPUs[_lead.Cpu];
       else
         s.Add_UInt32(_lead.Cpu);
@@ -294,19 +289,19 @@ AString CHandler::GetBaseName() const
     s = _name;
     if (!_version.IsEmpty())
     {
-      s += '-';
+      s.Add_Minus();
       s += _version;
     }
     if (!_release.IsEmpty())
     {
-      s += '-';
+      s.Add_Minus();
       s += _release;
     }
   }
   else
     s.SetFrom_CalcLen(_lead.Name, kNameSize);
 
-  s += '.';
+  s.Add_Dot();
   if (_lead.Type == kRpmType_Src)
     s += "src";
   else
@@ -320,7 +315,7 @@ void CHandler::AddSubFileExtension(AString &res) const
     res += _format;
   else
     res += "cpio";
-  res += '.';
+  res.Add_Dot();
   
   const char *s;
   
@@ -348,7 +343,7 @@ void CHandler::AddSubFileExtension(AString &res) const
   res += s;
 }
 
-STDMETHODIMP CHandler::GetArchiveProperty(PROPID propID, PROPVARIANT *value)
+Z7_COM7F_IMF(CHandler::GetArchiveProperty(PROPID propID, PROPVARIANT *value))
 {
   COM_TRY_BEGIN
   NCOM::CPropVariant prop;
@@ -387,7 +382,7 @@ STDMETHODIMP CHandler::GetArchiveProperty(PROPID propID, PROPVARIANT *value)
         break;
       }
 
-    #ifdef _SHOW_RPM_METADATA
+    #ifdef Z7_RPM_SHOW_METADATA
     // case kpidComment: SetStringProp(_metadata, prop); break;
     #endif
 
@@ -403,7 +398,7 @@ STDMETHODIMP CHandler::GetArchiveProperty(PROPID propID, PROPVARIANT *value)
 }
 
 
-STDMETHODIMP CHandler::GetProperty(UInt32 index, PROPID propID, PROPVARIANT *value)
+Z7_COM7F_IMF(CHandler::GetProperty(UInt32 index, PROPID propID, PROPVARIANT *value))
 {
   NWindows::NCOM::CPropVariant prop;
   if (index == 0)
@@ -422,7 +417,7 @@ STDMETHODIMP CHandler::GetProperty(UInt32 index, PROPID propID, PROPVARIANT *val
     case kpidPath:
     {
       AString s (GetBaseName());
-      s += '.';
+      s.Add_Dot();
       AddSubFileExtension(s);
       SetStringProp(s, prop);
       break;
@@ -436,7 +431,7 @@ STDMETHODIMP CHandler::GetProperty(UInt32 index, PROPID propID, PROPVARIANT *val
     }
     */
   }
-  #ifdef _SHOW_RPM_METADATA
+  #ifdef Z7_RPM_SHOW_METADATA
   else
   {
     index--;
@@ -471,7 +466,7 @@ STDMETHODIMP CHandler::GetProperty(UInt32 index, PROPID propID, PROPVARIANT *val
   return S_OK;
 }
 
-#ifdef _SHOW_RPM_METADATA
+#ifdef Z7_RPM_SHOW_METADATA
 static inline char GetHex(unsigned value)
 {
   return (char)((value < 10) ? ('0' + value) : ('A' + (value - 10)));
@@ -484,7 +479,7 @@ HRESULT CHandler::ReadHeader(ISequentialInStream *stream, bool isMainHeader)
   UInt32 dataLen;
   {
     char buf[k_HeaderSig_Size];
-    RINOK(ReadStream_FALSE(stream, buf, k_HeaderSig_Size));
+    RINOK(ReadStream_FALSE(stream, buf, k_HeaderSig_Size))
     if (Get32(buf) != 0x8EADE801) // buf[3] = 0x01 - is version
       return S_FALSE;
     // reserved = Get32(buf + 4);
@@ -498,7 +493,7 @@ HRESULT CHandler::ReadHeader(ISequentialInStream *stream, bool isMainHeader)
   if (headerSize < dataLen)
     return S_FALSE;
   CByteBuffer buffer(headerSize);
-  RINOK(ReadStream_FALSE(stream, buffer, headerSize));
+  RINOK(ReadStream_FALSE(stream, buffer, headerSize))
   
   for (UInt32 i = 0; i < numEntries; i++)
   {
@@ -524,7 +519,7 @@ HRESULT CHandler::ReadHeader(ISequentialInStream *stream, bool isMainHeader)
     }
     else
     {
-      #ifdef _SHOW_RPM_METADATA
+      #ifdef Z7_RPM_SHOW_METADATA
       {
         _metadata.Add_UInt32(entry.Tag);
         _metadata += ": ";
@@ -551,7 +546,7 @@ HRESULT CHandler::ReadHeader(ISequentialInStream *stream, bool isMainHeader)
           case RPMTAG_PAYLOADCOMPRESSOR: _compressor = s; break;
         }
 
-        #ifdef _SHOW_RPM_METADATA
+        #ifdef Z7_RPM_SHOW_METADATA
         _metadata += s;
         #endif
       }
@@ -567,7 +562,7 @@ HRESULT CHandler::ReadHeader(ISequentialInStream *stream, bool isMainHeader)
           _time_Defined = true;
         }
         
-        #ifdef _SHOW_RPM_METADATA
+        #ifdef Z7_RPM_SHOW_METADATA
         for (UInt32 t = 0; t < entry.Count; t++)
         {
           if (t != 0)
@@ -577,7 +572,7 @@ HRESULT CHandler::ReadHeader(ISequentialInStream *stream, bool isMainHeader)
         #endif
       }
 
-      #ifdef _SHOW_RPM_METADATA
+      #ifdef Z7_RPM_SHOW_METADATA
 
       else if (
           entry.Type == k_EntryType_STRING_ARRAY ||
@@ -632,7 +627,7 @@ HRESULT CHandler::ReadHeader(ISequentialInStream *stream, bool isMainHeader)
       #endif
     }
     
-    #ifdef _SHOW_RPM_METADATA
+    #ifdef Z7_RPM_SHOW_METADATA
     CMetaFile meta;
     meta.Offset = entry.Offset;
     meta.Tag = entry.Tag;
@@ -660,7 +655,7 @@ HRESULT CHandler::Open2(ISequentialInStream *stream)
 {
   {
     Byte buf[kLeadSize];
-    RINOK(ReadStream_FALSE(stream, buf, kLeadSize));
+    RINOK(ReadStream_FALSE(stream, buf, kLeadSize))
     if (Get32(buf) != 0xEDABEEDB)
       return S_FALSE;
     _lead.Parse(buf);
@@ -672,22 +667,22 @@ HRESULT CHandler::Open2(ISequentialInStream *stream)
 
   if (_lead.SignatureType == RPMSIG_NONE)
   {
-    ;
+
   }
   else if (_lead.SignatureType == RPMSIG_PGP262_1024)
   {
     Byte temp[256];
-    RINOK(ReadStream_FALSE(stream, temp, sizeof(temp)));
+    RINOK(ReadStream_FALSE(stream, temp, sizeof(temp)))
   }
   else if (_lead.SignatureType == RPMSIG_HEADERSIG)
   {
-    RINOK(ReadHeader(stream, false));
+    RINOK(ReadHeader(stream, false))
     unsigned pos = (unsigned)_headersSize & 7;
     if (pos != 0)
     {
       Byte temp[8];
       unsigned num = 8 - pos;
-      RINOK(ReadStream_FALSE(stream, temp, num));
+      RINOK(ReadStream_FALSE(stream, temp, num))
       _headersSize += num;
     }
   }
@@ -698,20 +693,20 @@ HRESULT CHandler::Open2(ISequentialInStream *stream)
 }
 
 
-STDMETHODIMP CHandler::Open(IInStream *inStream, const UInt64 *, IArchiveOpenCallback *)
+Z7_COM7F_IMF(CHandler::Open(IInStream *inStream, const UInt64 *, IArchiveOpenCallback *))
 {
   COM_TRY_BEGIN
   {
     Close();
-    RINOK(Open2(inStream));
+    RINOK(Open2(inStream))
 
     // start of payload is allowed to be unaligned
-    RINOK(ReadStream_FALSE(inStream, _payloadSig, sizeof(_payloadSig)));
+    RINOK(ReadStream_FALSE(inStream, _payloadSig, sizeof(_payloadSig)))
 
     if (!_payloadSize_Defined)
     {
       UInt64 endPos;
-      RINOK(inStream->Seek(0, STREAM_SEEK_END, &endPos));
+      RINOK(InStream_GetSize_SeekToEnd(inStream, endPos))
       _size = endPos - _headersSize;
     }
     _stream = inStream;
@@ -720,7 +715,7 @@ STDMETHODIMP CHandler::Open(IInStream *inStream, const UInt64 *, IArchiveOpenCal
   COM_TRY_END
 }
 
-STDMETHODIMP CHandler::Close()
+Z7_COM7F_IMF(CHandler::Close())
 {
   _headersSize = 0;
   _payloadSize = 0;
@@ -742,7 +737,7 @@ STDMETHODIMP CHandler::Close()
   _format.Empty();
   _compressor.Empty();
 
-  #ifdef _SHOW_RPM_METADATA
+  #ifdef Z7_RPM_SHOW_METADATA
   _metadata.Empty();
   _metaFiles.Size();
   #endif
@@ -751,10 +746,10 @@ STDMETHODIMP CHandler::Close()
   return S_OK;
 }
 
-STDMETHODIMP CHandler::GetNumberOfItems(UInt32 *numItems)
+Z7_COM7F_IMF(CHandler::GetNumberOfItems(UInt32 *numItems))
 {
   *numItems = 1
-  #ifdef _SHOW_RPM_METADATA
+  #ifdef Z7_RPM_SHOW_METADATA
     + _metaFiles.Size()
   #endif
   ;
@@ -765,7 +760,7 @@ STDMETHODIMP CHandler::GetNumberOfItems(UInt32 *numItems)
 static const Byte k_Signature[] = { 0xED, 0xAB, 0xEE, 0xDB};
 
 REGISTER_ARC_I(
-  "Rpm", "rpm", 0, 0xEB,
+  "Rpm", "rpm", NULL, 0xEB,
   k_Signature,
   0,
   0,

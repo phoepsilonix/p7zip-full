@@ -1,23 +1,22 @@
 // BrowseDialog.h
 
-#ifndef __BROWSE_DIALOG_H
-#define __BROWSE_DIALOG_H
+#ifndef ZIP7_INC_BROWSE_DIALOG_H
+#define ZIP7_INC_BROWSE_DIALOG_H
 
-#include "../../../Common/MyString.h"
+#include "../../../Windows/CommonDialog.h"
 
-/* FIXME
 bool MyBrowseForFolder(HWND owner, LPCWSTR title, LPCWSTR path, UString &resultPath);
-bool MyBrowseForFile(HWND owner, LPCWSTR title, LPCWSTR path, LPCWSTR filterDescription, LPCWSTR filter, UString &resultPath);
-*/
-#include "Windows/CommonDialog.h"
-#include "Windows/Shell.h"
 
-#define MyBrowseForFolder(h, title, initialFolder, resultPath) \
-  NShell::BrowseForFolder(h, title, initialFolder, resultPath)
+struct CBrowseFilterInfo
+{
+  UStringVector Masks;
+  UString Description;
+};
 
-// FIXME : filterDescription
-#define MyBrowseForFile(h, title, initialFolder, filterDescription, s, resultPath) \
-  MyGetOpenFileName(h, title, NULL, initialFolder,filterDescription, s, resultPath)
+struct CBrowseInfo: public NWindows::CCommonDialogInfo
+{
+  bool BrowseForFile(const CObjectVector<CBrowseFilterInfo> &filters);
+};
 
 
 /* CorrectFsPath removes undesirable characters in names (dots and spaces at the end of file)

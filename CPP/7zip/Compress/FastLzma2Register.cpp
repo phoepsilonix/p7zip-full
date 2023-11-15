@@ -7,7 +7,7 @@
 #include "Lzma2Decoder.h"
 
 #ifndef EXTRACT_ONLY
-#include "Lzma2Encoder.h"
+#include "FastLzma2Encoder.h"
 #endif
 
 REGISTER_CODEC_E(

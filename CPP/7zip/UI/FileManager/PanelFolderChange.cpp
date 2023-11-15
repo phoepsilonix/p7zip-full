@@ -30,6 +30,8 @@ using namespace NFind;
 
 void CPanel::ReleaseFolder()
 {
+  DeleteListItems();
+
   _folder.Release();
 
   _folderCompare.Release();
@@ -65,15 +67,21 @@ void CPanel::SetToRootFolder()
   rootFolderSpec->Init();
 }
 
-HRESULT CPanel::BindToPath(const UString &fullPath, const UString &arcFormat, bool &archiveIsOpened, bool &encrypted)
+
+static bool DoesNameContainWildcard_SkipRoot(const UString &path)
+{
+  return DoesNameContainWildcard(path.Ptr(NName::GetRootPrefixSize(path)));
+}
+
+HRESULT CPanel::BindToPath(const UString &fullPath, const UString &arcFormat, COpenResult &openRes)
 {
   UString path = fullPath;
   #ifdef _WIN32
   path.Replace(L'/', WCHAR_PATH_SEPARATOR);
   #endif
 
-  archiveIsOpened = false;
-  encrypted = false;
+  openRes.ArchiveIsOpened = false;
+  openRes.Encrypted = false;
   
   CDisableTimerProcessing disableTimerProcessing(*this);
   CDisableNotify disableNotify(*this);
@@ -125,8 +133,9 @@ HRESULT CPanel::BindToPath(const UString &fullPath, const UString &arcFormat, bo
 
     CloseOpenFolders();
     UString sysPath = path;
-    
-    unsigned prefixSize = NName::GetRootPrefixSize(sysPath);
+    /* we will Empty() sysPath variable, if we need to BindToFolder()
+       directly with (path) variable */
+    const unsigned prefixSize = NName::GetRootPrefixSize(sysPath);
     if (prefixSize == 0 || sysPath[prefixSize] == 0)
       sysPath.Empty();
     
@@ -134,6 +143,7 @@ HRESULT CPanel::BindToPath(const UString &fullPath, const UString &arcFormat, bo
     if (!sysPath.IsEmpty() && sysPath.Back() == ':' &&
       (sysPath.Len() != 2 || !NName::IsDrivePath2(sysPath)))
     {
+      // if base item for alt streams prefix "base:" exists, we will use it
       UString baseFile = sysPath;
       baseFile.DeleteBack();
       if (NFind::DoesFileOrDirExist(us2fs(baseFile)))
@@ -145,23 +155,51 @@ HRESULT CPanel::BindToPath(const UString &fullPath, const UString &arcFormat, bo
     
     while (!sysPath.IsEmpty())
     {
+      if (sysPath.Len() <= prefixSize)
+      {
+        path.DeleteFrom(prefixSize);
+        sysPath.Empty();
+        break;
+      }
+
+      fileInfo.ClearBase();
+      if (IsPathSepar(sysPath.Back()))
+      {
+        /* Windows 10 by default doesn't allow look "Local Settings" that is junction to "AppData\Local",
+           but it does allow look "Local Settings\Temp\*"
+           22.02: at first we try to use paths with slashes "path\" */
+        CFileInfo fi;
+        // CFindFile findFile;
+        // FString path2 = us2fs(sysPath);
+        // path2 += '*'; // CHAR_ANY_MASK;
+        // if (findFile.FindFirst(path2, fi))
+        CEnumerator enumerator;
+        enumerator.SetDirPrefix(us2fs(sysPath));
+        bool found = false;
+        if (enumerator.Next(fi, found))
+        {
+          // sysPath.DeleteBack();
+          fileInfo.SetAsDir();
+          fileInfo.Size = 0;
+          fileInfo.Name.Empty();
+          break;
+        }
+        sysPath.DeleteBack();
+        continue;
+      }
+
       if (fileInfo.Find(us2fs(sysPath)))
         break;
       int pos = sysPath.ReverseFind_PathSepar();
       if (pos < 0)
-        sysPath.Empty();
-      else
       {
-        /*
-        if (reducedParts.Size() > 0 || pos < (int)sysPath.Len() - 1)
-          reducedParts.Add(sysPath.Ptr(pos + 1));
-        */
-        #if defined(_WIN32) && !defined(UNDER_CE)
-        if (pos == 2 && NName::IsDrivePath2(sysPath) && sysPath.Len() > 3)
+        sysPath.Empty();
+        break;
+      }
+      {
+        if ((unsigned)pos != sysPath.Len() - 1)
           pos++;
-        #endif
-
-        sysPath.DeleteFrom(pos);
+        sysPath.DeleteFrom((unsigned)pos);
       }
     }
     
@@ -175,35 +213,57 @@ HRESULT CPanel::BindToPath(const UString &fullPath, const UString &arcFormat, bo
     }
     else if (fileInfo.IsDir())
     {
+      #ifdef _WIN32
+      if (DoesNameContainWildcard_SkipRoot(sysPath))
+      {
+        FString dirPrefix, fileName;
+        NDir::GetFullPathAndSplit(us2fs(sysPath), dirPrefix, fileName);
+        if (DoesNameContainWildcard_SkipRoot(fs2us(dirPrefix)))
+          return E_INVALIDARG;
+        sysPath = fs2us(dirPrefix + fileInfo.Name);
+      }
+      #endif
+
       NName::NormalizeDirPathPrefix(sysPath);
       _folder->BindToFolder(sysPath, &newFolder);
     }
     else
     {
       FString dirPrefix, fileName;
+      
       NDir::GetFullPathAndSplit(us2fs(sysPath), dirPrefix, fileName);
-      HRESULT res;
-      // = OpenItemAsArchive(fs2us(fileName), arcFormat, encrypted);
+
+      HRESULT res = S_OK;
+      
+      #ifdef _WIN32
+      if (DoesNameContainWildcard_SkipRoot(fs2us(dirPrefix)))
+        return E_INVALIDARG;
+
+      if (DoesNameContainWildcard(fs2us(fileName)))
+        res = S_FALSE;
+      else
+      #endif
       {
         CTempFileInfo tfi;
         tfi.RelPath = fs2us(fileName);
         tfi.FolderPath = dirPrefix;
         tfi.FilePath = us2fs(sysPath);
-        res = OpenItemAsArchive(NULL, tfi, sysPath, arcFormat, encrypted);
+        res = OpenAsArc(NULL, tfi, sysPath, arcFormat, openRes);
       }
       
       if (res == S_FALSE)
         _folder->BindToFolder(fs2us(dirPrefix), &newFolder);
       else
       {
-        RINOK(res);
-        archiveIsOpened = true;
+        RINOK(res)
+        openRes.ArchiveIsOpened = true;
         _parentFolders.Back().ParentFolderPath = fs2us(dirPrefix);
         path.DeleteFrontal(sysPath.Len());
         if (!path.IsEmpty() && IS_PATH_SEPAR(path[0]))
           path.Delete(0);
       }
     }
+    
     if (newFolder)
     {
       SetNewFolder(newFolder);
@@ -218,12 +278,12 @@ HRESULT CPanel::BindToPath(const UString &fullPath, const UString &arcFormat, bo
     for (unsigned curPos = 0; curPos != path.Len();)
     {
       UString s = path.Ptr(curPos);
-      int slashPos = NName::FindSepar(s);
+      const int slashPos = NName::FindSepar(s);
       unsigned skipLen = s.Len();
       if (slashPos >= 0)
       {
-        s.DeleteFrom(slashPos);
-        skipLen = slashPos + 1;
+        s.DeleteFrom((unsigned)slashPos);
+        skipLen = (unsigned)slashPos + 1;
       }
 
       CMyComPtr<IFolderFolder> newFolder;
@@ -232,13 +292,13 @@ HRESULT CPanel::BindToPath(const UString &fullPath, const UString &arcFormat, bo
         curPos += skipLen;
       else if (_folderAltStreams)
       {
-        int pos = s.Find(L':');
+        const int pos = s.Find(L':');
         if (pos >= 0)
         {
           UString baseName = s;
-          baseName.DeleteFrom(pos);
+          baseName.DeleteFrom((unsigned)pos);
           if (_folderAltStreams->BindToAltStreams(baseName, &newFolder) == S_OK && newFolder)
-            curPos += pos + 1;
+            curPos += (unsigned)pos + 1;
         }
       }
       
@@ -256,18 +316,28 @@ HRESULT CPanel::BindToPathAndRefresh(const UString &path)
 {
   CDisableTimerProcessing disableTimerProcessing(*this);
   CDisableNotify disableNotify(*this);
-  bool archiveIsOpened, encrypted;
-  RINOK(BindToPath(path, UString(), archiveIsOpened, encrypted));
-  RefreshListCtrl(UString(), -1, true, UStringVector());
-  return S_OK;
+  COpenResult openRes;
+  UString s = path;
+  
+  #ifdef _WIN32
+    if (!s.IsEmpty() && s[0] == '\"' && s.Back() == '\"')
+    {
+      s.DeleteBack();
+      s.Delete(0);
+    }
+  #endif
+
+  HRESULT res = BindToPath(s, UString(), openRes);
+  RefreshListCtrl();
+  return res;
 }
 
-void CPanel::SetBookmark(int index)
+void CPanel::SetBookmark(unsigned index)
 {
   _appState->FastFolders.SetString(index, _currentFolderPrefix);
 }
 
-void CPanel::OpenBookmark(int index)
+void CPanel::OpenBookmark(unsigned index)
 {
   BindToPathAndRefresh(_appState->FastFolders.GetString(index));
 }
@@ -311,17 +381,8 @@ void CPanel::LoadFullPathAndShow()
   LoadFullPath();
   _appState->FolderHistory.AddString(_currentFolderPrefix);
 
-#ifdef _WIN32
   _headerComboBox.SetText(_currentFolderPrefix);
-#else
-  {
-    extern const TCHAR * nameWindowToUnix(const TCHAR * lpFileName);
-	UString tmp = nameWindowToUnix(_currentFolderPrefix);
-	_headerComboBox.SetText(tmp);
-  }	
-#endif
 
-#ifdef _WIN32 // FIXME
   #ifndef UNDER_CE
 
   COMBOBOXEXITEM item;
@@ -334,14 +395,14 @@ void CPanel::LoadFullPathAndShow()
       #else
       1
       #endif
-      && path.Back() == WCHAR_PATH_SEPARATOR)
+      && IS_PATH_SEPAR(path.Back()))
     path.DeleteBack();
 
   DWORD attrib = FILE_ATTRIBUTE_DIRECTORY;
 
   // GetRealIconIndex is slow for direct DVD/UDF path. So we use dummy path
   if (path.IsPrefixedBy(L"\\\\.\\"))
-    path = L"_TestFolder_";
+    path = "_TestFolder_";
   else
   {
     CFileInfo fi;
@@ -359,7 +420,6 @@ void CPanel::LoadFullPathAndShow()
   _headerComboBox.SetItem(&item);
   
   #endif
-#endif
 
   RefreshTitle();
 }
@@ -369,7 +429,7 @@ LRESULT CPanel::OnNotifyComboBoxEnter(const UString &s)
 {
   if (BindToPathAndRefresh(GetUnicodeString(s)) == S_OK)
   {
-    // FIXME PostMsg(kSetFocusToListView);
+    PostMsg(kSetFocusToListView);
     return TRUE;
   }
   return FALSE;
@@ -380,7 +440,7 @@ bool CPanel::OnNotifyComboBoxEndEdit(PNMCBEENDEDITW info, LRESULT &result)
   if (info->iWhy == CBENF_ESCAPE)
   {
     _headerComboBox.SetText(_currentFolderPrefix);
-    // FIXME PostMsg(kSetFocusToListView);
+    PostMsg(kSetFocusToListView);
     result = FALSE;
     return true;
   }
@@ -437,12 +497,12 @@ bool CPanel::OnNotifyComboBoxEndEdit(PNMCBEENDEDIT info, LRESULT &result)
 
 void CPanel::AddComboBoxItem(const UString &name, int iconIndex, int indent, bool addToList)
 {
-  #if 1 // ifdef UNDER_CE
+  #ifdef UNDER_CE
 
   UString s;
   iconIndex = iconIndex;
   for (int i = 0; i < indent; i++)
-    s += L"  ";
+    s += "  ";
   _headerComboBox.AddString(s + name);
   
   #else
@@ -454,7 +514,7 @@ void CPanel::AddComboBoxItem(const UString &name, int iconIndex, int indent, boo
     item.mask |= (CBEIF_IMAGE | CBEIF_SELECTEDIMAGE);
   item.iItem = -1;
   item.iIndent = indent;
-  item.pszText = (LPWSTR)(LPCWSTR)name;
+  item.pszText = name.Ptr_non_const();
   _headerComboBox.InsertItem(&item);
   
   #endif
@@ -469,7 +529,6 @@ extern UString RootFolder_GetName_Documents(int &iconIndex);
 
 bool CPanel::OnComboBoxCommand(UINT code, LPARAM /* param */, LRESULT &result)
 {
-#ifdef _WIN32 // FIXME
   result = FALSE;
   switch (code)
   {
@@ -487,14 +546,18 @@ bool CPanel::OnComboBoxCommand(UINT code, LPARAM /* param */, LRESULT &result)
         pathParts.DeleteBack();
       for (i = 0; i < pathParts.Size(); i++)
       {
-        UString name = pathParts[i];
+        const UString name = pathParts[i];
         sumPass += name;
         sumPass.Add_PathSepar();
         CFileInfo info;
         DWORD attrib = FILE_ATTRIBUTE_DIRECTORY;
         if (info.Find(us2fs(sumPass)))
           attrib = info.Attrib;
-        AddComboBoxItem(name.IsEmpty() ? L"\\" : name, GetRealIconIndex(us2fs(sumPass), attrib), i, false);
+        AddComboBoxItem(
+            name.IsEmpty() ? L"\\" : name,
+            GetRealIconIndex(us2fs(sumPass), attrib),
+            (int)i, // iIndent
+            false); // addToList
         ComboBoxPaths.Add(sumPass);
       }
 
@@ -514,10 +577,10 @@ bool CPanel::OnComboBoxCommand(UINT code, LPARAM /* param */, LRESULT &result)
       {
         FString s = driveStrings[i];
         ComboBoxPaths.Add(fs2us(s));
-        int iconIndex = GetRealIconIndex(s, 0);
+        int iconIndex2 = GetRealIconIndex(s, 0);
         if (s.Len() > 0 && s.Back() == FCHAR_PATH_SEPARATOR)
           s.DeleteBack();
-        AddComboBoxItem(fs2us(s), iconIndex, 1, false);
+        AddComboBoxItem(fs2us(s), iconIndex2, 1, false);
       }
 
       name = RootFolder_GetName_Network(iconIndex);
@@ -530,7 +593,6 @@ bool CPanel::OnComboBoxCommand(UINT code, LPARAM /* param */, LRESULT &result)
 
     case CBN_SELENDOK:
     {
-      code = code;
       int index = _headerComboBox.GetCurSel();
       if (index >= 0)
       {
@@ -562,7 +624,6 @@ bool CPanel::OnComboBoxCommand(UINT code, LPARAM /* param */, LRESULT &result)
     }
     */
   }
-#endif
   return false;
 }
 
@@ -577,14 +638,12 @@ bool CPanel::OnNotifyComboBox(LPNMHDR NON_CE_VAR(header), LRESULT & NON_CE_VAR(r
       _panelCallback->PanelWasFocused();
       break;
     }
-#ifdef _WIN32
     #ifndef _UNICODE
     case CBEN_ENDEDIT:
     {
       return OnNotifyComboBoxEndEdit((PNMCBEENDEDIT)header, result);
     }
     #endif
-#endif
     case CBEN_ENDEDITW:
     {
       return OnNotifyComboBoxEndEdit((PNMCBEENDEDITW)header, result);
@@ -599,6 +658,7 @@ void CPanel::FoldersHistory()
 {
   CListViewDialog listViewDialog;
   listViewDialog.DeleteIsAllowed = true;
+  listViewDialog.SelectFirst = true;
   LangString(IDS_FOLDERS_HISTORY, listViewDialog.Title);
   _appState->FolderHistory.GetList(listViewDialog.Strings);
   if (listViewDialog.Create(GetParent()) != IDOK)
@@ -607,7 +667,7 @@ void CPanel::FoldersHistory()
   if (listViewDialog.StringsWereChanged)
   {
     _appState->FolderHistory.RemoveAll();
-    for (int i = listViewDialog.Strings.Size() - 1; i >= 0; i--)
+    for (int i = (int)listViewDialog.Strings.Size() - 1; i >= 0; i--)
       _appState->FolderHistory.AddString(listViewDialog.Strings[i]);
     if (listViewDialog.FocusedItemIndex >= 0)
       selectString = listViewDialog.Strings[listViewDialog.FocusedItemIndex];
@@ -621,6 +681,30 @@ void CPanel::FoldersHistory()
     BindToPathAndRefresh(selectString);
 }
 
+
+UString CPanel::GetParentDirPrefix() const
+{
+  UString s;
+  if (!_currentFolderPrefix.IsEmpty())
+  {
+    wchar_t c = _currentFolderPrefix.Back();
+    if (IS_PATH_SEPAR(c) || c == ':')
+    {
+      s = _currentFolderPrefix;
+      s.DeleteBack();
+      if (s != L"\\\\." &&
+          s != L"\\\\?")
+      {
+        int pos = s.ReverseFind_PathSepar();
+        if (pos >= 0)
+          s.DeleteFrom((unsigned)(pos + 1));
+      }
+    }
+  }
+  return s;
+}
+
+
 void CPanel::OpenParentFolder()
 {
   LoadFullPath(); // Maybe we don't need it ??
@@ -631,12 +715,12 @@ void CPanel::OpenParentFolder()
   if (!_currentFolderPrefix.IsEmpty())
   {
     wchar_t c = _currentFolderPrefix.Back();
-    if (c == WCHAR_PATH_SEPARATOR || c == ':')
+    if (IS_PATH_SEPAR(c) || c == ':')
     {
       focusedName = _currentFolderPrefix;
       focusedName.DeleteBack();
       /*
-      if (c == ':' && !focusedName.IsEmpty() && focusedName.Back() == WCHAR_PATH_SEPARATOR)
+      if (c == ':' && !focusedName.IsEmpty() && IS_PATH_SEPAR(focusedName.Back()))
       {
         focusedName.DeleteBack();
       }
@@ -645,12 +729,12 @@ void CPanel::OpenParentFolder()
       if (focusedName != L"\\\\." &&
           focusedName != L"\\\\?")
       {
-        int pos = focusedName.ReverseFind_PathSepar();
+        const int pos = focusedName.ReverseFind_PathSepar();
         if (pos >= 0)
         {
           parentFolderPrefix = focusedName;
-          parentFolderPrefix.DeleteFrom(pos + 1);
-          focusedName.DeleteFrontal(pos + 1);
+          parentFolderPrefix.DeleteFrom((unsigned)(pos + 1));
+          focusedName.DeleteFrontal((unsigned)(pos + 1));
         }
       }
     }
@@ -683,23 +767,25 @@ void CPanel::OpenParentFolder()
     if (needSetFolder)
     {
       {
-        bool archiveIsOpened;
-        bool encrypted;
-        BindToPath(parentFolderPrefix, UString(), archiveIsOpened, encrypted);
+        COpenResult openRes;
+        BindToPath(parentFolderPrefix, UString(), openRes);
       }
     }
   }
     
-  UStringVector selectedItems;
+  CSelectedState state;
+  state.FocusedName = focusedName;
+  state.FocusedName_Defined = true;
   /*
   if (!focusedName.IsEmpty())
-    selectedItems.Add(focusedName);
+    state.SelectedNames.Add(focusedName);
   */
   LoadFullPath();
   // ::SetCurrentDirectory(::_currentFolderPrefix);
-  RefreshListCtrl(focusedName, -1, true, selectedItems);
+  RefreshListCtrl(state);
   // _listView.EnsureVisible(_listView.GetFocusedItem(), false);
 }
+
 
 void CPanel::CloseOneLevel()
 {
@@ -733,7 +819,7 @@ void CPanel::OpenRootFolder()
   CDisableNotify disableNotify(*this);
   _parentFolders.Clear();
   SetToRootFolder();
-  RefreshListCtrl(UString(), -1, true, UStringVector());
+  RefreshListCtrl();
   // ::SetCurrentDirectory(::_currentFolderPrefix);
   /*
   BeforeChangeFolder();
@@ -760,7 +846,7 @@ void CPanel::OpenDrivesFolder()
   RefreshListCtrl();
 }
 
-void CPanel::OpenFolder(int index)
+void CPanel::OpenFolder(unsigned index)
 {
   if (index == kParentIndex)
   {
@@ -768,36 +854,42 @@ void CPanel::OpenFolder(int index)
     return;
   }
   CMyComPtr<IFolderFolder> newFolder;
-  _folder->BindToFolder(index, &newFolder);
+  const HRESULT res = _folder->BindToFolder((unsigned)index, &newFolder);
+  if (res != 0)
+  {
+    MessageBox_Error_HRESULT(res);
+    return;
+  }
   if (!newFolder)
     return;
   SetNewFolder(newFolder);
   LoadFullPath();
   RefreshListCtrl();
-  _listView.SetItemState_Selected(_listView.GetFocusedItem());
+  // 17.02: fixed : now we don't select first item
+  // _listView.SetItemState_Selected(_listView.GetFocusedItem());
   _listView.EnsureVisible(_listView.GetFocusedItem(), false);
 }
 
 void CPanel::OpenAltStreams()
 {
   CRecordVector<UInt32> indices;
-  GetOperatedItemIndices(indices);
+  Get_ItemIndices_Operated(indices);
   Int32 realIndex = -1;
   if (indices.Size() > 1)
     return;
   if (indices.Size() == 1)
-    realIndex = indices[0];
+    realIndex = (Int32)indices[0];
 
   if (_folderAltStreams)
   {
     CMyComPtr<IFolderFolder> newFolder;
-    _folderAltStreams->BindToAltStreams(realIndex, &newFolder);
+    _folderAltStreams->BindToAltStreams((UInt32)realIndex, &newFolder);
     if (newFolder)
     {
       CDisableTimerProcessing disableTimerProcessing(*this);
       CDisableNotify disableNotify(*this);
       SetNewFolder(newFolder);
-      RefreshListCtrl(UString(), -1, true, UStringVector());
+      RefreshListCtrl();
       return;
     }
     return;
@@ -806,7 +898,7 @@ void CPanel::OpenAltStreams()
   #if defined(_WIN32) && !defined(UNDER_CE)
   UString path;
   if (realIndex >= 0)
-    path = GetItemFullPath(realIndex);
+    path = GetItemFullPath((UInt32)realIndex);
   else
   {
     path = GetFsPath();
@@ -815,7 +907,7 @@ void CPanel::OpenAltStreams()
         path.DeleteBack();
   }
 
-  path += L':';
+  path += ':';
   BindToPathAndRefresh(path);
   #endif
 }

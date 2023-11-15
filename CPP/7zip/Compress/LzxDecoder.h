@@ -1,7 +1,7 @@
 // LzxDecoder.h
 
-#ifndef __LZX_DECODER_H
-#define __LZX_DECODER_H
+#ifndef ZIP7_INC_LZX_DECODER_H
+#define ZIP7_INC_LZX_DECODER_H
 
 #include "../../../C/CpuArch.h"
 
@@ -30,7 +30,7 @@ public:
     _extraSize = 0;
   }
 
-  size_t GetRem() const { return _bufLim + 1 - _buf; }
+  size_t GetRem() const { return (size_t)(_bufLim + 1 - _buf); }
   bool WasExtraReadError_Fast() const { return _extraSize > 4; }
 
   bool WasFinishedOK() const
@@ -167,10 +167,9 @@ public:
 };
 
 
-class CDecoder:
-  public IUnknown,
-  public CMyUnknownImp
-{
+Z7_CLASS_IMP_COM_0(
+  CDecoder
+)
   CBitDecoder _bitStream;
   Byte *_win;
   UInt32 _pos;
@@ -220,8 +219,6 @@ public:
   CDecoder(bool wimMode = false);
   ~CDecoder();
 
-  MY_UNKNOWN_IMP
-
   HRESULT SetExternalWindow(Byte *win, unsigned numDictBits)
   {
     NeedAlloc = false;
@@ -238,7 +235,7 @@ public:
   
   bool WasBlockFinished() const { return _unpackBlockSize == 0; }
   const Byte *GetUnpackData() const { return _unpackedData; }
-  const UInt32 GetUnpackSize() const { return _pos - _writePos; }
+  UInt32 GetUnpackSize() const { return _pos - _writePos; }
 };
 
 }}

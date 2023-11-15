@@ -2,14 +2,12 @@
 // According to unRAR license, this code may not be used to develop
 // a program that creates RAR archives
 
-#ifndef __COMPRESS_RAR5_DECODER_H
-#define __COMPRESS_RAR5_DECODER_H
+#ifndef ZIP7_INC_COMPRESS_RAR5_DECODER_H
+#define ZIP7_INC_COMPRESS_RAR5_DECODER_H
 
-#include "../../../C/Alloc.h"
 #include "../../../C/CpuArch.h"
 
 #include "../../Common/MyBuffer2.h"
-#include "../../Common/MyBuffer.h"
 #include "../../Common/MyCom.h"
 #include "../../Common/MyException.h"
 #include "../../Common/MyVector.h"
@@ -20,36 +18,6 @@
 
 namespace NCompress {
 namespace NRar5 {
-
-// class CMidBuffer
-// {
-//   Byte *_data;
-//   size_t _size;
-
-//   CLASS_NO_COPY(CMidBuffer)
-
-// public:
-//   CMidBuffer(): _data(NULL), _size(0) {};
-//   ~CMidBuffer() { ::MidFree(_data); }
-
-//   bool IsAllocated() const { return _data != NULL; }
-//   operator       Byte *()       { return _data; }
-//   operator const Byte *() const { return _data; }
-//   size_t Size() const { return _size; }
-
-//   void AllocAtLeast(size_t size)
-//   {
-//     if (size > _size)
-//     {
-//       const size_t kMinSize = (1 << 16);
-//       if (size < kMinSize)
-//         size = kMinSize;
-//       ::MidFree(_data);
-//       _data = (Byte *)::MidAlloc(size);
-//       _size = size;
-//     }
-//   }
-// };
 
 /*
 struct CInBufferException: public CSystemException
@@ -86,7 +54,7 @@ public:
         _bufCheck2 = _buf;
       else
       {
-        UInt64 delta = _blockEnd - processed;
+        const UInt64 delta = _blockEnd - processed;
         if ((size_t)(_bufCheck - _buf) > delta)
           _bufCheck2 = _buf + (size_t)delta;
       }
@@ -95,7 +63,7 @@ public:
 
   bool IsBlockOverRead() const
   {
-    UInt64 v = GetProcessedSize_Round();
+    const UInt64 v = GetProcessedSize_Round();
     if (v < _blockEnd)
       return false;
     if (v > _blockEnd)
@@ -144,8 +112,8 @@ public:
   bool InputEofError() const { return ExtraBitsWereRead(); }
 
   unsigned GetProcessedBits7() const { return _bitPos; }
-  UInt64 GetProcessedSize_Round() const { return _processedSize + (_buf - _bufBase); }
-  UInt64 GetProcessedSize() const { return _processedSize + (_buf - _bufBase) + ((_bitPos + 7) >> 3); }
+  UInt64 GetProcessedSize_Round() const { return _processedSize + (size_t)(_buf - _bufBase); }
+  UInt64 GetProcessedSize() const { return _processedSize + (size_t)(_buf - _bufBase) + ((_bitPos + 7) >> 3); }
 
   void AlignToByte()
   {
@@ -158,7 +126,7 @@ public:
     return *_buf++;
   }
 
-  UInt32 GetValue(unsigned numBits)
+  UInt32 GetValue(unsigned numBits) const
   {
     UInt32 v = ((UInt32)_buf[0] << 16) | ((UInt32)_buf[1] << 8) | (UInt32)_buf[2];
     v >>= (24 - numBits - _bitPos);
@@ -188,7 +156,7 @@ public:
   {
     const Byte *buf = _buf;
     UInt32 v = ((UInt32)buf[0] << 8) | (UInt32)buf[1];
-    UInt32 mask = ((1 << numBits) - 1);
+    const UInt32 mask = ((1 << numBits) - 1);
     numBits += _bitPos;
     v >>= (16 - numBits);
     _buf = buf + (numBits >> 3);
@@ -198,7 +166,7 @@ public:
 
   UInt32 ReadBits32(unsigned numBits)
   {
-    UInt32 mask = ((1 << numBits) - 1);
+    const UInt32 mask = ((1 << numBits) - 1);
     numBits += _bitPos;
     const Byte *buf = _buf;
     UInt32 v = GetBe32(buf);
@@ -236,11 +204,11 @@ const unsigned kTablesSizesSum = kMainTableSize + kDistTableSize + kAlignTableSi
 
 const unsigned kNumHuffmanBits = 15;
 
-class CDecoder:
-  public ICompressCoder,
-  public ICompressSetDecoderProperties2,
-  public CMyUnknownImp
-{
+Z7_CLASS_IMP_NOQIB_2(
+  CDecoder
+  , ICompressCoder
+  , ICompressSetDecoderProperties2
+)
   bool _useAlignBits;
   bool _isLastBlock;
   bool _unpackSize_Defined;
@@ -249,7 +217,13 @@ class CDecoder:
   bool _unsupportedFilter;
   bool _lzError;
   bool _writeError;
+
+  bool _isSolid;
   bool _solidAllowed;
+  bool _tableWasFilled;
+  bool _wasInit;
+
+  Byte _dictSizeLog;
   
   // CBitDecoder _bitStream;
   Byte *_window;
@@ -269,11 +243,6 @@ class CDecoder:
   UInt64 _lzEnd;
   UInt64 _writtenFileSize;
   size_t _winSizeAllocated;
-
-  Byte _dictSizeLog;
-  bool _tableWasFilled;
-  bool _isSolid;
-  bool _wasInit;
 
   UInt32 _reps[kNumReps];
   UInt32 _lastLen;
@@ -323,13 +292,6 @@ class CDecoder:
 public:
   CDecoder();
   ~CDecoder();
-
-  MY_UNKNOWN_IMP1(ICompressSetDecoderProperties2)
-
-  STDMETHOD(Code)(ISequentialInStream *inStream, ISequentialOutStream *outStream,
-      const UInt64 *inSize, const UInt64 *outSize, ICompressProgressInfo *progress);
-
-  STDMETHOD(SetDecoderProperties2)(const Byte *data, UInt32 size);
 };
 
 }}
