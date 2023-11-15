@@ -18,28 +18,33 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v2
+    - uses: rui314/setup-mold@v1
+      with:
+        mold-version: 2.3.3
+        make-default: true
+    - name: install llvm
+      run: |
+        brew install llvm libomp
+        echo 'export PATH="/usr/local/bin:/usr/local/opt/llvm/bin:$PATH"' >> /Users/runner/.bash_profile
+    - name: Set up UASM (macOS)
+      if: ${{ matrix.os == 'macos-latest' }}
+      run: |
+        curl -L https://github.com/Terraspace/UASM/archive/refs/tags/v2.55.tar.gz | tar xz
+        # Apple clang 12+ requires "-Wno-error=implicit-function-declaration" cf https://forum.mmm.ucar.edu/phpBB3/viewtopic.php?t=11087&p=24226
+        sed -i -e 's/-ansi/-Wno-error=implicit-function-declaration/' UASM-2.55/ClangOSX64.mak
+        make -C UASM-2.55 -f ClangOSX64.mak CC=clang LD=ld.mold
+        sudo cp UASM-2.55/GccUnixR/uasm /usr/local/bin/
     - name: submodule update
       run: |
         git submodule update --init
         cd Codecs/fast-lzma2/
         patch -p1 -i ../../UInt64.patch
-    - uses: rui314/setup-mold@staging
-      with:
-        make-default: true
-    - name: Set up UASM (macOS)
-      if: ${{ matrix.os == 'macos-latest' }}
-      run: |
-        curl -L https://github.com/Terraspace/UASM/archive/refs/tags/v2.56.tar.gz | tar xz
-        # Apple clang 12+ requires "-Wno-error=implicit-function-declaration" cf https://forum.mmm.ucar.edu/phpBB3/viewtopic.php?t=11087&p=24226
-        sed -i -e 's/-ansi/-Wno-error=implicit-function-declaration/' UASM-2.56/ClangOSX64.mak
-        make -C UASM-2.56 -f ClangOSX64.mak CC=clang LD=ld.mold
-        sudo cp UASM-2.56/GccUnixR/uasm /usr/local/bin/
     - name: Build (macOS)
       if: ${{ matrix.os == 'macos-latest' }}
       run: |
-        echo 'clang -arch arm64 -fno-stack-check "$@"' | sudo tee /usr/local/bin/arm64-apple-darwin-clang
-        echo 'clang++ -arch arm64 -fno-stack-check "$@"' | sudo tee /usr/local/bin/arm64-apple-darwin-clang++
-        sudo chmod 755 /usr/local/bin/arm64-apple-darwin-clang /usr/local/bin/arm64-apple-darwin-clang++
+        #echo 'clang -arch arm64 -fno-stack-check "$@"' | sudo tee /usr/local/bin/arm64-apple-darwin-clang
+        #echo 'clang++ -arch arm64 -fno-stack-check "$@"' | sudo tee /usr/local/bin/arm64-apple-darwin-clang++
+        #sudo chmod 755 /usr/local/bin/arm64-apple-darwin-clang /usr/local/bin/arm64-apple-darwin-clang++
         sed -i -e 's/\&\& LZHAM_PLATFORM_PC/\&\& LZHAM_PLATFORM_PC \&\& !defined(__aarch64__)/' Codecs/lzham_codec_devel/lzhamdecomp/lzham_platform.h
         ./build_macos.sh
     - name: 7z check

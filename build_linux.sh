@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 set -e
 
 CMPL=${CMPL:-cmpl_gcc_x64}
