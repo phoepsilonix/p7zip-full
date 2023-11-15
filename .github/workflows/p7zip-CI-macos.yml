@@ -2,8 +2,7 @@ name: p7zip-CI
 
 on:
   push:
-    tags:
-      - '*'
+    branches: [ 'master' ]
 
 jobs:
   build:
@@ -24,11 +23,11 @@ jobs:
     - name: Set up UASM (macOS)
       if: ${{ matrix.os == 'macos-latest' }}
       run: |
-        curl -L https://github.com/Terraspace/UASM/archive/refs/tags/v2.56.tar.gz | tar xz
+        curl -L https://github.com/Terraspace/UASM/archive/refs/tags/v2.55.tar.gz | tar xz
         # Apple clang 12+ requires "-Wno-error=implicit-function-declaration" cf https://forum.mmm.ucar.edu/phpBB3/viewtopic.php?t=11087&p=24226
-        #sed -i -e 's/-ansi/-Wno-error=implicit-function-declaration/' UASM-2.56/ClangOSX64.mak
-        make -C UASM-2.56 -f ClangOSX64.mak CC=clang
-        sudo cp UASM-2.56/GccUnixR/uasm /usr/local/bin/
+        sed -i -e 's/-ansi/-Wno-error=implicit-function-declaration/' UASM-2.55/ClangOSX64.mak
+        make -C UASM-2.55 -f ClangOSX64.mak CC=clang
+        sudo cp UASM-2.55/GccUnixR/uasm /usr/local/bin/
     - name: Build (macOS)
       if: ${{ matrix.os == 'macos-latest' }}
       run: |
