@@ -1,11 +1,9 @@
-name: p7zip-CI-macos
+name: p7zip-CI
 
 on:
   push:
-    branches:
-      - 'master'
     tags:
-      - '*'
+      - 'v*'
 
 jobs:
   build:
@@ -13,16 +11,28 @@ jobs:
     strategy:
       matrix:
         include:
+          - os: ubuntu-latest
+            mode: "clang"
+            asset_name: p7zip-linux-x86_64-clang.zip
+          - os: ubuntu-latest
+            mode: "gcc-x64"
+            asset_name: p7zip-linux-x86_64-gcc.zip
           - os: macos-latest
+            asset_name: p7zip-macos.zip
 
     runs-on: ${{ matrix.os }}
     steps:
-    - uses: actions/checkout@v2
-    - uses: rui314/setup-mold@v1
+    - uses: actions/checkout@v4
+    - uses: rui314/setup-mold@staging
       with:
         mold-version: 2.3.3
         make-default: true
+    - name: install
+      if: ${{ matrix.os == 'ubuntu-latest' }}
+      run: |
+        sudo apt install git clang llvm patchelf build-essential make cmake wget unzip lld
     - name: install llvm
+      if: ${{ matrix.os == 'macos-latest' }}
       run: |
         brew install llvm libomp
         echo 'export PATH="/usr/local/bin:/usr/local/opt/llvm/bin:$PATH"' >> /Users/runner/.bash_profile
@@ -39,6 +49,33 @@ jobs:
         git submodule update --init
         cd Codecs/fast-lzma2/
         patch -p1 -i ../../UInt64.patch
+    - name: Setting Up (Linux)
+      if: ${{ matrix.os == 'ubuntu-latest' }}
+      run: |
+        wget https://github.com/Terraspace/UASM/files/9881874/uasm256_linux64.zip
+        unzip uasm256_linux64.zip uasm
+        chmod +x uasm
+        sudo cp uasm /usr/local/bin/
+    - name: Build (Linux/Clang)
+      if: ${{ matrix.os == 'ubuntu-latest' && matrix.mode == 'clang' }}
+      run: |
+        export PLATFORM=x64
+        export CMPL=cmpl_clang_x64
+        export OUTDIR=c_x64
+        export CC=clang
+        export CXX=clang++
+        export LD=ld.mold
+        ./build_linux.sh
+    - name: Build (Linux/GCC-x64)
+      if: ${{ matrix.os == 'ubuntu-latest' && matrix.mode == 'gcc-x64' }}
+      run: |
+        export PLATFORM=x64
+        export CMPL=cmpl_gcc_x64
+        export OUTDIR=g_x64
+        export CC=gcc
+        export CXX=g++
+        export LD=ld.mold
+        ./build_linux.sh
     - name: Build (macOS)
       if: ${{ matrix.os == 'macos-latest' }}
       run: |
@@ -53,16 +90,15 @@ jobs:
         cd $PROJECT_ROOT/p7zip_test_utils/check
         bash ../../check_7z.sh $PROJECT_ROOT/bin/p7zip/7z
         bash check.sh $PROJECT_ROOT/bin/p7zip/7zz
-    - name: archive (Macos)
-      if: ${{ matrix.os == 'macos-latest' }}
+    - name: archive
       run: |
         mkdir -p release
         cd bin
-        ./p7zip/7zz a ../release/p7zip-macos.7z ./p7zip
-    - name: Release (Macos)
-      if: ${{ matrix.os == 'macos-latest' }}
-      uses: ncipollo/release-action@v1
+        ./p7zip/7zz a -tzip -mx=9 ../release/${{ matrix.asset_name }} ./p7zip
+    - name: Upload binaries to release
+      uses: svenstaro/upload-release-action@v2
       with:
-        omitBody: true
-        artifacts: 'release/*'
-        token: ${{ secrets.GITHUB_TOKEN }}
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: release/${{ matrix.asset_name }}
+        asset_name: ${{ matrix.asset_name }}
+        tag: ${{ github.ref }}

@@ -1,14 +1,35 @@
-#!/bin/sh
+#!/bin/bash
 set -e
 
-CMPL=${CMPL:-cmpl_gcc_x64}
-OUTDIR=${OUTDIR:-g_x64}
+export PLATFORM=${PLATFORM:-x64}
+export CMPL=${CMPL:-cmpl_gcc_x64}
+export OUTDIR="${OUTDIR:-g_x64}"
+export CC=${CC:-gcc}
+export CXX=${CXX:-g++}
+export LD=${LD:-ld.mold}
+if [[ $CC =~ *gcc ]]; then
+    export CFLAGS_ADD="-Wno-error=unused-command-line-argument -Wno-error=unused-but-set-variable -Wno-error=unused-but-set-parameter"
+else
+    export CFLAGS_ADD="-Wno-error=unused-but-set-variable -Wno-error=unused-but-set-parameter"
+fi
+export LDFLAGS_ADD="-fuse-ld=${LD/ld./} -Wno-error=unused-command-line-argument"
 
-mkdir -p bin/Codecs
+ARTIFACTS_DIR=bin/p7zip/
+mkdir -p ${ARTIFACTS_DIR}/Codecs
+
+make -C CPP/7zip/Bundles/Alone2 -f ../../${CMPL}.mak mkdir && make -C CPP/7zip/Bundles/Alone2 -f ../../${CMPL}.mak CFLAGS_ADDITIONAL="${CFLAGS_ADDITIONAL}" ${FLAGS} -j
+cp CPP/7zip/Bundles/Alone2/b/${OUTDIR}/7zz.exe bin/
+make -C CPP/7zip/Bundles/Format7zF -f ../../${CMPL}.mak mkdir && make -C CPP/7zip/Bundles/Format7zF -f ../../${CMPL}.mak CFLAGS_ADDITIONAL="${CFLAGS_ADDITIONAL}" ${FLAGS} -j
+cp CPP/7zip/Bundles/Format7zF/b/${OUTDIR}/7z.dll bin/
+make -C CPP/7zip/Bundles/SFXCon -f ../../${CMPL}.mak mkdir && make -C CPP/7zip/Bundles/SFXCon -f ../../${CMPL}.mak CFLAGS_ADDITIONAL="${CFLAGS_ADDITIONAL}" ${FLAGS} -j16
+cp CPP/7zip/Bundles/SFXCon/b/${OUTDIR}/7zCon.sfx.exe bin/7zCon.sfx
+make -C CPP/7zip/UI/Console -f ../../${CMPL}.mak mkdir && make -C CPP/7zip/UI/Console -f ../../${CMPL}.mak CFLAGS_ADDITIONAL="${CFLAGS_ADDITIONAL}" ${FLAGS} -j16
+cp CPP/7zip/UI/Console/b/${OUTDIR}/7z.exe bin/
+
+<<COMMENTOUT
+
 make -C CPP/7zip/Bundles/Alone -f ../../${CMPL}.mak mkdir && make -C CPP/7zip/Bundles/Alone -f ../../${CMPL}.mak CFLAGS_ADDITIONAL="${CFLAGS_ADDITIONAL}" ${FLAGS} -j16
 cp CPP/7zip/Bundles/Alone/b/${OUTDIR}/7za.exe bin/
-make -C CPP/7zip/Bundles/Alone2 -f ../../${CMPL}.mak mkdir && make -C CPP/7zip/Bundles/Alone2 -f ../../${CMPL}.mak CFLAGS_ADDITIONAL="${CFLAGS_ADDITIONAL}" ${FLAGS} DISABLE_RAR_COMPRESS=1 DISABLE_PKIMPLODE_COMPRESS=1 -j16
-cp CPP/7zip/Bundles/Alone2/b/${OUTDIR}/7zz.exe bin/
 make -C CPP/7zip/Bundles/Alone7z -f ../../${CMPL}.mak mkdir && make -C CPP/7zip/Bundles/Alone7z -f ../../${CMPL}.mak CFLAGS_ADDITIONAL="${CFLAGS_ADDITIONAL}" ${FLAGS} -j16
 cp CPP/7zip/Bundles/Alone7z/b/${OUTDIR}/7zr.exe bin/
 make -C CPP/7zip/Bundles/Format7zF -f ../../${CMPL}.mak mkdir && make -C CPP/7zip/Bundles/Format7zF -f ../../${CMPL}.mak CFLAGS_ADDITIONAL="${CFLAGS_ADDITIONAL}" ${FLAGS} DISABLE_RAR_COMPRESS=1 DISABLE_PKIMPLODE_COMPRESS=1 -j16
@@ -26,6 +47,11 @@ cp C/Util/Lzma/b/${OUTDIR}/7lzma.exe bin/
 make -C CPP/7zip/Compress/Rar -f ../../${CMPL}.mak mkdir && make -C CPP/7zip/Compress/Rar -f ../../${CMPL}.mak CFLAGS_ADDITIONAL="${CFLAGS_ADDITIONAL}" ${FLAGS} -j16
 cp CPP/7zip/Compress/Rar/b/${OUTDIR}/Rar.dll bin/Codecs/
 make -C CPP/7zip/Compress/Zstd -f ../../${CMPL}.mak mkdir && make -C CPP/7zip/Compress/Zstd -f ../../${CMPL}.mak CFLAGS_ADDITIONAL="${CFLAGS_ADDITIONAL}" ${FLAGS} -j16
+
+make -C CPP/7zip/Compress/FLzma2 -f ../../${CMPL}.mak mkdir && make -C CPP/7zip/Compress/FLzma2 -f ../../${CMPL}.mak CFLAGS_ADDITIONAL="${CFLAGS_ADDITIONAL}" ${FLAGS} -j16
+cp CPP/7zip/Compress/FLzma2/b/${OUTDIR}/FLzma2.dll bin/Codecs/
+COMMENTOUT
+
 cp CPP/7zip/Compress/Zstd/b/${OUTDIR}/Zstd.dll bin/Codecs/
 make -C CPP/7zip/Compress/Lz4 -f ../../${CMPL}.mak mkdir && make -C CPP/7zip/Compress/Lz4 -f ../../${CMPL}.mak CFLAGS_ADDITIONAL="${CFLAGS_ADDITIONAL}" ${FLAGS} -j16
 cp CPP/7zip/Compress/Lz4/b/${OUTDIR}/Lz4.dll bin/Codecs/
@@ -35,8 +61,6 @@ make -C CPP/7zip/Compress/Lizard -f ../../${CMPL}.mak mkdir && make -C CPP/7zip/
 cp CPP/7zip/Compress/Lizard/b/${OUTDIR}/Lizard.dll bin/Codecs/
 make -C CPP/7zip/Compress/Brotli -f ../../${CMPL}.mak mkdir && make -C CPP/7zip/Compress/Brotli -f ../../${CMPL}.mak CFLAGS_ADDITIONAL="${CFLAGS_ADDITIONAL}" ${FLAGS} -j16
 cp CPP/7zip/Compress/Brotli/b/${OUTDIR}/Brotli.dll bin/Codecs/
-make -C CPP/7zip/Compress/FLzma2 -f ../../${CMPL}.mak mkdir && make -C CPP/7zip/Compress/FLzma2 -f ../../${CMPL}.mak CFLAGS_ADDITIONAL="${CFLAGS_ADDITIONAL}" ${FLAGS} -j16
-cp CPP/7zip/Compress/FLzma2/b/${OUTDIR}/FLzma2.dll bin/Codecs/
 make -C CPP/7zip/Compress/Lzham -f ../../${CMPL}.mak mkdir && make -C CPP/7zip/Compress/Lzham -f ../../${CMPL}.mak CFLAGS_ADDITIONAL="${CFLAGS_ADDITIONAL}" ${FLAGS} -j16
 cp CPP/7zip/Compress/Lzham/b/${OUTDIR}/Lzham.dll bin/Codecs/
 make -C CPP/7zip/Compress/PKImplode -f ../../${CMPL}.mak mkdir && make -C CPP/7zip/Compress/PKImplode -f ../../${CMPL}.mak CFLAGS_ADDITIONAL="${CFLAGS_ADDITIONAL}" ${FLAGS} -j16

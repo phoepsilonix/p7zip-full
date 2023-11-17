@@ -3,9 +3,13 @@ set -e
 
 source /Users/runner/.bash_profile
 
-export CC=clang
-export CXX=clang++
-export LD=ld64.lld
+export PLATFORM=${PLATFORM:-x64}
+export CMPL=${CMPL:-cmpl_gcc_x64}
+export OUTDIR="${OUTDIR:-g_x64}"
+export CC=${CC:-gcc}
+export CXX=${CXX:-g++}
+export LD=${LD:-ld.mold}
+export LD=ld.mold
 export CFLAGS_ADD="-Wno-error=unused-command-line-argument -Wno-error=unused-but-set-variable -Wno-error=unused-but-set-parameter -I/usr/local/opt/llvm/include"
 export LDFLAGS_ADD="-Wno-error=unused-command-line-argument -L/usr/local/opt/llvm/lib -L/usr/local/opt/llvm/lib/c++ -Wl,-rpath,/usr/local/opt/llvm/lib/c++"
 
@@ -13,7 +17,8 @@ ARTIFACTS_DIR=bin/p7zip/
 mkdir -p ${ARTIFACTS_DIR}/Codecs
 
 export PLATFORM=x64
-export O=b/c_${PLATFORM}
+export CMPL=cmpl_clang_x64
+export O=b/${OUTDIR}
 export IS_X64=1
 export IS_X86=
 export IS_ARM64=
@@ -41,6 +46,24 @@ make -C CPP/7zip/Compress/Sha512 -f makefile.gcc mkdir && make -C CPP/7zip/Compr
 make -C CPP/7zip/Compress/Xxh64 -f makefile.gcc mkdir && make -C CPP/7zip/Compress/Xxh64 -f makefile.gcc -j
 make -C CPP/7zip/Compress/Blake3 -f makefile.gcc mkdir && make -C CPP/7zip/Compress/Blake3 -f makefile.gcc -j
 
+lipo CPP/7zip/UI/Console/${O}/7z -create -output ${ARTIFACTS_DIR}/7z
+lipo CPP/7zip/Bundles/Format7zF/${O}/7z.so -create -output ${ARTIFACTS_DIR}/7z.so
+lipo CPP/7zip/Bundles/Alone2/${O}/7zz -create -output ${ARTIFACTS_DIR}/7zz
+lipo CPP/7zip/Compress/Zstd/${O}/Zstd.so -create -output ${ARTIFACTS_DIR}/Codecs/Zstd.so
+lipo CPP/7zip/Compress/Lz4/${O}/Lz4.so -create -output ${ARTIFACTS_DIR}/Codecs/Lz4.so
+lipo CPP/7zip/Compress/Lz5/${O}/Lz5.so -create -output ${ARTIFACTS_DIR}/Codecs/Lz5.so
+lipo CPP/7zip/Compress/Lizard/${O}/Lizard.so -create -output ${ARTIFACTS_DIR}/Codecs/Lizard.so
+lipo CPP/7zip/Compress/Brotli/${O}/Brotli.so -create -output ${ARTIFACTS_DIR}/Codecs/Brotli.so
+lipo CPP/7zip/Compress/Lzham/${O}/Lzham.so -create -output ${ARTIFACTS_DIR}/Codecs/Lzham.so
+lipo CPP/7zip/Compress/PKImplode/${O}/PKImplode.so -create -output ${ARTIFACTS_DIR}/Codecs/PKImplode.so
+lipo CPP/7zip/Compress/Bcm/${O}/Bcm.so -create -output ${ARTIFACTS_DIR}/Codecs/Bcm.so
+lipo CPP/7zip/Compress/Balz/${O}/Balz.so -create -output ${ARTIFACTS_DIR}/Codecs/Balz.so
+lipo CPP/7zip/Compress/Md5/${O}/Md5.so -create -output ${ARTIFACTS_DIR}/Codecs/Md5.so
+lipo CPP/7zip/Compress/Sha512/${O}/Sha512.so -create -output ${ARTIFACTS_DIR}/Codecs/Sha512.so
+lipo CPP/7zip/Compress/Xxh64/${O}/Xxh64.so -create -output ${ARTIFACTS_DIR}/Codecs/Xxh64.so
+lipo CPP/7zip/Compress/Blake3/${O}/Blake3.so -create -output ${ARTIFACTS_DIR}/Codecs/Blake3.so
+
+<<COMMENTOUT
 export PLATFORM=arm64
 export O=b/c_${PLATFORM}
 export IS_X64=
@@ -87,6 +110,8 @@ lipo CPP/7zip/Compress/Md5/b/m_x64/Md5.so CPP/7zip/Compress/Md5/b/m_arm64/Md5.so
 lipo CPP/7zip/Compress/Sha512/b/m_x64/Sha512.so CPP/7zip/Compress/Sha512/b/m_arm64/Sha512.so -create -output ${ARTIFACTS_DIR}/Codecs/Sha512.so
 lipo CPP/7zip/Compress/Xxh64/b/m_x64/Xxh64.so CPP/7zip/Compress/Xxh64/b/m_arm64/Xxh64.so -create -output ${ARTIFACTS_DIR}/Codecs/Xxh64.so
 lipo CPP/7zip/Compress/Blake3/b/m_x64/Blake3.so CPP/7zip/Compress/Blake3/b/m_arm64/Blake3.so -create -output ${ARTIFACTS_DIR}/Codecs/Blake3.so
+
+COMMENTOUT
 
 <<COMMENTOUT
 make -C CPP/7zip/Bundles/Alone -f makefile.gcc mkdir && make -C CPP/7zip/Bundles/Alone -f makefile.gcc -j
