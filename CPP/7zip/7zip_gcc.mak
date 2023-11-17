@@ -7,7 +7,7 @@
 
 MY_ARCH_2 = $(MY_ARCH)
 
-O=b/c_$(PLATFORM)
+O=b/$(OUTDIR)
 MY_ASM = uasm
 ifdef USE_JWASM
 MY_ASM = jwasm

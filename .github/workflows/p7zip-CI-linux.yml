@@ -13,6 +13,8 @@ jobs:
         include:
           - os: ubuntu-latest
             mode: "clang"
+          - os: ubuntu-latest
+            mode: "gcc-x64"
 
     runs-on: ${{ matrix.os }}
     steps:
@@ -39,6 +41,22 @@ jobs:
     - name: Build (Linux/Clang)
       if: ${{ matrix.os == 'ubuntu-latest' && matrix.mode == 'clang' }}
       run: |
+        export PLATFORM=x64
+        export CMPL=cmpl_clang_x64
+        export OUTDIR=c_x64
+        export CC=clang
+        export CXX=clang++
+        export LD=ld.mold
+        ./build_linux.sh
+    - name: Build (Linux/gcc-x64)
+      if: ${{ matrix.os == 'ubuntu-latest' && matrix.mode == 'gcc-x64' }}
+      run: |
+        export PLATFORM=x64
+        export CMPL=cmpl_gcc_x64
+        export OUTDIR=g_x64
+        export CC=gcc
+        export CXX=g++
+        export LD=ld.mold
         ./build_linux.sh
     - name: 7z check
       run: |
@@ -51,7 +69,20 @@ jobs:
       run: |
         mkdir -p release
         cd bin
+        ./p7zip/7zz a ../release/p7zip-linux-x86_64-gcc.7z ./p7zip
+    - name: archive (Linux)
+      if: ${{ matrix.os == 'ubuntu-latest' && matrix.mode == 'clang' }}
+      run: |
+        mkdir -p release
+        cd bin
         ./p7zip/7zz a ../release/p7zip-linux-x86_64-clang.7z ./p7zip
+    - name: Release (Linux/Clang)
+      if: ${{ matrix.os == 'ubuntu-latest' && matrix.mode == 'gcc-x64' }}
+      uses: ncipollo/release-action@v1
+      with:
+        omitBody: true
+        artifacts: 'release/*'
+        token: ${{ secrets.GITHUB_TOKEN }}
     - name: Release (Linux/Clang)
       if: ${{ matrix.os == 'ubuntu-latest' && matrix.mode == 'clang' }}
       uses: ncipollo/release-action@v1
