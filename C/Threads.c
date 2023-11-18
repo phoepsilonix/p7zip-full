@@ -265,7 +265,7 @@ WRes Thread_Create_With_CpuSet(CThread *p, THREAD_FUNC_TYPE func, LPVOID param, 
       */
 
       // ret2 =
-      pthread_attr_setaffinity_np(&attr, sizeof(*cpuSet), cpuSet);
+       pthread_attr_setaffinity_np(&attr, sizeof(*cpuSet), cpuSet);
       // if (ret2) ret = ret2;
       #endif
     }

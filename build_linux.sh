@@ -1,9 +1,14 @@
 #!/bin/bash
 set -e
 
+export CC=clang
+export CXX=clang++
+export LD=ld.mold
+
 export PLATFORM=${PLATFORM:-x64}
 export CMPL=${CMPL:-cmpl_gcc_x64}
 export OUTDIR="${OUTDIR:-g_x64}"
+export O="b/${OUTDIR:-g_x64}"
 export CC=${CC:-gcc}
 export CXX=${CXX:-g++}
 export LD=${LD:-ld.mold}
@@ -13,6 +18,10 @@ else
     export CFLAGS_ADD="-Wno-error=unused-but-set-variable -Wno-error=unused-but-set-parameter"
 fi
 export LDFLAGS_ADD="-fuse-ld=${LD/ld./} -Wno-error=unused-command-line-argument"
+export LDFLAGS_ADD="-Wno-error=unused-command-line-argument"
+# zig build
+export CFLAGS_ADD="${CFLAGS_ADD} -DZ7_AFFINITY_DISABLE"
+
 #export FLAGS="CROSS_COMPILE=i686-linux-gnu-"
 #export CROSS_COMPILE="i686-linux-gnu-"
 
@@ -44,17 +53,18 @@ cp CPP/7zip/Compress/Rar/b/${OUTDIR}/Rar.so ${ARTIFACTS_DIR}Codecs/
 make -C CPP/7zip/Compress/FLzma2 -f makefile.gcc mkdir && make -C CPP/7zip/Compress/FLzma2 -f makefile.gcc CFLAGS_ADDITIONAL="${CFLAGS_ADDITIONAL}" ${FLAGS} -j
 cp CPP/7zip/Compress/FLzma2/b/${OUTDIR}/FLzma2.so ${ARTIFACTS_DIR}Codecs/
 
-COMMENTOUT
-
 make -C CPP/7zip/UI/Console -f makefile.gcc mkdir && make -C CPP/7zip/UI/Console -f makefile.gcc CFLAGS_ADDITIONAL="${CFLAGS_ADDITIONAL}" ${FLAGS} -j
 cp CPP/7zip/UI/Console/b/${OUTDIR}/7z ${ARTIFACTS_DIR}
 
 make -C CPP/7zip/Bundles/Format7zF -f makefile.gcc mkdir && make -C CPP/7zip/Bundles/Format7zF -f makefile.gcc CFLAGS_ADDITIONAL="${CFLAGS_ADDITIONAL}" ${FLAGS} -j
 cp CPP/7zip/Bundles/Format7zF/b/${OUTDIR}/7z.so ${ARTIFACTS_DIR}
+COMMENTOUT
+
 
 make -C CPP/7zip/Bundles/Alone2 -f makefile.gcc mkdir && make -C CPP/7zip/Bundles/Alone2 -f makefile.gcc CFLAGS_ADDITIONAL="${CFLAGS_ADDITIONAL}" ${FLAGS} -j
 cp CPP/7zip/Bundles/Alone2/b/${OUTDIR}/7zz ${ARTIFACTS_DIR}
 
+<<COMMENTOUT
 make -C CPP/7zip/Compress/Zstd -f makefile.gcc mkdir && make -C CPP/7zip/Compress/Zstd -f makefile.gcc CFLAGS_ADDITIONAL="${CFLAGS_ADDITIONAL}" ${FLAGS} -j
 cp CPP/7zip/Compress/Zstd/b/${OUTDIR}/Zstd.so ${ARTIFACTS_DIR}Codecs/
 make -C CPP/7zip/Compress/Lz4 -f makefile.gcc mkdir && make -C CPP/7zip/Compress/Lz4 -f makefile.gcc CFLAGS_ADDITIONAL="${CFLAGS_ADDITIONAL}" ${FLAGS} -j
@@ -81,6 +91,8 @@ make -C CPP/7zip/Compress/Xxh64 -f makefile.gcc mkdir && make -C CPP/7zip/Compre
 cp CPP/7zip/Compress/Xxh64/b/${OUTDIR}/Xxh64.so ${ARTIFACTS_DIR}Codecs/
 make -C CPP/7zip/Compress/Blake3 -f makefile.gcc mkdir && make -C CPP/7zip/Compress/Blake3 -f makefile.gcc CFLAGS_ADDITIONAL="${CFLAGS_ADDITIONAL}" ${FLAGS} -j
 cp CPP/7zip/Compress/Blake3/b/${OUTDIR}/Blake3.so ${ARTIFACTS_DIR}Codecs/
+
+COMMENTOUT
 
 make -C CPP/7zip/Bundles/Alone -f makefile.gcc clean
 make -C CPP/7zip/Bundles/Alone2 -f makefile.gcc clean
