@@ -1,23 +1,32 @@
 #!/bin/bash
 set -e
 
-source /Users/runner/.bash_profile
+export PATH="/usr/local/bin:/usr/local/opt/llvm/bin:$PATH"
+export CC=clang
+export CXX=clang++
+export LD=ld.mold
 
 export PLATFORM=${PLATFORM:-x64}
 export CMPL=${CMPL:-cmpl_gcc_x64}
-export OUTDIR="${OUTDIR:-g_x64}"
+export OUTDIR="${OUTDIR:-m_x64}"
 export CC=${CC:-gcc}
 export CXX=${CXX:-g++}
 export LD=${LD:-ld.mold}
 export LD=ld.mold
-export CFLAGS_ADD="-Wno-error=unused-command-line-argument -Wno-error=unused-but-set-variable -Wno-error=unused-but-set-parameter -I/usr/local/opt/llvm/include"
-export LDFLAGS_ADD="-Wno-error=unused-command-line-argument -L/usr/local/opt/llvm/lib -L/usr/local/opt/llvm/lib/c++ -Wl,-rpath,/usr/local/opt/llvm/lib/c++"
 
+#llvm
+#export CFLAGS_ADD="-Wno-error=unused-command-line-argument -Wno-error=unused-but-set-variable -Wno-error=unused-but-set-parameter -I/usr/local/opt/llvm/include"
+#export LDFLAGS_ADD="-Wno-error=unused-command-line-argument -L/usr/local/opt/llvm/lib -L/usr/local/opt/llvm/lib/c++ -Wl,-rpath,/usr/local/opt/llvm/lib/c++"
+
+# zig 
+#export CFLAGS_ADD="-Wno-error=unused-command-line-argument -Wno-error=unused-but-set-variable -Wno-error=unused-but-set-parameter"
+#export LDFLAGS_ADD="-Wno-error=unused-command-line-argument -Wl,-s"
 ARTIFACTS_DIR=bin/p7zip/
-mkdir -p ${ARTIFACTS_DIR}/Codecs
+mkdir -p ${ARTIFACTS_DIR}
 
 export PLATFORM=x64
 export CMPL=cmpl_clang_x64
+export OUTDIR=m_${PLATFORM}
 export O=b/${OUTDIR}
 export IS_X64=1
 export IS_X86=
@@ -29,9 +38,22 @@ export CC="${CROSS_COMPILE}clang"
 export CXX="${CROSS_COMPILE}clang++"
 export USE_CLANG=1
 
+#export CFLAGS_ADD="-Wno-error=unused-command-line-argument -Wno-error=unused-but-set-variable -Wno-error=unused-but-set-parameter -I/usr/local/opt/llvm/include"
+#export LDFLAGS_ADD="-Wl,-s -Wno-error=unused-command-line-argument -L/usr/local/opt/llvm/lib -L/usr/local/opt/llvm/lib/c++ -Wl,-rpath,/usr/local/opt/llvm/lib/c++"
+export CFLAGS_ADD="-Wno-error=unused-command-line-argument -Wno-error=unused-but-set-variable -Wno-error=unused-but-set-parameter"
+export LDFLAGS_ADD="-fuse-ld=${LD/ld./} -Wno-error=unused-command-line-argument -Wl,-s"
+#export CFLAGS_ADD="${CFLAGS_ADD} -arch x86_64"
+#export LDFLAGS_ADD="${LDFLAGS_ADD} -arch x86_64"
+
+(cd Codecs/brotli && patch -p1 -i ../../brotli.patch)
+source ./zig-macos-x86_64.sh
+export MACFLAGS="-c"
+make -C CPP/7zip/Bundles/Alone2 -f makefile.gcc mkdir && make -C CPP/7zip/Bundles/Alone2 -f makefile.gcc
+make -C CPP/7zip/Bundles/SFXCon -f makefile.gcc mkdir && make -C CPP/7zip/Bundles/SFXCon -f makefile.gcc -j
+
+<<COMMENTOUT
 make -C CPP/7zip/UI/Console -f makefile.gcc mkdir && make -C CPP/7zip/UI/Console -f makefile.gcc -j
 make -C CPP/7zip/Bundles/Format7zF -f makefile.gcc mkdir && make -C CPP/7zip/Bundles/Format7zF -f makefile.gcc -j
-make -C CPP/7zip/Bundles/Alone2 -f makefile.gcc mkdir && make -C CPP/7zip/Bundles/Alone2 -f makefile.gcc -j
 make -C CPP/7zip/Compress/Zstd -f makefile.gcc mkdir && make -C CPP/7zip/Compress/Zstd -f makefile.gcc -j
 make -C CPP/7zip/Compress/Lz4 -f makefile.gcc mkdir && make -C CPP/7zip/Compress/Lz4 -f makefile.gcc -j
 make -C CPP/7zip/Compress/Lz5 -f makefile.gcc mkdir && make -C CPP/7zip/Compress/Lz5 -f makefile.gcc -j
@@ -62,24 +84,38 @@ lipo CPP/7zip/Compress/Md5/${O}/Md5.so -create -output ${ARTIFACTS_DIR}/Codecs/M
 lipo CPP/7zip/Compress/Sha512/${O}/Sha512.so -create -output ${ARTIFACTS_DIR}/Codecs/Sha512.so
 lipo CPP/7zip/Compress/Xxh64/${O}/Xxh64.so -create -output ${ARTIFACTS_DIR}/Codecs/Xxh64.so
 lipo CPP/7zip/Compress/Blake3/${O}/Blake3.so -create -output ${ARTIFACTS_DIR}/Codecs/Blake3.so
+COMMENTOUT
 
-<<COMMENTOUT
 export PLATFORM=arm64
-export O=b/c_${PLATFORM}
+export OUTDIR=m_${PLATFORM}
+export O=b/${OUTDIR}
 export IS_X64=
 export IS_X86=
 export IS_ARM64=1
 export CROSS_COMPILE=
 export MY_ARCH="-arch arm64"
-export USE_ASM=1
+export USE_ASM=
 export CC="${CROSS_COMPILE}clang"
 export CXX="${CROSS_COMPILE}clang++"
 export USE_CLANG=1
+export ASM=${CC}
+export MY_ASM=${CC}
 
+export CFLAGS_ADD="-Wno-error=unused-command-line-argument -Wno-error=unused-but-set-variable -Wno-error=unused-but-set-parameter -I/usr/local/opt/llvm/include"
+export LDFLAGS_ADD="-Wl,-s -Wno-error=unused-command-line-argument -L/usr/local/opt/llvm/lib -L/usr/local/opt/llvm/lib/c++ -Wl,-rpath,/usr/local/opt/llvm/lib/c++"
+export CFLAGS_ADD="-mcrypto -Wno-error=unused-command-line-argument -Wno-error=unused-but-set-variable -Wno-error=unused-but-set-parameter"
+export LDFLAGS_ADD="-fuse-ld=${LD/ld./} -Wno-error=unused-command-line-argument -Wl,-s"
+#export CFLAGS_ADD="${CFLAGS_ADD} -arch arm64"
+#export LDFLAGS_ADD="${LDFLAGS_ADD} -arch arm64"
+#(cd Codecs/lzham_codec_devel/ && patch -p1 -i ../../lzham.patch)
+source ./zig-macos-arm.sh
+make -C CPP/7zip/Bundles/Alone2 -f makefile.gcc mkdir && make -C CPP/7zip/Bundles/Alone2 -f makefile.gcc
+make -C CPP/7zip/Bundles/SFXCon -f makefile.gcc mkdir && make -C CPP/7zip/Bundles/SFXCon -f makefile.gcc -j
+
+<<COMMENTOUT
 make -C CPP/7zip/UI/Console -f makefile.gcc mkdir && make -C CPP/7zip/UI/Console -f makefile.gcc -j
 make -C CPP/7zip/Bundles/Format7zF -f makefile.gcc mkdir && make -C CPP/7zip/Bundles/Format7zF -f makefile.gcc CROSS_COMPILE=arm64-apple-darwin- -j
 make -C CPP/7zip/UI/Console -f makefile.gcc mkdir && make -C CPP/7zip/UI/Console -f makefile.gcc CROSS_COMPILE=arm64-apple-darwin- -j
-make -C CPP/7zip/Bundles/Alone2 -f makefile.gcc mkdir && make -C CPP/7zip/Bundles/Alone2 -f makefile.gcc CROSS_COMPILE=arm64-apple-darwin- -j
 make -C CPP/7zip/Compress/Zstd -f makefile.gcc mkdir && make -C CPP/7zip/Compress/Zstd -f makefile.gcc CROSS_COMPILE=arm64-apple-darwin- -j
 make -C CPP/7zip/Compress/Lz4 -f makefile.gcc mkdir && make -C CPP/7zip/Compress/Lz4 -f makefile.gcc CROSS_COMPILE=arm64-apple-darwin- -j
 make -C CPP/7zip/Compress/Lz5 -f makefile.gcc mkdir && make -C CPP/7zip/Compress/Lz5 -f makefile.gcc CROSS_COMPILE=arm64-apple-darwin- -j
@@ -93,10 +129,11 @@ make -C CPP/7zip/Compress/Md5 -f makefile.gcc mkdir && make -C CPP/7zip/Compress
 make -C CPP/7zip/Compress/Sha512 -f makefile.gcc mkdir && make -C CPP/7zip/Compress/Sha512 -f makefile.gcc CROSS_COMPILE=arm64-apple-darwin- -j
 make -C CPP/7zip/Compress/Xxh64 -f makefile.gcc mkdir && make -C CPP/7zip/Compress/Xxh64 -f makefile.gcc CROSS_COMPILE=arm64-apple-darwin- -j
 make -C CPP/7zip/Compress/Blake3 -f makefile.gcc mkdir && make -C CPP/7zip/Compress/Blake3 -f makefile.gcc CROSS_COMPILE=arm64-apple-darwin- -j
+COMMENTOUT
 
+<<COMMENTOUT
 lipo CPP/7zip/UI/Console/b/m_x64/7z CPP/7zip/UI/Console/b/m_arm64/7z -create -output ${ARTIFACTS_DIR}/7z
 lipo CPP/7zip/Bundles/Format7zF/b/m_x64/7z.so CPP/7zip/Bundles/Format7zF/b/m_arm64/7z.so -create -output ${ARTIFACTS_DIR}/7z.so
-lipo CPP/7zip/Bundles/Alone2/b/m_x64/7zz CPP/7zip/Bundles/Alone2/b/m_arm64/7zz -create -output ${ARTIFACTS_DIR}/7zz
 lipo CPP/7zip/Compress/Zstd/b/m_x64/Zstd.so CPP/7zip/Compress/Zstd/b/m_arm64/Zstd.so -create -output ${ARTIFACTS_DIR}/Codecs/Zstd.so
 lipo CPP/7zip/Compress/Lz4/b/m_x64/Lz4.so CPP/7zip/Compress/Lz4/b/m_arm64/Lz4.so -create -output ${ARTIFACTS_DIR}/Codecs/Lz4.so
 lipo CPP/7zip/Compress/Lz5/b/m_x64/Lz5.so CPP/7zip/Compress/Lz5/b/m_arm64/Lz5.so -create -output ${ARTIFACTS_DIR}/Codecs/Lz5.so
@@ -113,6 +150,8 @@ lipo CPP/7zip/Compress/Blake3/b/m_x64/Blake3.so CPP/7zip/Compress/Blake3/b/m_arm
 
 COMMENTOUT
 
+lipo CPP/7zip/Bundles/Alone2/b/m_x64/7zz CPP/7zip/Bundles/Alone2/b/m_arm64/7zz -create -output ${ARTIFACTS_DIR}/7zz
+lipo CPP/7zip/Bundles/SFXCon/b/m_x64/7zCon.sfx CPP/7zip/Bundles/SFXCon/b/m_arm64/7zCon.sfx -create -output ${ARTIFACTS_DIR}/7zCon.sfx
 <<COMMENTOUT
 make -C CPP/7zip/Bundles/Alone -f makefile.gcc mkdir && make -C CPP/7zip/Bundles/Alone -f makefile.gcc -j
 make -C CPP/7zip/Bundles/Alone -f makefile.gcc mkdir && make -C CPP/7zip/Bundles/Alone -f makefile.gcc CROSS_COMPILE=arm64-apple-darwin- -j
@@ -150,6 +189,10 @@ make -C CPP/7zip/Compress/FLzma2 -f makefile.gcc mkdir && make -C CPP/7zip/Compr
 lipo CPP/7zip/Compress/FLzma2/b/m_x64/FLzma2.so CPP/7zip/Compress/FLzma2/b/m_arm64/FLzma2.so -create -output ${ARTIFACTS_DIR}/Codecs/FLzma2.so
 COMMENTOUT
 
+
+make -C CPP/7zip/Bundles/Alone2 -f makefile.gcc clean
+make -C CPP/7zip/Bundles/SFXCon -f makefile.gcc clean
+<<COMMENTOUT
 make -C CPP/7zip/Bundles/Alone -f makefile.gcc clean
 make -C CPP/7zip/Bundles/Alone -f makefile.gcc clean
 make -C CPP/7zip/Bundles/Alone2 -f makefile.gcc clean
@@ -198,3 +241,4 @@ make -C CPP/7zip/Compress/Xxh64 -f makefile.gcc clean
 make -C CPP/7zip/Compress/Xxh64 -f makefile.gcc clean
 make -C CPP/7zip/Compress/Blake3 -f makefile.gcc clean
 make -C CPP/7zip/Compress/Blake3 -f makefile.gcc clean
+COMMENTOUT

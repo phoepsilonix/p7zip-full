@@ -1,0 +1,28 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 4ff3401..6c2024a 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -216,7 +216,7 @@ endif()
+ 
+ # Build the brotli executable
+ add_executable(brotli ${BROTLI_CLI_C})
+-target_link_libraries(brotli ${BROTLI_LIBRARIES_STATIC})
++#target_link_libraries(brotli ${BROTLI_LIBRARIES_STATIC})
+ 
+ # Installation
+ if(NOT BROTLI_EMSCRIPTEN)
+diff --git a/c/common/platform.h b/c/common/platform.h
+index f5ca443..b1ca5a8 100644
+--- a/c/common/platform.h
++++ b/c/common/platform.h
+@@ -28,7 +28,9 @@
+ #include <brotli/port.h>
+ #include <brotli/types.h>
+ 
+-#if defined(OS_LINUX) || defined(OS_CYGWIN) || defined(__EMSCRIPTEN__)
++#if defined(__APPLE__)
++#include <machine/endian.h>
++#elif defined(OS_LINUX) || defined(OS_CYGWIN) || defined(__EMSCRIPTEN__)
+ #include <endian.h>
+ #elif defined(OS_FREEBSD)
+ #include <machine/endian.h>

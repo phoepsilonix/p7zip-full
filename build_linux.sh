@@ -1,6 +1,7 @@
 #!/bin/bash
 set -e
 
+export PATH="/usr/local/zig:$HOME/.local/bin:$PATH"
 export CC=clang
 export CXX=clang++
 export LD=ld.mold
@@ -17,8 +18,8 @@ if [[ $CC =~ *gcc ]]; then
 else
     export CFLAGS_ADD="-Wno-error=unused-but-set-variable -Wno-error=unused-but-set-parameter"
 fi
-export LDFLAGS_ADD="-fuse-ld=${LD/ld./} -Wno-error=unused-command-line-argument"
-export LDFLAGS_ADD="-Wno-error=unused-command-line-argument"
+export LDFLAGS_ADD="-fuse-ld=${LD/ld./} -Wl,-s -Wno-error=unused-command-line-argument"
+#export LDFLAGS_ADD="-Wno-error=unused-command-line-argument"
 # zig build
 export CFLAGS_ADD="${CFLAGS_ADD} -DZ7_AFFINITY_DISABLE"
 
@@ -26,8 +27,10 @@ export CFLAGS_ADD="${CFLAGS_ADD} -DZ7_AFFINITY_DISABLE"
 #export CROSS_COMPILE="i686-linux-gnu-"
 
 ARTIFACTS_DIR=bin/p7zip/
-mkdir -p ${ARTIFACTS_DIR}/Codecs
+mkdir -p ${ARTIFACTS_DIR}
+
 <<COMMENTOUT
+mkdir -p ${ARTIFACTS_DIR}/Codecs
 
 make -C CPP/7zip/Bundles/Alone -f makefile.gcc mkdir && make -C CPP/7zip/Bundles/Alone -f makefile.gcc CFLAGS_ADDITIONAL="${CFLAGS_ADDITIONAL}" ${FLAGS} -j
 cp CPP/7zip/Bundles/Alone/b/${OUTDIR}/7za ${ARTIFACTS_DIR}
@@ -60,9 +63,11 @@ make -C CPP/7zip/Bundles/Format7zF -f makefile.gcc mkdir && make -C CPP/7zip/Bun
 cp CPP/7zip/Bundles/Format7zF/b/${OUTDIR}/7z.so ${ARTIFACTS_DIR}
 COMMENTOUT
 
-
+export MACFLAGS=""
 make -C CPP/7zip/Bundles/Alone2 -f makefile.gcc mkdir && make -C CPP/7zip/Bundles/Alone2 -f makefile.gcc CFLAGS_ADDITIONAL="${CFLAGS_ADDITIONAL}" ${FLAGS} -j
 cp CPP/7zip/Bundles/Alone2/b/${OUTDIR}/7zz ${ARTIFACTS_DIR}
+make -C CPP/7zip/Bundles/SFXCon -f makefile.gcc mkdir && make -C CPP/7zip/Bundles/SFXCon -f makefile.gcc CFLAGS_ADDITIONAL="${CFLAGS_ADDITIONAL}" ${FLAGS} -j
+cp CPP/7zip/Bundles/SFXCon/b/${OUTDIR}/7zCon.sfx ${ARTIFACTS_DIR}
 
 <<COMMENTOUT
 make -C CPP/7zip/Compress/Zstd -f makefile.gcc mkdir && make -C CPP/7zip/Compress/Zstd -f makefile.gcc CFLAGS_ADDITIONAL="${CFLAGS_ADDITIONAL}" ${FLAGS} -j
@@ -94,8 +99,10 @@ cp CPP/7zip/Compress/Blake3/b/${OUTDIR}/Blake3.so ${ARTIFACTS_DIR}Codecs/
 
 COMMENTOUT
 
-make -C CPP/7zip/Bundles/Alone -f makefile.gcc clean
 make -C CPP/7zip/Bundles/Alone2 -f makefile.gcc clean
+make -C CPP/7zip/Bundles/SFXCon -f makefile.gcc clean
+<<COMMENTOUT
+make -C CPP/7zip/Bundles/Alone -f makefile.gcc clean
 make -C CPP/7zip/Bundles/Alone7z -f makefile.gcc clean
 make -C CPP/7zip/Bundles/Format7zF -f makefile.gcc clean
 make -C CPP/7zip/Bundles/SFXCon -f makefile.gcc clean
@@ -118,3 +125,4 @@ make -C CPP/7zip/Compress/Md5 -f makefile.gcc clean
 make -C CPP/7zip/Compress/Sha512 -f makefile.gcc clean
 make -C CPP/7zip/Compress/Xxh64 -f makefile.gcc clean
 make -C CPP/7zip/Compress/Blake3 -f makefile.gcc clean
+COMMENTOUT

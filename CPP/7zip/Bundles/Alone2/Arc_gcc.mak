@@ -158,11 +158,16 @@ AR_OBJS = \
   $O/XarHandler.o \
   $O/XzHandler.o \
   $O/ZHandler.o \
-  $O/ZstdHandler.o \
   $O/LizardHandler.o \
   $O/Lz5Handler.o \
   $O/Lz4Handler.o \
   $O/LzHandler.o \
+
+ifndef ZSTD_DISABLE
+AR_OBJS += \
+  $O/ZstdHandler.o \
+
+endif
 
 AR_COMMON_OBJS = \
   $O/CoderMixer2.o \
@@ -297,10 +302,6 @@ COMPRESS_OBJS = \
   $O/ZlibDecoder.o \
   $O/ZlibEncoder.o \
   $O/ZDecoder.o \
-  $O/ZstdDecoder.o \
-  $O/ZstdEncoder.o \
-  $O/ZstdRegister.o \
-  $O/ZstdZipRegister.o \
   $O/Lz4Decoder.o \
   $O/Lz4Encoder.o \
   $O/Lz4Register.o \
@@ -314,6 +315,15 @@ COMPRESS_OBJS = \
   $O/Lz5Encoder.o \
   $O/Lz5Register.o \
   $O/LzhamRegister.o \
+
+ifndef ZSTD_DISABLE
+COMPRESS_OBJS += \
+  $O/ZstdDecoder.o \
+  $O/ZstdEncoder.o \
+  $O/ZstdRegister.o \
+  $O/ZstdZipRegister.o \
+
+endif
 
 ifdef DISABLE_RAR
 DISABLE_RAR_COMPRESS=1
@@ -437,7 +447,9 @@ FASTLZMA2_OBJS = \
   $O/range_enc.o \
   $O/fl2util.o \
 
+ifndef ZSTD_DISABLE
 ZSTD_STATIC_LIB = $O/libzstd.a
+endif
 # LZ4_STATIC_LIB = $O/liblz4.a
 BROTLI_STATIC_LIB = $O/libbrotlienc-static.a \
   $O/libbrotlidec-static.a \

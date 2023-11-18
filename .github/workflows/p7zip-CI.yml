@@ -12,11 +12,11 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-            mode: "clang"
-            asset_name: p7zip-linux-x86_64-clang.zip
+            mode: "x86_64"
+            asset_name: p7zip-linux-x86_64-musl.zip
           - os: ubuntu-latest
-            mode: "gcc-x64"
-            asset_name: p7zip-linux-x86_64-gcc.zip
+            mode: "i686"
+            asset_name: p7zip-linux-i686-musl.zip
           - os: macos-latest
             asset_name: p7zip-macos.zip
 
@@ -31,57 +31,55 @@ jobs:
       if: ${{ matrix.os == 'ubuntu-latest' }}
       run: |
         sudo apt install git clang llvm patchelf build-essential make cmake wget unzip lld
-    - name: install zig
+    - name: install (MacOS)
+      if: ${{ matrix.os == 'macos-latest' }}
+      run: |
+        brew install llvm libomp
+    - name: install zig (Linux)
+      if: ${{ matrix.os == 'ubuntu-latest' }}
       run: |
         mkdir -p zig
         cd zig
         curl -LZ https://ziglang.org/builds/zig-linux-x86_64-0.12.0-dev.1642+5f8641401.tar.xz|tar xJ --strip-component=1
         cd ..
         sudo mv zig /usr/local/zig
-    - name: install llvm
+    - name: install zig (MacOS)
       if: ${{ matrix.os == 'macos-latest' }}
       run: |
-        brew install llvm libomp
-        echo 'export PATH="/usr/local/bin:/usr/local/opt/llvm/bin:$PATH"' >> /Users/runner/.bash_profile
-    - name: Set up UASM (macOS)
+        mkdir -p zig
+        cd zig
+        curl -LZ https://ziglang.org/builds/zig-macos-x86_64-0.12.0-dev.1642+5f8641401.tar.xz|tar xJ --strip-component=1
+        cd ..
+        sudo mv zig /usr/local/zig
+    - name: Set up UASM (MacOS)
       if: ${{ matrix.os == 'macos-latest' }}
       run: |
-        curl -L https://github.com/Terraspace/UASM/archive/refs/tags/v2.55.tar.gz | tar xz
+        curl -LZ https://github.com/Terraspace/UASM/archive/refs/tags/v2.55.tar.gz | tar xz
         # Apple clang 12+ requires "-Wno-error=implicit-function-declaration" cf https://forum.mmm.ucar.edu/phpBB3/viewtopic.php?t=11087&p=24226
         sed -i -e 's/-ansi/-Wno-error=implicit-function-declaration/' UASM-2.55/ClangOSX64.mak
         make -C UASM-2.55 -f ClangOSX64.mak CC=clang LD=ld.mold
         sudo cp UASM-2.55/GccUnixR/uasm /usr/local/bin/
-    - name: submodule update
-      run: |
-        git submodule update --init
-        cd Codecs/fast-lzma2/
-        patch -p1 -i ../../UInt64.patch
-    - name: Setting Up (Linux)
+    - name: Set up UASM (Linux)
       if: ${{ matrix.os == 'ubuntu-latest' }}
       run: |
         wget https://github.com/Terraspace/UASM/files/9881874/uasm256_linux64.zip
         unzip uasm256_linux64.zip uasm
         chmod +x uasm
         sudo cp uasm /usr/local/bin/
-    - name: Build (Linux/Clang)
-      if: ${{ matrix.os == 'ubuntu-latest' && matrix.mode == 'clang' }}
+    - name: submodule update
       run: |
-        export PLATFORM=x64
-        export CMPL=cmpl_clang_x64
-        export OUTDIR=c_x64
-        export CC=clang
-        export CXX=clang++
-        export LD=ld.mold
+        git submodule update --init
+        cd Codecs/fast-lzma2/
+        patch -p1 -i ../../UInt64.patch
+    - name: Build (Linux x86_64)
+      if: ${{ matrix.os == 'ubuntu-latest' && matrix.mode == 'x86_64' }}
+      run: |
+        source ./zig-linux.sh
         ./build_linux.sh
-    - name: Build (Linux/GCC-x64)
-      if: ${{ matrix.os == 'ubuntu-latest' && matrix.mode == 'gcc-x64' }}
+    - name: Build (Linux i686)
+      if: ${{ matrix.os == 'ubuntu-latest' && matrix.mode == 'i686' }}
       run: |
-        export PLATFORM=x64
-        export CMPL=cmpl_gcc_x64
-        export OUTDIR=g_x64
-        export CC=gcc
-        export CXX=g++
-        export LD=ld.mold
+        source ./zig-linux-x86.sh
         ./build_linux.sh
     - name: Build (macOS)
       if: ${{ matrix.os == 'macos-latest' }}
@@ -92,11 +90,19 @@ jobs:
         sed -i -e 's/\&\& LZHAM_PLATFORM_PC/\&\& LZHAM_PLATFORM_PC \&\& !defined(__aarch64__)/' Codecs/lzham_codec_devel/lzhamdecomp/lzham_platform.h
         ./build_macos.sh
     - name: 7z check
+      if: ${{ !( matrix.os == 'ubuntu-latest' && matrix.mode == 'i686' ) }}
       run: |
         export PROJECT_ROOT=`pwd`
         cd $PROJECT_ROOT/p7zip_test_utils/check
-        bash ../../check_7z.sh $PROJECT_ROOT/bin/p7zip/7z
+        #bash ../../check_7z.sh $PROJECT_ROOT/bin/p7zip/7z
         bash check.sh $PROJECT_ROOT/bin/p7zip/7zz
+    - name: 7z check(Linux i686)
+      if: ${{ matrix.os == 'ubuntu-latest' && matrix.mode == 'i686' }}
+      run: |
+        export PROJECT_ROOT=`pwd`
+        cd $PROJECT_ROOT/p7zip_test_utils/check
+        #bash ../../check_7z.sh $PROJECT_ROOT/bin/p7zip/7z
+        bash ../../check_7zz.sh $PROJECT_ROOT/bin/p7zip/7zz
     - name: archive
       run: |
         mkdir -p release

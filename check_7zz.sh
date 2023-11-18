@@ -111,7 +111,7 @@ sure ${P7ZIP} a -t7z 7za433_7zip_BCJ2.7z 7za433_7zip_lzma -m0=BCJ2
 
 sure ${P7ZIP} a -t7z 7za433_7zip_Copy.7z 7za433_7zip_lzma -m0=Copy
 
-sure ${P7ZIP} a -t7z 7za433_7zip_zstd.7z 7za433_7zip_lzma -m0=zstd -mx=22 # mx=level
+#sure ${P7ZIP} a -t7z 7za433_7zip_zstd.7z 7za433_7zip_lzma -m0=zstd -mx=22 # mx=level
 
 sure ${P7ZIP} a -t7z 7za433_7zip_lz4.7z 7za433_7zip_lzma -m0=lz4 -mmt=on # mmt=multithreading mode
 
@@ -133,7 +133,7 @@ sure ${P7ZIP} a -t7z 7za433_7zip_lzma6.7z 7za433_7zip_lzma -m0=LZMA -mf=BCJ2 -mt
 
 sure ${P7ZIP} a -t7z 7za433_7zip_lzma7.7z 7za433_7zip_lzma -m0=LZMA -mf=SPARC -mta=on # mta=last Access timestamps
 
-sure ${P7ZIP} a -t7z 7za433_7zip.7z 7za433_7zip_lzma -m0=bcj -m1=zstd -mx=22
+#sure ${P7ZIP} a -t7z 7za433_7zip.7z 7za433_7zip_lzma -m0=bcj -m1=zstd -mx=22
 
 sure ${P7ZIP} a -tzip 7za433_7zip_lzma.zip 7za433_7zip_lzma
 
@@ -158,7 +158,7 @@ sure ${P7ZIP} a -tzip 7za433_7zip_PPMd.zip 7za433_7zip_lzma -mm=PPMd -mmem=24m -
 sure ${P7ZIP} a -tzip 7za433_7zip_mc.zip 7za433_7zip_lzma -mcl=on -mcp=2 # mcl=local code page & mcp=code page
 
 # new version not support zip_zstd algo
-#sure ${P7ZIP} a -tzip 7za433_7zip_zstd.zip 7za433_7zip_lzma -mm=zstd
+sure ${P7ZIP} a -tzip 7za433_7zip_zstd.zip 7za433_7zip_lzma -mm=zstd
 
 sure ${P7ZIP} a -ttar 7za433_7zip_lzma.tar 7za433_7zip_lzma
 
@@ -234,9 +234,9 @@ sure ${P7ZIP} x 7za433_7zip_Copy.7z
 sure diff -r 7za433_ref 7za433_7zip_lzma
 sure rm -rf 7za433_7zip_lzma
 
-sure ${P7ZIP} x 7za433_7zip_zstd.7z
-sure diff -r 7za433_ref 7za433_7zip_lzma
-sure rm -rf 7za433_7zip_lzma
+#sure ${P7ZIP} x 7za433_7zip_zstd.7z
+#sure diff -r 7za433_ref 7za433_7zip_lzma
+#sure rm -rf 7za433_7zip_lzma
 
 sure ${P7ZIP} x 7za433_7zip_lz4.7z
 sure diff -r 7za433_ref 7za433_7zip_lzma
@@ -278,9 +278,9 @@ sure ${P7ZIP} x 7za433_7zip_lzma7.7z
 sure diff -r 7za433_ref 7za433_7zip_lzma
 sure rm -rf 7za433_7zip_lzma
 
-sure ${P7ZIP} x 7za433_7zip.7z
-sure diff -r 7za433_ref 7za433_7zip_lzma
-sure rm -rf 7za433_7zip_lzma
+#sure ${P7ZIP} x 7za433_7zip.7z
+#sure diff -r 7za433_ref 7za433_7zip_lzma
+#sure rm -rf 7za433_7zip_lzma
 
 sure ${P7ZIP} x 7za433_7zip_lzma.zip
 sure diff -r 7za433_ref 7za433_7zip_lzma
@@ -326,9 +326,9 @@ sure ${P7ZIP} x 7za433_7zip_mc.zip
 sure diff -r 7za433_ref 7za433_7zip_lzma
 sure rm -rf 7za433_7zip_lzma
 
-#sure ${P7ZIP} x 7za433_7zip_zstd.zip
-#sure diff -r 7za433_ref 7za433_7zip_lzma
-#sure rm -rf 7za433_7zip_lzma
+sure ${P7ZIP} x 7za433_7zip_zstd.zip
+sure diff -r 7za433_ref 7za433_7zip_lzma
+sure rm -rf 7za433_7zip_lzma
 
 sure ${P7ZIP} x 7za433_7zip_lzma.tar.xz -y
 sure ${P7ZIP} x 7za433_7zip_lzma.tar

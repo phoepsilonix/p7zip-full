@@ -1,0 +1,23 @@
+diff --git a/lzhamdecomp/lzham_platform.h b/lzhamdecomp/lzham_platform.h
+index 0cc58be..6b453d1 100644
+--- a/lzhamdecomp/lzham_platform.h
++++ b/lzhamdecomp/lzham_platform.h
+@@ -21,10 +21,17 @@ void lzham_fail(const char* pExp, const char* pFile, unsigned line);
+    #define LZHAM_BUILTIN_EXPECT(c, v) c
+ #endif
+ 
++#include <thread>
++#if defined(__i386__) || defined(__x86_64__)
++#  define SPINLOCK_YIELD __asm__ __volatile__("pause")
++#else
++#  define SPINLOCK_YIELD std::this_thread::yield()
++#endif
++
+ #if defined(__GNUC__) && LZHAM_PLATFORM_PC
+ extern __inline__ __attribute__((__always_inline__,__gnu_inline__)) void lzham_yield_processor()
+ {
+-   __asm__ __volatile__("pause");
++   SPINLOCK_YIELD;
+ }
+ #elif LZHAM_PLATFORM_X360
+ #define lzham_yield_processor() \

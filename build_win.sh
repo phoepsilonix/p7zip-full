@@ -1,33 +1,40 @@
 #!/bin/bash
 set -e
 
+export PATH="/usr/local/zig:$HOME/.local/bin:$PATH"
+export CC=clang
+export CXX=clang++
+export LD=ld.mold
+
 export PLATFORM=${PLATFORM:-x64}
 export CMPL=${CMPL:-cmpl_gcc_x64}
 export OUTDIR="${OUTDIR:-g_x64}"
 export CC=${CC:-gcc}
 export CXX=${CXX:-g++}
 export LD=${LD:-ld.mold}
-if [[ $CC =~ *gcc ]]; then
+if [[ $CC =~ *clang ]]; then
     export CFLAGS_ADD="-Wno-error=unused-command-line-argument -Wno-error=unused-but-set-variable -Wno-error=unused-but-set-parameter"
 else
     export CFLAGS_ADD="-Wno-error=unused-but-set-variable -Wno-error=unused-but-set-parameter"
 fi
-export LDFLAGS_ADD="-fuse-ld=${LD/ld./} -Wno-error=unused-command-line-argument"
+export LDFLAGS_ADD="-DMSYSTEM -fuse-ld=${LD/ld./} -Wno-error=unused-command-line-argument"
 
 ARTIFACTS_DIR=bin/p7zip/
-mkdir -p ${ARTIFACTS_DIR}/Codecs
+mkdir -p ${ARTIFACTS_DIR}
+
+source ./zig-windows-x86_64.sh
+export MSYSTEM=1
+make -C CPP/7zip/UI/Console -f makefile.gcc mkdir && make -C CPP/7zip/UI/Console -f makefile.gcc CFLAGS_ADDITIONAL="${CFLAGS_ADDITIONAL}" ${FLAGS} -j
+cp CPP/7zip/UI/Console/b/${OUTDIR}/7z.exe bin/
+
+<<COMMENTOUT
+make -C CPP/7zip/Bundles/SFXCon -f makefile.gcc mkdir && make -C CPP/7zip/Bundles/SFXCon -f makefile.gcc CFLAGS_ADDITIONAL="${CFLAGS_ADDITIONAL}" ${FLAGS} -j
+cp CPP/7zip/Bundles/SFXCon/b/${OUTDIR}/7zCon.sfx.exe bin/7zCon.sfx
 
 make -C CPP/7zip/Bundles/Alone2 -f ../../${CMPL}.mak mkdir && make -C CPP/7zip/Bundles/Alone2 -f ../../${CMPL}.mak CFLAGS_ADDITIONAL="${CFLAGS_ADDITIONAL}" ${FLAGS} -j
 cp CPP/7zip/Bundles/Alone2/b/${OUTDIR}/7zz.exe bin/
 make -C CPP/7zip/Bundles/Format7zF -f ../../${CMPL}.mak mkdir && make -C CPP/7zip/Bundles/Format7zF -f ../../${CMPL}.mak CFLAGS_ADDITIONAL="${CFLAGS_ADDITIONAL}" ${FLAGS} -j
 cp CPP/7zip/Bundles/Format7zF/b/${OUTDIR}/7z.dll bin/
-make -C CPP/7zip/Bundles/SFXCon -f ../../${CMPL}.mak mkdir && make -C CPP/7zip/Bundles/SFXCon -f ../../${CMPL}.mak CFLAGS_ADDITIONAL="${CFLAGS_ADDITIONAL}" ${FLAGS} -j16
-cp CPP/7zip/Bundles/SFXCon/b/${OUTDIR}/7zCon.sfx.exe bin/7zCon.sfx
-make -C CPP/7zip/UI/Console -f ../../${CMPL}.mak mkdir && make -C CPP/7zip/UI/Console -f ../../${CMPL}.mak CFLAGS_ADDITIONAL="${CFLAGS_ADDITIONAL}" ${FLAGS} -j16
-cp CPP/7zip/UI/Console/b/${OUTDIR}/7z.exe bin/
-
-<<COMMENTOUT
-
 make -C CPP/7zip/Bundles/Alone -f ../../${CMPL}.mak mkdir && make -C CPP/7zip/Bundles/Alone -f ../../${CMPL}.mak CFLAGS_ADDITIONAL="${CFLAGS_ADDITIONAL}" ${FLAGS} -j16
 cp CPP/7zip/Bundles/Alone/b/${OUTDIR}/7za.exe bin/
 make -C CPP/7zip/Bundles/Alone7z -f ../../${CMPL}.mak mkdir && make -C CPP/7zip/Bundles/Alone7z -f ../../${CMPL}.mak CFLAGS_ADDITIONAL="${CFLAGS_ADDITIONAL}" ${FLAGS} -j16
@@ -50,7 +57,6 @@ make -C CPP/7zip/Compress/Zstd -f ../../${CMPL}.mak mkdir && make -C CPP/7zip/Co
 
 make -C CPP/7zip/Compress/FLzma2 -f ../../${CMPL}.mak mkdir && make -C CPP/7zip/Compress/FLzma2 -f ../../${CMPL}.mak CFLAGS_ADDITIONAL="${CFLAGS_ADDITIONAL}" ${FLAGS} -j16
 cp CPP/7zip/Compress/FLzma2/b/${OUTDIR}/FLzma2.dll bin/Codecs/
-COMMENTOUT
 
 cp CPP/7zip/Compress/Zstd/b/${OUTDIR}/Zstd.dll bin/Codecs/
 make -C CPP/7zip/Compress/Lz4 -f ../../${CMPL}.mak mkdir && make -C CPP/7zip/Compress/Lz4 -f ../../${CMPL}.mak CFLAGS_ADDITIONAL="${CFLAGS_ADDITIONAL}" ${FLAGS} -j16
@@ -102,3 +108,6 @@ make -C CPP/7zip/Compress/Md5 -f ../../${CMPL}.mak clean
 make -C CPP/7zip/Compress/Sha512 -f ../../${CMPL}.mak clean
 make -C CPP/7zip/Compress/Xxh64 -f ../../${CMPL}.mak clean
 make -C CPP/7zip/Compress/Blake3 -f ../../${CMPL}.mak clean
+COMMENTOUT
+make -C CPP/7zip/Bundles/Alone2 -f ../../${CMPL}.mak clean
+make -C CPP/7zip/Bundles/SFXCon -f ../../${CMPL}.mak clean

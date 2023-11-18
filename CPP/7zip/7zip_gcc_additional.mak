@@ -30,10 +30,12 @@ $O/lz5-mt_decompress.o: ../../../../Codecs/zstdmt/lib/lz5-mt_decompress.c
 $O/threading.o: ../../../../Codecs/zstdmt/lib/threading.c
 	$(CC) $(CFLAGS) $<
 
+ifndef ZSTD_DISABLE
 # Build zstd lib static
 $O/libzstd.a: ../../Compress/Zstd/makefile.gcc
 	$(RM) zstd_build
 	cmake -DCMAKE_LINKER="$(LD)" \
+		-DCMAKE_C_FLAGS="$(CFLAGS)" -DCMAKE_CXX_FLAGS="$(CXXFLAGS)" \
 		-DZSTD_BUILD_STATIC=ON -DZSTD_BUILD_SHARED=OFF -DZSTD_BUILD_PROGRAMS=OFF -S ../../../../Codecs/zstd/build/cmake -B zstd_build
 	make -C zstd_build -j
 	cp zstd_build/lib/libzstd.a $O
@@ -49,11 +51,14 @@ $O/ZstdZipRegister.o: ../../Compress/ZstdZipRegister.cpp
 	$(CXX) $(CXXFLAGS) $<
 $O/ZstdHandler.o: ../../Archive/ZstdHandler.cpp
 	$(CXX) $(CXXFLAGS) $<
+endif
 
 # Build lz4 lib static
 $O/liblz4.a: ../../../../Codecs/lz4/lib/lz4.h
 	$(RM) lz4_build
-	cmake -DCMAKE_LINKER="$(LD)" $(DCMAKE_SYSTEM_NAME) -DBUILD_STATIC_LIBS=ON -DBUILD_SHARED_LIBS=OFF -DLZ4_BUILD_CLI=OFF -DLZ4_BUILD_LEGACY_LZ4C=OFF -S ../../../../Codecs/lz4/build/cmake -B lz4_build
+	cmake -DCMAKE_LINKER="$(LD)" \
+		-DCMAKE_C_FLAGS="$(CFLAGS)" -DCMAKE_CXX_FLAGS="$(CXXFLAGS)" \
+		$(DCMAKE_SYSTEM_NAME) -DBUILD_STATIC_LIBS=ON -DBUILD_SHARED_LIBS=OFF -DLZ4_BUILD_CLI=OFF -DLZ4_BUILD_LEGACY_LZ4C=OFF -S ../../../../Codecs/lz4/build/cmake -B lz4_build
 	make -C lz4_build -j
 	cp lz4_build/liblz4.a $O
 
@@ -80,7 +85,9 @@ $O/Lz4Handler.o: ../../Archive/Lz4Handler.cpp
 $O/libbrotlienc-static.a $O/libbrotlidec-static.a: $O/libbrotlicommon-static.a
 $O/libbrotlicommon-static.a: ../../../../Codecs/brotli/c/include/brotli/decode.h
 	$(RM) brotli_build
-	cmake -DCMAKE_LINKER="$(LD)" $(DCMAKE_SYSTEM_NAME) -S ../../../../Codecs/brotli -B brotli_build
+	cmake $(DCMAKE_SYSTEM_NAME) -S ../../../../Codecs/brotli -B brotli_build \
+		-DCMAKE_C_FLAGS="$(MACFLAGS)" \
+		-DCMAKE_EXE_LINKER_FLAGS="$(LDFLAGS)" -DCMAKE_LINKER="$(LD)"
 	make -C brotli_build -j
 	cp brotli_build/libbrotlicommon-static.a $O
 	cp brotli_build/libbrotlidec-static.a $O
@@ -229,7 +236,9 @@ $O/Blake3Reg.o: ../../../Common/Blake3Reg.cpp
 	$(CXX) $(CXXFLAGS) $<
 
 clean2:
+ifndef ZSTD_DISABLE
 	$(RM) zstd_build
+endif
 	# $(RM) lz4_build
 	$(RM) brotli_build
 	$(RM) lzham_build
