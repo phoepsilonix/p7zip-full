@@ -6,7 +6,7 @@
 # Contributor: TuxSpirit<tuxspirit@archlinux.fr>
 # Contributor: Daniel J Griffiths <ghost1227@archlinux.us>
 
-pkgname=p7zip-full-bin
+pkgname=p7zip-full
 _pkgname=p7zip-full
 pkgver=23.01
 pkgrel=1
@@ -19,49 +19,24 @@ depends=('gcc-libs' 'sh')
 makedepends=('mold')
 conflicts=('p7zip')
 provides=('p7zip')
-source=(https://github.com/phoepsilonix/p7zip-full/archive/refs/tags/v$pkgver.$_upstream_pkgrel.tar.gz)
-sha256sums=('570b3f787fa15527805aa28268223f52cf1292cf2529675cae9a5717a34ed17f')
+source=(https://github.com/phoepsilonix/p7zip-full/archive/refs/tags/v$pkgver.$_upstream_pkgrel.tar.gz
+        https://github.com/phoepsilonix/p7zip-full/releases/download/v$pkgver.$_upstream_pkgrel/p7zip-linux-x86_64-musl.zip)
+sha256sums=('SKIP'
+            'SKIP')
 
 prepare() {
   cd $_pkgname-$pkgver.$_upstream_pkgrel
-
-  # Leave man page compression to makepkg to maintain reproducibility
+  mkdir -p bin/
 }
 
 build() {
   cd $_pkgname-$pkgver.$_upstream_pkgrel
-export PATH="$HOME/.local/bin:$PATH"
-export CC=clang
-export CXX=clang++
-export LD=ld.mold
+  cp -a ${srcdir}/p7zip bin/
 
-export PLATFORM=${PLATFORM:-x64}
-export CMPL=${CMPL:-cmpl_gcc_x64}
-export OUTDIR="${OUTDIR:-g_x64}"
-export O="b/${OUTDIR:-g_x64}"
-export CC=${CC:-gcc}
-export CXX=${CXX:-g++}
-export LD=${LD:-ld.mold}
-
-if [[ $CC =~ *gcc ]]; then
-    export CFLAGS_ADD="-Wno-error=unused-command-line-argument -Wno-error=unused-but-set-variable -Wno-error=unused-but-set-parameter"
-else
-    export CFLAGS_ADD="-Wno-error=unused-but-set-variable -Wno-error=unused-but-set-parameter"
-fi
-export LDFLAGS_ADD="-fuse-ld=${LD/ld./} -Wl,-s -Wno-error=unused-command-line-argument"
-export CFLAGS_ADD="${CFLAGS_ADD} -DZ7_AFFINITY_DISABLE"
-
-ARTIFACTS_DIR=bin/p7zip/
-mkdir -p ${ARTIFACTS_DIR}
-export MACFLAGS=""
-make -C CPP/7zip/Bundles/Alone2 -f makefile.gcc mkdir && make -C CPP/7zip/Bundles/Alone2 -f makefile.gcc CFLAGS_ADDITIONAL="${CFLAGS_ADDITIONAL}" ${FLAGS} -j
-cp CPP/7zip/Bundles/Alone2/b/${OUTDIR}/7zz ${ARTIFACTS_DIR}
-make -C CPP/7zip/Bundles/SFXCon -f makefile.gcc mkdir && make -C CPP/7zip/Bundles/SFXCon -f makefile.gcc CFLAGS_ADDITIONAL="${CFLAGS_ADDITIONAL}" ${FLAGS} -j
-cp CPP/7zip/Bundles/SFXCon/b/${OUTDIR}/7zCon.sfx ${ARTIFACTS_DIR}
 }
 
 package() {
-  cd $_pkgname-$pkgver
+  cd $_pkgname-$pkgver.$_upstream_pkgrel
 
   make install \
     DEST_DIR="$pkgdir" \

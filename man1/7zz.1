@@ -156,9 +156,8 @@ dictionary size = 32 megabytes
 solid archive = on
 .SH EXAMPLE 2
 .TP
-.B
-7zz a \-sfx archive.exe dir1
-add all files from directory "dir1" to SFX archive archive.exe (Remark : SFX archive MUST end with ".exe")
+.B 7zz a \-sfx/usr/lib/p7zip/7zCon.sfx archive dir1 && chmod +x archive
+add all files from directory "dir1" to SFX archive
 .SH EXAMPLE 3
 .TP
 .B
