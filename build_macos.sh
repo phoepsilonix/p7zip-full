@@ -41,7 +41,8 @@ export USE_CLANG=1
 #export CFLAGS_ADD="-Wno-error=unused-command-line-argument -Wno-error=unused-but-set-variable -Wno-error=unused-but-set-parameter -I/usr/local/opt/llvm/include"
 #export LDFLAGS_ADD="-Wl,-s -Wno-error=unused-command-line-argument -L/usr/local/opt/llvm/lib -L/usr/local/opt/llvm/lib/c++ -Wl,-rpath,/usr/local/opt/llvm/lib/c++"
 export CFLAGS_ADD="-Wno-error=unused-command-line-argument -Wno-error=unused-but-set-variable -Wno-error=unused-but-set-parameter"
-export LDFLAGS_ADD="-fuse-ld=${LD/ld./} -Wno-error=unused-command-line-argument -Wl,-s"
+#export LDFLAGS_ADD="-fuse-ld=${LD/ld./} -Wno-error=unused-command-line-argument -Wl,-s"
+export LDFLAGS_ADD="-fuse-ld=${LD/ld./} -Wl,-s -Wno-error=unused-command-line-argument  -Wl,-z,relro,-z,now -fPIE -fpie"
 #export CFLAGS_ADD="${CFLAGS_ADD} -arch x86_64"
 #export LDFLAGS_ADD="${LDFLAGS_ADD} -arch x86_64"
 
@@ -104,7 +105,8 @@ export MY_ASM=${CC}
 export CFLAGS_ADD="-Wno-error=unused-command-line-argument -Wno-error=unused-but-set-variable -Wno-error=unused-but-set-parameter -I/usr/local/opt/llvm/include"
 export LDFLAGS_ADD="-Wl,-s -Wno-error=unused-command-line-argument -L/usr/local/opt/llvm/lib -L/usr/local/opt/llvm/lib/c++ -Wl,-rpath,/usr/local/opt/llvm/lib/c++"
 export CFLAGS_ADD="-mcrypto -Wno-error=unused-command-line-argument -Wno-error=unused-but-set-variable -Wno-error=unused-but-set-parameter"
-export LDFLAGS_ADD="-fuse-ld=${LD/ld./} -Wno-error=unused-command-line-argument -Wl,-s"
+#export LDFLAGS_ADD="-fuse-ld=${LD/ld./} -Wno-error=unused-command-line-argument -Wl,-s"
+export LDFLAGS_ADD="-fuse-ld=${LD/ld./} -Wl,-s -Wno-error=unused-command-line-argument  -Wl,-z,relro,-z,now -fPIE -fpie"
 #export CFLAGS_ADD="${CFLAGS_ADD} -arch arm64"
 #export LDFLAGS_ADD="${LDFLAGS_ADD} -arch arm64"
 #(cd Codecs/lzham_codec_devel/ && patch -p1 -i ../../lzham.patch)

@@ -18,7 +18,7 @@ if [[ $CC =~ *gcc ]]; then
 else
     export CFLAGS_ADD="-Wno-error=unused-but-set-variable -Wno-error=unused-but-set-parameter"
 fi
-export LDFLAGS_ADD="-fuse-ld=${LD/ld./} -Wl,-s -Wno-error=unused-command-line-argument"
+export LDFLAGS_ADD="-fuse-ld=${LD/ld./} -Wl,-s -Wno-error=unused-command-line-argument  -Wl,-z,relro,-z,now -fPIE -fpie"
 #export LDFLAGS_ADD="-Wno-error=unused-command-line-argument"
 # zig build
 export CFLAGS_ADD="${CFLAGS_ADD} -DZ7_AFFINITY_DISABLE"
