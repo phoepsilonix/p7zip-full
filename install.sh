@@ -3,10 +3,10 @@
 installShared()
 {
   prg=$1
-  if [ -x bin/${prg} ]
+  if [ -x bin/p7zip/${prg} ]
   then
     echo "- installing ${DEST_DIR}${DEST_BIN}/${prg}"
-    cp bin/${prg} "${DEST_DIR}${DEST_SHARE}/${prg}"
+    cp bin/p7zip/${prg} "${DEST_DIR}${DEST_SHARE}/${prg}"
     chmod 755 "${DEST_DIR}${DEST_SHARE}/${prg}"
     strip     "${DEST_DIR}${DEST_SHARE}/${prg}"
     echo "#! /bin/sh" > "${DEST_DIR}${DEST_BIN}/${prg}"
@@ -34,34 +34,36 @@ umask 0022
 
 use_share="n"
 
-if [ -x bin/7zCon.sfx ]
+if [ -x bin/p7zip/7zCon.sfx ]
 then
   use_share="o"
 fi
 
-if [ -x bin/7z ]
+if [ -x bin/p7zip/7z ]
 then
   use_share="o"
 fi
 
-if [ -x bin/7zG ]
+if [ -x bin/p7zip/7zG ]
 then
   use_share="o"
 fi
 
-if [ -x bin/7zFM ]
+if [ -x bin/p7zip/7zFM ]
 then
   use_share="o"
 fi
 
 # cleaning previous install
 rm -f  "${DEST_DIR}${DEST_BIN}/7z"
+rm -f  "${DEST_DIR}${DEST_BIN}/7zz"
 rm -f  "${DEST_DIR}${DEST_BIN}/7za"
 rm -f  "${DEST_DIR}${DEST_BIN}/7zr"
 rm -f  "${DEST_DIR}${DEST_BIN}/7zG"
 rm -f  "${DEST_DIR}${DEST_BIN}/p7zipForFilemanager"
 rm -f  "${DEST_DIR}${DEST_BIN}/7zFM"
 rm -f  "${DEST_DIR}${DEST_SHARE}/7z"
+rm -f  "${DEST_DIR}${DEST_SHARE}/7zz"
 rm -f  "${DEST_DIR}${DEST_SHARE}/7za"
 rm -f  "${DEST_DIR}${DEST_SHARE}/7zCon.sfx"
 rm -f  "${DEST_DIR}${DEST_SHARE}/7zr"
@@ -74,6 +76,7 @@ rm -fr "${DEST_DIR}${DEST_SHARE}/Codecs"
 rm -fr "${DEST_DIR}${DEST_SHARE}/Formats"
 rm -fr "${DEST_DIR}${DEST_SHARE}/Lang"
 rm -f  "${DEST_DIR}${DEST_MAN}/man1/7z.1"
+rm -f  "${DEST_DIR}${DEST_MAN}/man1/7zz.1"
 rm -f  "${DEST_DIR}${DEST_MAN}/man1/7za.1"
 rm -f  "${DEST_DIR}${DEST_MAN}/man1/7zr.1"
 chmod -R 777 "${DEST_DIR}${DEST_SHARE_DOC}" 2> /dev/null
@@ -84,56 +87,76 @@ then
   mkdir -p "${DEST_DIR}${DEST_BIN}"
   mkdir -p "${DEST_DIR}${DEST_SHARE}"
   installShared 7za
+  installShared 7za
   installShared 7zr
   installShared 7z
   installShared 7zG
   installShared 7zFM
 
-  if [ -x bin/7zCon.sfx ]
+  if [ -x bin/p7zip/7zCon.sfx ]
   then
     echo "- installing ${DEST_DIR}${DEST_SHARE}/7zCon.sfx"
-    cp bin/7zCon.sfx "${DEST_DIR}${DEST_SHARE}/7zCon.sfx"
+    cp bin/p7zip/7zCon.sfx "${DEST_DIR}${DEST_SHARE}/7zCon.sfx"
     chmod 755 "${DEST_DIR}${DEST_SHARE}/7zCon.sfx"
     strip     "${DEST_DIR}${DEST_SHARE}/7zCon.sfx"
   fi
 
-  if [ -x bin/7z.so ]
+  if [ -x bin/p7zip/7z.so ]
   then
     echo "- installing ${DEST_DIR}${DEST_SHARE}/7z.so"
-    cp bin/7z.so "${DEST_DIR}${DEST_SHARE}/7z.so"
+    cp bin/p7zip/7z.so "${DEST_DIR}${DEST_SHARE}/7z.so"
     chmod 755 "${DEST_DIR}${DEST_SHARE}/7z.so"
   fi
 
-  if [ -d bin/Codecs ]
+  if [ -d bin/p7zip/Codecs ]
   then
     echo "- installing ${DEST_DIR}${DEST_SHARE}/Codecs"
-    cp -r bin/Codecs "${DEST_DIR}${DEST_SHARE}/"
+    cp -r bin/p7zip/Codecs "${DEST_DIR}${DEST_SHARE}/"
     chmod 755 "${DEST_DIR}${DEST_SHARE}"/*/*
   fi
 
+  if [ -x bin/p7zip/7zz ]
+  then
+    echo "- installing ${DEST_DIR}${DEST_BIN}/7zz"
+    mkdir -p "${DEST_DIR}${DEST_BIN}"
+    cp bin/p7zip/7zz "${DEST_DIR}${DEST_BIN}/7zz"
+    chmod 755  "${DEST_DIR}${DEST_BIN}/7zz"
+    strip      "${DEST_DIR}${DEST_BIN}/7zz"
+  fi
+
 else
-  if [ -x bin/7za ]
+  if [ -x bin/p7zip/7za ]
   then
     echo "- installing ${DEST_DIR}${DEST_BIN}/7za"
     mkdir -p "${DEST_DIR}${DEST_BIN}"
-    cp bin/7za "${DEST_DIR}${DEST_BIN}/7za"
+    cp bin/p7zip/7za "${DEST_DIR}${DEST_BIN}/7za"
     chmod 755  "${DEST_DIR}${DEST_BIN}/7za"
     strip      "${DEST_DIR}${DEST_BIN}/7za"
   fi
 
-  if [ -x bin/7zr ]
+  if [ -x bin/p7zip/7zr ]
   then
     echo "- installing ${DEST_DIR}${DEST_BIN}/7zr"
     mkdir -p "${DEST_DIR}${DEST_BIN}"
-    cp bin/7zr "${DEST_DIR}${DEST_BIN}/7zr"
+    cp bin/p7zip/7zr "${DEST_DIR}${DEST_BIN}/7zr"
     chmod 755  "${DEST_DIR}${DEST_BIN}/7zr"
     strip      "${DEST_DIR}${DEST_BIN}/7zr"
+  fi
+
+  if [ -x bin/p7zip/7zz ]
+  then
+    echo "- installing ${DEST_DIR}${DEST_BIN}/7zz"
+    mkdir -p "${DEST_DIR}${DEST_BIN}"
+    cp bin/p7zip/7zz "${DEST_DIR}${DEST_BIN}/7zz"
+    chmod 755  "${DEST_DIR}${DEST_BIN}/7zz"
+    strip      "${DEST_DIR}${DEST_BIN}/7zz"
   fi
 fi
 
 mkdir -p "${DEST_DIR}${DEST_MAN}/man1"
 if [ -d DOC ]
 then
+<<COMMENTOUT
    echo "- installing ${DEST_DIR}${DEST_MAN}/man1/7z.1"
    sed -e s?"{DEST_SHARE_DOC}"?"${DEST_SHARE_DOC}/DOC"?g man1/7z.1 > "${DEST_DIR}${DEST_MAN}/man1/7z.1"
    chmod 644 "${DEST_DIR}${DEST_MAN}/man1/7z.1"
@@ -145,7 +168,12 @@ then
    echo "- installing ${DEST_DIR}${DEST_MAN}/man1/7zr.1"
    sed -e s?"{DEST_SHARE_DOC}"?"${DEST_SHARE_DOC}/DOC"?g man1/7zr.1 > "${DEST_DIR}${DEST_MAN}/man1/7zr.1"
    chmod 644 "${DEST_DIR}${DEST_MAN}/man1/7zr.1"
+COMMENTOUT
+   echo "- installing ${DEST_DIR}${DEST_MAN}/man1/7zz.1"
+   sed -e s?"{DEST_SHARE_DOC}"?"${DEST_SHARE_DOC}/DOC"?g man1/7zz.1 > "${DEST_DIR}${DEST_MAN}/man1/7zz.1"
+   chmod 644 "${DEST_DIR}${DEST_MAN}/man1/7zz.1"
 else
+<<COMMENTOUT
    echo "- installing ${DEST_DIR}${DEST_MAN}/man1/7z.1"
    grep -v "{DEST_SHARE_DOC}" man1/7z.1 > "${DEST_DIR}${DEST_MAN}/man1/7z.1"
    chmod 644 "${DEST_DIR}${DEST_MAN}/man1/7z.1"
@@ -157,11 +185,19 @@ else
    echo "- installing ${DEST_DIR}${DEST_MAN}/man1/7zr.1"
    grep -v "{DEST_SHARE_DOC}" man1/7zr.1 > "${DEST_DIR}${DEST_MAN}/man1/7zr.1"
    chmod 644 "${DEST_DIR}${DEST_MAN}/man1/7zr.1"
+COMMENTOUT
+
+   echo "- installing ${DEST_DIR}${DEST_MAN}/man1/7zz.1"
+   grep -v "{DEST_SHARE_DOC}" man1/7zz.1 > "${DEST_DIR}${DEST_MAN}/man1/7zz.1"
+   chmod 644 "${DEST_DIR}${DEST_MAN}/man1/7zz.1"
 fi
 
+<<COMMENTOUT
 gzip -n "${DEST_DIR}${DEST_MAN}/man1/7z.1"
 gzip -n "${DEST_DIR}${DEST_MAN}/man1/7za.1"
 gzip -n "${DEST_DIR}${DEST_MAN}/man1/7zr.1"
+COMMENTOUT
+gzip -n "${DEST_DIR}${DEST_MAN}/man1/7zz.1"
 
 if [ -f README ]
 then
@@ -190,14 +226,14 @@ fi
 
 use_lang="n"
 
-if [ -x bin/7zG ]
+if [ -x bin/p7zip/7zG ]
 then
   use_lang="o"
   cp GUI/p7zipForFilemanager "${DEST_DIR}${DEST_BIN}/"
   chmod 755 "${DEST_DIR}${DEST_BIN}/"
 fi
 
-if [ -x bin/7zFM ]
+if [ -x bin/p7zip/7zFM ]
 then
   use_lang="o"
 fi
