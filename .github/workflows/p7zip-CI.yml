@@ -22,7 +22,10 @@ jobs:
 
     runs-on: ${{ matrix.os }}
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v3
+      with:
+        lfs: true
+        submodules: 'recursive'
     - uses: rui314/setup-mold@staging
       with:
         mold-version: 2.3.3
@@ -66,9 +69,8 @@ jobs:
         unzip uasm256_linux64.zip uasm
         chmod +x uasm
         sudo cp uasm /usr/local/bin/
-    - name: submodule update
+    - name: patch
       run: |
-        git submodule update --init
         cd Codecs/fast-lzma2/
         patch -p1 -i ../../UInt64.patch
     - name: Build (Linux x86_64)
