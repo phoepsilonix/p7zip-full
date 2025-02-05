@@ -14,7 +14,7 @@ endif
 
 ifdef ST_MODE
 
-LOCAL_FLAGS_ST = -D_7ZIP_ST
+LOCAL_FLAGS_ST = -DZ7_ST
 
 ifdef IS_MINGW
 MT_OBJS = \
@@ -419,6 +419,7 @@ C_OBJS = \
   $O/Sha256Opt.o \
   $O/Sha1.o \
   $O/Sha1Opt.o \
+  $O/SwapBytes.o \
 
 FASTLZMA2_OBJS = \
   $O/FastLzma2Register.o \
@@ -450,6 +451,7 @@ ARC_OBJS = \
   $(MT_OBJS) \
   $(COMMON_OBJS) \
   $(WIN_OBJS) \
+  $(7ZIP_COMMON_OBJS) \
   $(AR_OBJS) \
   $(AR_COMMON_OBJS) \
   $(7Z_OBJS) \
@@ -475,3 +477,4 @@ ARC_OBJS = \
   $(LZHAM_STATIC_LIB) \
 
 
+# we need empty line after last line above
