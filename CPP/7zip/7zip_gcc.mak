@@ -131,13 +131,8 @@ MY_MKDIR=mkdir
 DEL_OBJ_EXE = -$(RM) $(O)\*.o $(O)\$(PROG).exe $(O)\$(PROG).dll
 endif
 
-<<<<<<< HEAD
 LIB2_GUI = -lole32 -lgdi32 -lcomctl32 -lcomdlg32 $(LIB_HTMLHELP)
 LIB2 = -loleaut32 -luuid -ladvapi32 -luser32 $(LIB2_GUI)
-=======
-LIB2_GUI = -lOle32 -lGdi32 -lComctl32 -lComdlg32 -lShell32 $(LIB_HTMLHELP)
-LIB2 = -loleaut32 -luuid -ladvapi32 -lUser32 $(LIB2_GUI)
->>>>>>> 71192d94dd487dcd7a0af4e58fb7c79045f32e8d
 
 CXXFLAGS_EXTRA = -DUNICODE -D_UNICODE
 # -Wno-delete-non-virtual-dtor
@@ -161,12 +156,7 @@ endif
 
 
 
-<<<<<<< HEAD
 CFLAGS = $(MY_ARCH_2) $(LOCAL_FLAGS) $(CFLAGS_BASE2) $(CFLAGS_BASE) -std=c99 $(CC_SHARED) -o $@
-=======
-CFLAGS = $(MY_ARCH_2) $(LOCAL_FLAGS) $(CFLAGS_BASE2) $(CFLAGS_BASE) $(FLAGS_FLTO) $(CC_SHARED) -o $@
-
->>>>>>> 71192d94dd487dcd7a0af4e58fb7c79045f32e8d
 
 ifdef IS_MINGW
   ifdef IS_X64
@@ -206,11 +196,7 @@ CXX_WARN_FLAGS =
 #-Wno-invalid-offsetof
 #-Wno-reorder
 
-<<<<<<< HEAD
 CXXFLAGS = $(MY_ARCH_2) $(LOCAL_FLAGS) $(CXXFLAGS_BASE2) $(CFLAGS_BASE) $(CXXFLAGS_EXTRA) -std=c++11 $(CC_SHARED) -o $@ $(CXX_WARN_FLAGS)
-=======
-CXXFLAGS = $(MY_ARCH_2) $(LOCAL_FLAGS) $(CXXFLAGS_BASE2) $(CFLAGS_BASE) $(FLAGS_FLTO) $(CXXFLAGS_EXTRA) $(CC_SHARED) $(CXX_WARN_FLAGS) $(CXX_STD_FLAGS) -o $@
->>>>>>> 71192d94dd487dcd7a0af4e58fb7c79045f32e8d
 
 STATIC_TARGET=
 ifdef COMPL_STATIC
@@ -253,9 +239,6 @@ $(PROGPATH_STATIC): $(OBJS)
 ifndef NO_DEFAULT_RES
 RC ?= windres
 $O/resource.o: resource.rc
-<<<<<<< HEAD
-	$(RC) $(RFLAGS) resource.rc $O/resource.o
-=======
 	$(RC) $(RFLAGS) resource.rc $@
 
 # windres.exe : in old version mingw:
@@ -264,7 +247,6 @@ $O/resource.o: resource.rc
 # $(RC) $(RFLAGS) resource.rc -FO $@
 
 
->>>>>>> 71192d94dd487dcd7a0af4e58fb7c79045f32e8d
 endif
 
 $O/LzmaAlone.o: LzmaAlone.cpp
