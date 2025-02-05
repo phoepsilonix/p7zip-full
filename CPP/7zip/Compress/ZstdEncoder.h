@@ -64,6 +64,15 @@ class CEncoder : public ICompressCoder,
   Int32 _LdmHashRateLog;
 
 public:
+
+  #if 1
+  //MY_VERSION_MAJOR >= 23
+    #define MY_QUERYINTERFACE_BEGIN2 Z7_COM_QI_BEGIN2
+    #define MY_QUERYINTERFACE_ENTRY Z7_COM_QI_ENTRY
+    #define MY_QUERYINTERFACE_END Z7_COM_QI_END
+    #define MY_ADDREF_RELEASE Z7_COM_ADDREF_RELEASE
+  #endif
+
   MY_QUERYINTERFACE_BEGIN2(ICompressCoder)
   MY_QUERYINTERFACE_ENTRY(ICompressSetCoderMt)
   MY_QUERYINTERFACE_ENTRY(ICompressSetCoderProperties)
@@ -71,14 +80,15 @@ public:
   MY_QUERYINTERFACE_END
   MY_ADDREF_RELEASE
 
+public:
   STDMETHOD(Code)
   (ISequentialInStream *inStream, ISequentialOutStream *outStream,
    const UInt64 *inSize, const UInt64 *outSize,
-   ICompressProgressInfo *progress);
+   ICompressProgressInfo *progress) noexcept;
   STDMETHOD(SetCoderProperties)
-  (const PROPID *propIDs, const PROPVARIANT *props, UInt32 numProps);
-  STDMETHOD(WriteCoderProperties)(ISequentialOutStream *outStream);
-  STDMETHOD(SetNumberOfThreads)(UInt32 numThreads);
+  (const PROPID *propIDs, const PROPVARIANT *props, UInt32 numProps) noexcept;
+  STDMETHOD(WriteCoderProperties)(ISequentialOutStream *outStream) noexcept;
+  STDMETHOD(SetNumberOfThreads)(UInt32 numThreads) noexcept;
 
   CEncoder();
   virtual ~CEncoder();
