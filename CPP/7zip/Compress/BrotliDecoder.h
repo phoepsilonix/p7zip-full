@@ -14,6 +14,14 @@
 #include "../Common/RegisterCodec.h"
 #include "../Common/ProgressMt.h"
 
+#include "../../../../C/7zVersion.h"
+#if MY_VER_MAJOR >= 23
+#define MY_QUERYINTERFACE_BEGIN2 Z7_COM_QI_BEGIN2
+#define MY_QUERYINTERFACE_ENTRY Z7_COM_QI_ENTRY
+#define MY_QUERYINTERFACE_END Z7_COM_QI_END
+#define MY_ADDREF_RELEASE Z7_COM_ADDREF_RELEASE
+#endif
+
 struct BrotliStream
 {
   ISequentialInStream *inStream;
@@ -49,6 +57,9 @@ namespace NCompress
 
     class CDecoder : public ICompressCoder,
                      public ICompressSetDecoderProperties2,
+                     #ifndef NO_READ_FROM_CODER
+                     public ICompressSetInStream,
+                     #endif
                      public ICompressSetCoderMt,
                      public CMyUnknownImp
     {
@@ -72,22 +83,23 @@ namespace NCompress
 #endif
       MY_QUERYINTERFACE_ENTRY(ICompressSetCoderMt)
       MY_QUERYINTERFACE_END
-
       MY_ADDREF_RELEASE
+
+    public:
       STDMETHOD(Code)
-      (ISequentialInStream *inStream, ISequentialOutStream *outStream, const UInt64 *inSize, const UInt64 *outSize, ICompressProgressInfo *progress);
+      (ISequentialInStream *inStream, ISequentialOutStream *outStream, const UInt64 *inSize, const UInt64 *outSize, ICompressProgressInfo *progress) noexcept;
       STDMETHOD(SetDecoderProperties2)
-      (const Byte *data, UInt32 size);
+      (const Byte *data, UInt32 size) noexcept;
       STDMETHOD(SetOutStreamSize)
-      (const UInt64 *outSize);
+      (const UInt64 *outSize) noexcept;
       STDMETHOD(SetNumberOfThreads)
-      (UInt32 numThreads);
+      (UInt32 numThreads) noexcept;
 
 #ifndef NO_READ_FROM_CODER
       STDMETHOD(SetInStream)
-      (ISequentialInStream *inStream);
+      (ISequentialInStream *inStream) noexcept;
       STDMETHOD(ReleaseInStream)
-      ();
+      () noexcept;
       UInt64 GetInputProcessedSize() const { return _processedIn; }
 #endif
       HRESULT CodeResume(ISequentialOutStream *outStream, const UInt64 *outSize, ICompressProgressInfo *progress);

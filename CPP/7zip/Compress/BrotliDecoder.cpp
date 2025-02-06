@@ -86,7 +86,7 @@ namespace NCompress
     {
     }
 
-    STDMETHODIMP CDecoder::SetDecoderProperties2(const Byte *prop, UInt32 size)
+    STDMETHODIMP CDecoder::SetDecoderProperties2(const Byte *prop, UInt32 size) noexcept
     {
       DProps *pProps = (DProps *)prop;
 
@@ -98,7 +98,7 @@ namespace NCompress
       return S_OK;
     }
 
-    STDMETHODIMP CDecoder::SetNumberOfThreads(UInt32 numThreads)
+    STDMETHODIMP CDecoder::SetNumberOfThreads(UInt32 numThreads) noexcept
     {
       const UInt32 kNumThreadsMax = BROTLIMT_THREAD_MAX;
       if (numThreads < 1)
@@ -115,7 +115,7 @@ namespace NCompress
       return S_OK;
     }
 
-    STDMETHODIMP CDecoder::SetOutStreamSize(const UInt64 *outSize)
+    STDMETHODIMP CDecoder::SetOutStreamSize(const UInt64 *outSize) noexcept
     {
       _processedIn = 0;
       RINOK(SetOutStreamSizeResume(outSize));
@@ -165,20 +165,20 @@ namespace NCompress
     }
 
     STDMETHODIMP CDecoder::Code(ISequentialInStream *inStream, ISequentialOutStream *outStream,
-                                const UInt64 * /*inSize */, const UInt64 *outSize, ICompressProgressInfo *progress)
+                                const UInt64 * /*inSize */, const UInt64 *outSize, ICompressProgressInfo *progress) noexcept
     {
       SetOutStreamSize(outSize);
       return CodeSpec(inStream, outStream, progress);
     }
 
 #ifndef NO_READ_FROM_CODER
-    STDMETHODIMP CDecoder::SetInStream(ISequentialInStream *inStream)
+    STDMETHODIMP CDecoder::SetInStream(ISequentialInStream *inStream) noexcept
     {
       _inStream = inStream;
       return S_OK;
     }
 
-    STDMETHODIMP CDecoder::ReleaseInStream()
+    STDMETHODIMP CDecoder::ReleaseInStream() noexcept
     {
       _inStream.Release();
       return S_OK;
