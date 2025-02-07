@@ -17,6 +17,12 @@
 
 #include "Common/OutStreamWithCRC.h"
 
+#include "../../../C/7zVersion.h"
+#if MY_VER_MAJOR >= 23
+#define MY_UNKNOWN_IMP1 Z7_COM_UNKNOWN_IMP_1
+#define MY_UNKNOWN_IMP2 Z7_COM_UNKNOWN_IMP_2
+#endif
+
 using namespace NWindows;
 
 namespace NArchive {
@@ -156,16 +162,23 @@ class CHandler:
 public:
   MY_UNKNOWN_IMP2(IInArchive, IArchiveOpenSeq)
 
-  INTERFACE_IInArchive(;)
-  STDMETHOD(OpenSeq)(ISequentialInStream *stream);
+#if MY_VER_MAJOR >= 23
+  Z7_IFACE_COM7_IMP(IInArchive)
+#else
+  INTERFACE_IInArchive(noexcept;)
+#endif
+
+public:
+  STDMETHOD(OpenSeq)(ISequentialInStream *stream) noexcept;
 
   CHandler() { }
+  virtual ~CHandler() = default;
 };
 
 IMP_IInArchive_Props
 IMP_IInArchive_ArcProps
 
-STDMETHODIMP CHandler::GetArchiveProperty(PROPID propID, PROPVARIANT *value)
+STDMETHODIMP CHandler::GetArchiveProperty(PROPID propID, PROPVARIANT *value) noexcept
 {
   NCOM::CPropVariant prop;
   switch (propID)
@@ -187,13 +200,13 @@ STDMETHODIMP CHandler::GetArchiveProperty(PROPID propID, PROPVARIANT *value)
   return S_OK;
 }
 
-STDMETHODIMP CHandler::GetNumberOfItems(UInt32 *numItems)
+STDMETHODIMP CHandler::GetNumberOfItems(UInt32 *numItems) noexcept
 {
   *numItems = 1;
   return S_OK;
 }
 
-STDMETHODIMP CHandler::GetProperty(UInt32 /* index */, PROPID propID, PROPVARIANT *value)
+STDMETHODIMP CHandler::GetProperty(UInt32 /* index */, PROPID propID, PROPVARIANT *value) noexcept
 {
   NCOM::CPropVariant prop;
   switch (propID)
@@ -229,7 +242,7 @@ bool CHeader::Parse()
   return (DicSize >= min_dictionary_size && DicSize <= max_dictionary_size);
 }
 
-STDMETHODIMP CHandler::Open(IInStream *inStream, const UInt64 *, IArchiveOpenCallback *)
+STDMETHODIMP CHandler::Open(IInStream *inStream, const UInt64 *, IArchiveOpenCallback *) noexcept
 {
   Close();
 
@@ -248,7 +261,7 @@ STDMETHODIMP CHandler::Open(IInStream *inStream, const UInt64 *, IArchiveOpenCal
   return S_OK;
 }
 
-STDMETHODIMP CHandler::OpenSeq(ISequentialInStream *stream)
+STDMETHODIMP CHandler::OpenSeq(ISequentialInStream *stream) noexcept
 {
   Close();
   _isArc = true;
@@ -256,7 +269,7 @@ STDMETHODIMP CHandler::OpenSeq(ISequentialInStream *stream)
   return S_OK;
 }
 
-STDMETHODIMP CHandler::Close()
+STDMETHODIMP CHandler::Close() noexcept
 {
   _isArc = false;
   _packSize_Defined = false;
@@ -285,11 +298,15 @@ public:
   UInt64 Offset;
 
   MY_UNKNOWN_IMP1(ICompressProgressInfo)
-  STDMETHOD(SetRatioInfo)(const UInt64 *inSize, const UInt64 *outSize);
+
+public:
+  STDMETHOD(SetRatioInfo)(const UInt64 *inSize, const UInt64 *outSize) noexcept;
   void Init(IArchiveOpenCallback *callback) { Callback = callback; }
+
+  virtual ~CCompressProgressInfoImp() = default;
 };
 
-STDMETHODIMP CCompressProgressInfoImp::SetRatioInfo(const UInt64 *inSize, const UInt64 * /* outSize */)
+STDMETHODIMP CCompressProgressInfoImp::SetRatioInfo(const UInt64 *inSize, const UInt64 * /* outSize */) noexcept
 {
   if (Callback)
   {
@@ -301,7 +318,7 @@ STDMETHODIMP CCompressProgressInfoImp::SetRatioInfo(const UInt64 *inSize, const 
 }
 
 STDMETHODIMP CHandler::Extract(const UInt32 *indices, UInt32 numItems,
-    Int32 testMode, IArchiveExtractCallback *extractCallback)
+    Int32 testMode, IArchiveExtractCallback *extractCallback) noexcept
 {
   COM_TRY_BEGIN
   if (numItems == 0)

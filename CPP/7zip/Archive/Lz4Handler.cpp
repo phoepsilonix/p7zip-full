@@ -17,6 +17,11 @@
 #include "Common/DummyOutStream.h"
 #include "Common/HandlerOut.h"
 
+#include "../../../C/7zVersion.h"
+#if MY_VER_MAJOR >= 23
+#define MY_UNKNOWN_IMP4 Z7_COM_UNKNOWN_IMP_4
+#endif
+
 using namespace NWindows;
 
 namespace NArchive {
@@ -52,12 +57,20 @@ public:
       IArchiveOpenSeq,
       IOutArchive,
       ISetProperties)
-  INTERFACE_IInArchive(;)
-  INTERFACE_IOutArchive(;)
-  STDMETHOD(OpenSeq)(ISequentialInStream *stream);
-  STDMETHOD(SetProperties)(const wchar_t * const *names, const PROPVARIANT *values, UInt32 numProps);
+#if MY_VER_MAJOR >= 23
+  Z7_IFACE_COM7_IMP(IInArchive)
+  Z7_IFACE_COM7_IMP(IOutArchive)
+#else
+  INTERFACE_IInArchive(noexcept;)
+  INTERFACE_IOutArchive(noexcept;)
+#endif
+
+public:
+  STDMETHOD(OpenSeq)(ISequentialInStream *stream) noexcept;
+  STDMETHOD(SetProperties)(const wchar_t * const *names, const PROPVARIANT *values, UInt32 numProps) noexcept;
 
   CHandler() { }
+  virtual ~CHandler() = default;
 };
 
 static const Byte kProps[] =
@@ -75,18 +88,18 @@ static const Byte kArcProps[] =
 IMP_IInArchive_Props
 IMP_IInArchive_ArcProps
 
-STDMETHODIMP CHandler::GetArchiveProperty(PROPID /*propID*/, PROPVARIANT * /*value*/)
+STDMETHODIMP CHandler::GetArchiveProperty(PROPID /*propID*/, PROPVARIANT * /*value*/) noexcept
 {
   return S_OK;
 }
 
-STDMETHODIMP CHandler::GetNumberOfItems(UInt32 *numItems)
+STDMETHODIMP CHandler::GetNumberOfItems(UInt32 *numItems) noexcept
 {
   *numItems = 1;
   return S_OK;
 }
 
-STDMETHODIMP CHandler::GetProperty(UInt32 /* index */, PROPID propID, PROPVARIANT *value)
+STDMETHODIMP CHandler::GetProperty(UInt32 /* index */, PROPID propID, PROPVARIANT *value) noexcept
 {
   NCOM::CPropVariant prop;
   switch (propID)
@@ -122,7 +135,7 @@ API_FUNC_static_IsArc IsArc_lz4(const Byte *p, size_t size)
 }
 }
 
-STDMETHODIMP CHandler::Open(IInStream *stream, const UInt64 *, IArchiveOpenCallback *)
+STDMETHODIMP CHandler::Open(IInStream *stream, const UInt64 *, IArchiveOpenCallback *) noexcept
 {
   COM_TRY_BEGIN
   Close();
@@ -140,7 +153,7 @@ STDMETHODIMP CHandler::Open(IInStream *stream, const UInt64 *, IArchiveOpenCallb
   COM_TRY_END
 }
 
-STDMETHODIMP CHandler::OpenSeq(ISequentialInStream *stream)
+STDMETHODIMP CHandler::OpenSeq(ISequentialInStream *stream) noexcept
 {
   Close();
   _isArc = true;
@@ -148,7 +161,7 @@ STDMETHODIMP CHandler::OpenSeq(ISequentialInStream *stream)
   return S_OK;
 }
 
-STDMETHODIMP CHandler::Close()
+STDMETHODIMP CHandler::Close() noexcept
 {
   _isArc = false;
   _dataAfterEnd = false;
@@ -165,7 +178,7 @@ STDMETHODIMP CHandler::Close()
 }
 
 STDMETHODIMP CHandler::Extract(const UInt32 *indices, UInt32 numItems,
-    Int32 testMode, IArchiveExtractCallback *extractCallback)
+    Int32 testMode, IArchiveExtractCallback *extractCallback) noexcept
 {
   COM_TRY_BEGIN
   if (numItems == 0)
@@ -281,14 +294,14 @@ static HRESULT UpdateArchive(
   return updateCallback->SetOperationResult(NArchive::NUpdate::NOperationResult::kOK);
 }
 
-STDMETHODIMP CHandler::GetFileTimeType(UInt32 *type)
+STDMETHODIMP CHandler::GetFileTimeType(UInt32 *type) noexcept
 {
   *type = NFileTimeType::kUnix;
   return S_OK;
 }
 
 STDMETHODIMP CHandler::UpdateItems(ISequentialOutStream *outStream, UInt32 numItems,
-    IArchiveUpdateCallback *updateCallback)
+    IArchiveUpdateCallback *updateCallback) noexcept
 {
   COM_TRY_BEGIN
 
@@ -349,7 +362,7 @@ STDMETHODIMP CHandler::UpdateItems(ISequentialOutStream *outStream, UInt32 numIt
   COM_TRY_END
 }
 
-STDMETHODIMP CHandler::SetProperties(const wchar_t * const *names, const PROPVARIANT *values, UInt32 numProps)
+STDMETHODIMP CHandler::SetProperties(const wchar_t * const *names, const PROPVARIANT *values, UInt32 numProps) noexcept
 {
   return _props.SetProperties(names, values, numProps);
 }

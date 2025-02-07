@@ -13,6 +13,11 @@ extern "C" {
 #include "../../../Codecs/StormLib/src/pklib/pklib.h"
 }
 
+#include "../../../C/7zVersion.h"
+#if MY_VER_MAJOR >= 23
+#define MY_UNKNOWN_IMP1 Z7_COM_UNKNOWN_IMP_1
+#endif
+
 namespace NCompress {
 namespace NPKImplode {
 namespace NDecoder {
@@ -39,11 +44,13 @@ public:
 
   MY_UNKNOWN_IMP1(ICompressGetInStreamProcessedSize)
 
+public:
   STDMETHOD(Code)(ISequentialInStream *inStream, ISequentialOutStream *outStream,
-      const UInt64 *inSize, const UInt64 *outSize, ICompressProgressInfo *progress);
-  STDMETHOD(GetInStreamProcessedSize)(UInt64 *value);
+      const UInt64 *inSize, const UInt64 *outSize, ICompressProgressInfo *progress) noexcept;
+  STDMETHOD(GetInStreamProcessedSize)(UInt64 *value) noexcept;
 
   CDecoder();
+  virtual ~CDecoder() = default;
 };
 
 }}}

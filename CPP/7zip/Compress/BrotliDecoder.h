@@ -14,7 +14,7 @@
 #include "../Common/RegisterCodec.h"
 #include "../Common/ProgressMt.h"
 
-#include "../../../../C/7zVersion.h"
+#include "../../../C/7zVersion.h"
 #if MY_VER_MAJOR >= 23
 #define MY_QUERYINTERFACE_BEGIN2 Z7_COM_QI_BEGIN2
 #define MY_QUERYINTERFACE_ENTRY Z7_COM_QI_ENTRY

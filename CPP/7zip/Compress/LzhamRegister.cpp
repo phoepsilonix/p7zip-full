@@ -25,6 +25,16 @@
 
 #include "lzham_static_lib.h"
 
+#include "../../../C/7zVersion.h"
+#if MY_VER_MAJOR >= 23
+#define MY_QUERYINTERFACE_BEGIN2 Z7_COM_QI_BEGIN2
+#define MY_QUERYINTERFACE_ENTRY Z7_COM_QI_ENTRY
+#define MY_QUERYINTERFACE_END Z7_COM_QI_END
+#define MY_ADDREF_RELEASE Z7_COM_ADDREF_RELEASE
+
+#define MY_UNKNOWN_IMP2 Z7_COM_UNKNOWN_IMP_2
+#endif
+
 #if 0
 #include <stdio.h>
 #define LZHAMCODEC_DEBUG_OUTPUT 1
@@ -106,18 +116,19 @@ namespace NCompress
             MY_QUERYINTERFACE_END
             MY_ADDREF_RELEASE
 
+      public:
             STDMETHOD(Code)(ISequentialInStream *inStream, ISequentialOutStream *outStream,
-            const UInt64 *inSize, const UInt64 *outSize, ICompressProgressInfo *progress);
-         STDMETHOD(SetDecoderProperties2)(const Byte *data, UInt32 size);
-         STDMETHOD(SetOutStreamSize)(const UInt64 *outSize);
-         STDMETHOD(SetInBufSize)(UInt32 streamIndex, UInt32 size);
-         STDMETHOD(SetOutBufSize)(UInt32 streamIndex, UInt32 size);
+            const UInt64 *inSize, const UInt64 *outSize, ICompressProgressInfo *progress) noexcept;
+         STDMETHOD(SetDecoderProperties2)(const Byte *data, UInt32 size) noexcept;
+         STDMETHOD(SetOutStreamSize)(const UInt64 *outSize) noexcept;
+         STDMETHOD(SetInBufSize)(UInt32 streamIndex, UInt32 size) noexcept;
+         STDMETHOD(SetOutBufSize)(UInt32 streamIndex, UInt32 size) noexcept;
 
 #ifndef NO_READ_FROM_CODER
 
-         STDMETHOD(SetInStream)(ISequentialInStream *inStream);
-         STDMETHOD(ReleaseInStream)();
-         STDMETHOD(Read)(void *data, UInt32 size, UInt32 *processedSize);
+         STDMETHOD(SetInStream)(ISequentialInStream *inStream) noexcept;
+         STDMETHOD(ReleaseInStream)() noexcept;
+         STDMETHOD(Read)(void *data, UInt32 size, UInt32 *processedSize) noexcept;
 
          HRESULT CodeResume(ISequentialOutStream *outStream, const UInt64 *outSize, ICompressProgressInfo *progress);
          UInt64 GetInputProcessedSize() const { return _inSizeProcessed; }
@@ -152,13 +163,13 @@ namespace NCompress
          MyFree(_outBuf);
       }
 
-      STDMETHODIMP CDecoder::SetInBufSize(UInt32 , UInt32 size) 
+      STDMETHODIMP CDecoder::SetInBufSize(UInt32 , UInt32 size) noexcept
       { 
          _inBufSize = size; 
          return S_OK; 
       }
 
-      STDMETHODIMP CDecoder::SetOutBufSize(UInt32 , UInt32 size) 
+      STDMETHODIMP CDecoder::SetOutBufSize(UInt32 , UInt32 size) noexcept
       { 
          _outBufSize = size; 
          return S_OK; 
@@ -187,7 +198,7 @@ namespace NCompress
          return S_OK;
       }
 
-      STDMETHODIMP CDecoder::SetDecoderProperties2(const Byte *prop, UInt32 size)
+      STDMETHODIMP CDecoder::SetDecoderProperties2(const Byte *prop, UInt32 size) noexcept
       {
          CProps *pProps = (CProps*)prop;
 
@@ -234,7 +245,7 @@ namespace NCompress
          return S_OK;
       }
 
-      STDMETHODIMP CDecoder::SetOutStreamSize(const UInt64 *outSize)
+      STDMETHODIMP CDecoder::SetOutStreamSize(const UInt64 *outSize) noexcept
       {
          _inSizeProcessed = 0;
          _inPos = _inSize = 0;
@@ -309,7 +320,7 @@ namespace NCompress
       }
 
       STDMETHODIMP CDecoder::Code(ISequentialInStream *inStream, ISequentialOutStream *outStream,
-         const UInt64 * /*inSize*/, const UInt64 *outSize, ICompressProgressInfo *progress)
+         const UInt64 * /*inSize*/, const UInt64 *outSize, ICompressProgressInfo *progress) noexcept
       {
          if (_inBuf == 0)
             return E_INVALIDARG;
@@ -318,19 +329,19 @@ namespace NCompress
       }
       
 #ifndef NO_READ_FROM_CODER
-      STDMETHODIMP CDecoder::SetInStream(ISequentialInStream *inStream) 
+      STDMETHODIMP CDecoder::SetInStream(ISequentialInStream *inStream) noexcept
       { 
          _inStream = inStream; 
          return S_OK; 
       }
 
-      STDMETHODIMP CDecoder::ReleaseInStream() 
+      STDMETHODIMP CDecoder::ReleaseInStream() noexcept
       { 
          _inStream.Release(); 
          return S_OK; 
       }
 
-      STDMETHODIMP CDecoder::Read(void *data, UInt32 size, UInt32 *processedSize)
+      STDMETHODIMP CDecoder::Read(void *data, UInt32 size, UInt32 *processedSize) noexcept
       {
          if (_inBuf == 0 || !_propsWereSet)
             return S_FALSE;
@@ -437,12 +448,13 @@ namespace NCompress
       public:
          MY_UNKNOWN_IMP2(ICompressSetCoderProperties, ICompressWriteCoderProperties)
 
+      public:
          STDMETHOD(Code)(ISequentialInStream *inStream, ISequentialOutStream *outStream,
-            const UInt64 *inSize, const UInt64 *outSize, ICompressProgressInfo *progress);
+            const UInt64 *inSize, const UInt64 *outSize, ICompressProgressInfo *progress) noexcept;
 
-         STDMETHOD(SetCoderProperties)(const PROPID *propIDs, const PROPVARIANT *props, UInt32 numProps);
+         STDMETHOD(SetCoderProperties)(const PROPID *propIDs, const PROPVARIANT *props, UInt32 numProps) noexcept;
 
-         STDMETHOD(WriteCoderProperties)(ISequentialOutStream *outStream);
+         STDMETHOD(WriteCoderProperties)(ISequentialOutStream *outStream) noexcept;
 
          CEncoder();
          virtual ~CEncoder();
@@ -473,7 +485,7 @@ namespace NCompress
       }
 
       STDMETHODIMP CEncoder::SetCoderProperties(const PROPID *propIDs,
-         const PROPVARIANT *coderProps, UInt32 numProps)
+         const PROPVARIANT *coderProps, UInt32 numProps) noexcept
       {
          _props.clear();
          
@@ -596,7 +608,7 @@ namespace NCompress
          return S_OK;
       }
 
-      STDMETHODIMP CEncoder::WriteCoderProperties(ISequentialOutStream *outStream)
+      STDMETHODIMP CEncoder::WriteCoderProperties(ISequentialOutStream *outStream) noexcept
       {
          return WriteStream(outStream, &_props, sizeof(_props));
       }
@@ -710,7 +722,7 @@ namespace NCompress
       }
 
       STDMETHODIMP CEncoder::Code(ISequentialInStream *inStream, ISequentialOutStream *outStream,
-         const UInt64 * /* inSize */, const UInt64 * /* outSize */, ICompressProgressInfo *progress)
+         const UInt64 * /* inSize */, const UInt64 * /* outSize */, ICompressProgressInfo *progress) noexcept
       {
          RINOK(CreateCompressor());
          

@@ -2,6 +2,8 @@
 
 #include "StdAfx.h"
 
+#define Z7_EXTERNAL_CODECS
+
 #ifdef _WIN32
 #include "../../../../C/DllSecur.h"
 #endif
@@ -19,6 +21,7 @@
 #include "ConsoleClose.h"
 
 #ifdef EXTERNAL_CODECS
+#include "../Common/LoadCodecs.h"
 CExternalCodecs g_ExternalCodecs;
 #endif
 
