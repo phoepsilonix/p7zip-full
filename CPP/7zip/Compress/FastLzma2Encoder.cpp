@@ -185,7 +185,7 @@ bool CFastEncoder::FastLzma2::UpdateProgress(ICompressProgressInfo *progress)
 {
   if (progress) {
     UInt64 outProcessed;
-    UInt64 inProcessed = FL2_getCStreamProgress(fcs, &outProcessed);
+    UInt64 inProcessed = FL2_getCStreamProgress(fcs, (long long unsigned int*)&outProcessed);
     HRESULT err = progress->SetRatioInfo(&inProcessed, &outProcessed);
     if (err != S_OK) {
       FL2_cancelCStream(fcs);
@@ -245,7 +245,7 @@ CFastEncoder::~CFastEncoder()
 
 
 STDMETHODIMP CFastEncoder::SetCoderProperties(const PROPID *propIDs,
-  const PROPVARIANT *coderProps, UInt32 numProps)
+  const PROPVARIANT *coderProps, UInt32 numProps) noexcept
 {
   return _encoder.SetCoderProperties(propIDs, coderProps, numProps);
 }
@@ -253,7 +253,7 @@ STDMETHODIMP CFastEncoder::SetCoderProperties(const PROPID *propIDs,
 
 #define LZMA2_DIC_SIZE_FROM_PROP(p) (((UInt32)2 | ((p) & 1)) << ((p) / 2 + 11))
 
-STDMETHODIMP CFastEncoder::WriteCoderProperties(ISequentialOutStream *outStream)
+STDMETHODIMP CFastEncoder::WriteCoderProperties(ISequentialOutStream *outStream) noexcept
 {
   Byte prop;
   unsigned i;
@@ -267,7 +267,7 @@ STDMETHODIMP CFastEncoder::WriteCoderProperties(ISequentialOutStream *outStream)
 
 
 STDMETHODIMP CFastEncoder::Code(ISequentialInStream *inStream, ISequentialOutStream *outStream,
-  const UInt64 * /* inSize */, const UInt64 * /* outSize */, ICompressProgressInfo *progress)
+  const UInt64 * /* inSize */, const UInt64 * /* outSize */, ICompressProgressInfo *progress) noexcept
 {
   CHECK_H(_encoder.Begin());
   size_t inSize;
