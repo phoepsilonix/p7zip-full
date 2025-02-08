@@ -11,6 +11,7 @@
 
 #include "../../../C/7zVersion.h"
 #if MY_VER_MAJOR >= 23
+#define OVERRIDE override
 #define MY_UNKNOWN_IMP3 Z7_COM_UNKNOWN_IMP_3
 #define LZMA2_ENC_PROPS__BLOCK_SIZE__SOLID LZMA2_ENC_PROPS_BLOCK_SIZE_SOLID
 #endif
@@ -60,9 +61,9 @@ public:
 
 public:
   STDMETHOD(Code)(ISequentialInStream *inStream, ISequentialOutStream *outStream,
-    const UInt64 *inSize, const UInt64 *outSize, ICompressProgressInfo *progress) noexcept;
-  STDMETHOD(SetCoderProperties)(const PROPID *propIDs, const PROPVARIANT *props, UInt32 numProps) noexcept;
-  STDMETHOD(WriteCoderProperties)(ISequentialOutStream *outStream) noexcept;
+    const UInt64 *inSize, const UInt64 *outSize, ICompressProgressInfo *progress) noexcept OVERRIDE;
+  STDMETHOD(SetCoderProperties)(const PROPID *propIDs, const PROPVARIANT *props, UInt32 numProps) noexcept OVERRIDE;
+  STDMETHOD(WriteCoderProperties)(ISequentialOutStream *outStream) noexcept OVERRIDE;
 
   CFastEncoder();
   virtual ~CFastEncoder();

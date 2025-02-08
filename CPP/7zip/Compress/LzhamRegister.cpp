@@ -27,6 +27,7 @@
 
 #include "../../../C/7zVersion.h"
 #if MY_VER_MAJOR >= 23
+#define OVERRIDE override
 #define MY_QUERYINTERFACE_BEGIN2 Z7_COM_QI_BEGIN2
 #define MY_QUERYINTERFACE_ENTRY Z7_COM_QI_ENTRY
 #define MY_QUERYINTERFACE_END Z7_COM_QI_END
@@ -118,17 +119,17 @@ namespace NCompress
 
       public:
             STDMETHOD(Code)(ISequentialInStream *inStream, ISequentialOutStream *outStream,
-            const UInt64 *inSize, const UInt64 *outSize, ICompressProgressInfo *progress) noexcept;
-         STDMETHOD(SetDecoderProperties2)(const Byte *data, UInt32 size) noexcept;
-         STDMETHOD(SetOutStreamSize)(const UInt64 *outSize) noexcept;
-         STDMETHOD(SetInBufSize)(UInt32 streamIndex, UInt32 size) noexcept;
-         STDMETHOD(SetOutBufSize)(UInt32 streamIndex, UInt32 size) noexcept;
+            const UInt64 *inSize, const UInt64 *outSize, ICompressProgressInfo *progress) noexcept OVERRIDE;
+         STDMETHOD(SetDecoderProperties2)(const Byte *data, UInt32 size) noexcept OVERRIDE;
+         STDMETHOD(SetOutStreamSize)(const UInt64 *outSize) noexcept OVERRIDE;
+         STDMETHOD(SetInBufSize)(UInt32 streamIndex, UInt32 size) noexcept OVERRIDE;
+         STDMETHOD(SetOutBufSize)(UInt32 streamIndex, UInt32 size) noexcept OVERRIDE;
 
 #ifndef NO_READ_FROM_CODER
 
-         STDMETHOD(SetInStream)(ISequentialInStream *inStream) noexcept;
-         STDMETHOD(ReleaseInStream)() noexcept;
-         STDMETHOD(Read)(void *data, UInt32 size, UInt32 *processedSize) noexcept;
+         STDMETHOD(SetInStream)(ISequentialInStream *inStream) noexcept OVERRIDE;
+         STDMETHOD(ReleaseInStream)() noexcept OVERRIDE;
+         STDMETHOD(Read)(void *data, UInt32 size, UInt32 *processedSize) noexcept OVERRIDE;
 
          HRESULT CodeResume(ISequentialOutStream *outStream, const UInt64 *outSize, ICompressProgressInfo *progress);
          UInt64 GetInputProcessedSize() const { return _inSizeProcessed; }
@@ -450,11 +451,11 @@ namespace NCompress
 
       public:
          STDMETHOD(Code)(ISequentialInStream *inStream, ISequentialOutStream *outStream,
-            const UInt64 *inSize, const UInt64 *outSize, ICompressProgressInfo *progress) noexcept;
+            const UInt64 *inSize, const UInt64 *outSize, ICompressProgressInfo *progress) noexcept OVERRIDE;
 
-         STDMETHOD(SetCoderProperties)(const PROPID *propIDs, const PROPVARIANT *props, UInt32 numProps) noexcept;
+         STDMETHOD(SetCoderProperties)(const PROPID *propIDs, const PROPVARIANT *props, UInt32 numProps) noexcept OVERRIDE;
 
-         STDMETHOD(WriteCoderProperties)(ISequentialOutStream *outStream) noexcept;
+         STDMETHOD(WriteCoderProperties)(ISequentialOutStream *outStream) noexcept OVERRIDE;
 
          CEncoder();
          virtual ~CEncoder();

@@ -19,6 +19,7 @@
 
 #include "../../../C/7zVersion.h"
 #if MY_VER_MAJOR >= 23
+#define OVERRIDE override
 #define MY_UNKNOWN_IMP4 Z7_COM_UNKNOWN_IMP_4
 #endif
 
@@ -66,8 +67,8 @@ public:
 #endif
 
 public:
-  STDMETHOD(OpenSeq)(ISequentialInStream *stream) noexcept;
-  STDMETHOD(SetProperties)(const wchar_t * const *names, const PROPVARIANT *values, UInt32 numProps) noexcept;
+  STDMETHOD(OpenSeq)(ISequentialInStream *stream) noexcept OVERRIDE;
+  STDMETHOD(SetProperties)(const wchar_t * const *names, const PROPVARIANT *values, UInt32 numProps) noexcept OVERRIDE;
 
   CHandler() { }
   virtual ~CHandler() = default;

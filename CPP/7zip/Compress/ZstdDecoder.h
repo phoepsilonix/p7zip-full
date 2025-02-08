@@ -13,6 +13,15 @@
 #include "../Common/StreamUtils.h"
 #include "../ICoder.h"
 
+#include "../../../C/7zVersion.h"
+#if MY_VER_MAJOR >= 23
+#define OVERRIDE override
+#define MY_QUERYINTERFACE_BEGIN2 Z7_COM_QI_BEGIN2
+#define MY_QUERYINTERFACE_ENTRY Z7_COM_QI_ENTRY
+#define MY_QUERYINTERFACE_END Z7_COM_QI_END
+#define MY_ADDREF_RELEASE Z7_COM_ADDREF_RELEASE
+#endif
+
 /**
  * possible return values @ 7zip:
  * S_OK / S_FALSE
@@ -71,15 +80,6 @@ class CDecoder : public ICompressCoder,
   HRESULT SetOutStreamSizeResume(const UInt64 *outSize);
 
 public:
-
-  #if 1
-  //MY_VERSION_MAJOR >= 23
-    #define MY_QUERYINTERFACE_BEGIN2 Z7_COM_QI_BEGIN2
-    #define MY_QUERYINTERFACE_ENTRY Z7_COM_QI_ENTRY
-    #define MY_QUERYINTERFACE_END Z7_COM_QI_END
-    #define MY_ADDREF_RELEASE Z7_COM_ADDREF_RELEASE
-  #endif
-
   MY_QUERYINTERFACE_BEGIN2(ICompressCoder)
   MY_QUERYINTERFACE_ENTRY(ICompressSetDecoderProperties2)
 #ifndef NO_READ_FROM_CODER
@@ -93,14 +93,14 @@ public:
   STDMETHOD(Code)
   (ISequentialInStream *inStream, ISequentialOutStream *outStream,
    const UInt64 *inSize, const UInt64 *outSize,
-   ICompressProgressInfo *progress) noexcept;
-  STDMETHOD(SetDecoderProperties2)(const Byte *data, UInt32 size) noexcept;
-  STDMETHOD(SetOutStreamSize)(const UInt64 *outSize) noexcept;
-  STDMETHOD(SetNumberOfThreads)(UInt32 numThreads) noexcept;
+   ICompressProgressInfo *progress) noexcept OVERRIDE;
+  STDMETHOD(SetDecoderProperties2)(const Byte *data, UInt32 size) noexcept OVERRIDE;
+  STDMETHOD(SetOutStreamSize)(const UInt64 *outSize) noexcept OVERRIDE;
+  STDMETHOD(SetNumberOfThreads)(UInt32 numThreads) noexcept OVERRIDE;
 
 #ifndef NO_READ_FROM_CODER
-  STDMETHOD(SetInStream)(ISequentialInStream *inStream) noexcept;
-  STDMETHOD(ReleaseInStream)() noexcept;
+  STDMETHOD(SetInStream)(ISequentialInStream *inStream) noexcept OVERRIDE;
+  STDMETHOD(ReleaseInStream)() noexcept OVERRIDE;
   UInt64 GetInputProcessedSize() const { return _processedIn; }
 #endif
   HRESULT CodeResume(ISequentialOutStream *outStream, const UInt64 *outSize,

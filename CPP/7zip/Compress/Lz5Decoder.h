@@ -16,6 +16,7 @@
 
 #include "../../../C/7zVersion.h"
 #if MY_VER_MAJOR >= 23
+#define OVERRIDE override
 #define MY_QUERYINTERFACE_BEGIN2 Z7_COM_QI_BEGIN2
 #define MY_QUERYINTERFACE_ENTRY Z7_COM_QI_ENTRY
 #define MY_QUERYINTERFACE_END Z7_COM_QI_END
@@ -88,19 +89,19 @@ namespace NCompress
 
     public:
       STDMETHOD(Code)
-      (ISequentialInStream *inStream, ISequentialOutStream *outStream, const UInt64 *inSize, const UInt64 *outSize, ICompressProgressInfo *progress) noexcept;
+      (ISequentialInStream *inStream, ISequentialOutStream *outStream, const UInt64 *inSize, const UInt64 *outSize, ICompressProgressInfo *progress) noexcept OVERRIDE;
       STDMETHOD(SetDecoderProperties2)
-      (const Byte *data, UInt32 size) noexcept;
+      (const Byte *data, UInt32 size) noexcept OVERRIDE;
       STDMETHOD(SetOutStreamSize)
-      (const UInt64 *outSize) noexcept;
+      (const UInt64 *outSize) noexcept OVERRIDE;
       STDMETHOD(SetNumberOfThreads)
-      (UInt32 numThreads) noexcept;
+      (UInt32 numThreads) noexcept OVERRIDE;
 
 #ifndef NO_READ_FROM_CODER
       STDMETHOD(SetInStream)
-      (ISequentialInStream *inStream) noexcept;
+      (ISequentialInStream *inStream) noexcept OVERRIDE;
       STDMETHOD(ReleaseInStream)
-      () noexcept;
+      () noexcept OVERRIDE;
       UInt64 GetInputProcessedSize() const { return _processedIn; }
 #endif
       HRESULT CodeResume(ISequentialOutStream *outStream, const UInt64 *outSize, ICompressProgressInfo *progress);
