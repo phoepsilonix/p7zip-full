@@ -10,7 +10,9 @@
 #include "../Common/StreamUtils.h"
 #include "../ICoder.h"
 
+#ifndef MY_VER_MAJOR
 #include "../../../C/7zVersion.h"
+#endif
 #if MY_VER_MAJOR >= 23
 #define OVERRIDE override
 #define MY_QUERYINTERFACE_BEGIN2 Z7_COM_QI_BEGIN2

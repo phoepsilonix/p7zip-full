@@ -58,6 +58,7 @@ struct DProps
 
 class CDecoder:public ICompressCoder,
   public ICompressSetDecoderProperties2,
+  public ICompressSetOutStreamSize,
   #ifndef NO_READ_FROM_CODER
   public ICompressSetInStream,
   #endif
