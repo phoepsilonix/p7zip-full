@@ -10,6 +10,19 @@
 #include "../Common/StreamUtils.h"
 #include "../ICoder.h"
 
+#ifndef MY_VER_MAJOR
+#include "../../../C/7zVersion.h"
+#endif
+#if MY_VER_MAJOR >= 23
+#define OVERRIDE override
+#define MY_QUERYINTERFACE_BEGIN2 Z7_COM_QI_BEGIN2
+#define MY_QUERYINTERFACE_ENTRY Z7_COM_QI_ENTRY
+#define MY_QUERYINTERFACE_END Z7_COM_QI_END
+#define MY_ADDREF_RELEASE Z7_COM_ADDREF_RELEASE
+#else
+#define OVERRIDE
+#endif
+
 #ifndef EXTRACT_ONLY
 namespace NCompress {
 namespace NZSTD {
@@ -71,14 +84,15 @@ public:
   MY_QUERYINTERFACE_END
   MY_ADDREF_RELEASE
 
+public:
   STDMETHOD(Code)
   (ISequentialInStream *inStream, ISequentialOutStream *outStream,
    const UInt64 *inSize, const UInt64 *outSize,
-   ICompressProgressInfo *progress);
+   ICompressProgressInfo *progress) noexcept OVERRIDE;
   STDMETHOD(SetCoderProperties)
-  (const PROPID *propIDs, const PROPVARIANT *props, UInt32 numProps);
-  STDMETHOD(WriteCoderProperties)(ISequentialOutStream *outStream);
-  STDMETHOD(SetNumberOfThreads)(UInt32 numThreads);
+  (const PROPID *propIDs, const PROPVARIANT *props, UInt32 numProps) noexcept OVERRIDE;
+  STDMETHOD(WriteCoderProperties)(ISequentialOutStream *outStream) noexcept OVERRIDE;
+  STDMETHOD(SetNumberOfThreads)(UInt32 numThreads) noexcept OVERRIDE;
 
   CEncoder();
   virtual ~CEncoder();
