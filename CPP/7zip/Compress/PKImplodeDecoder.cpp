@@ -52,7 +52,7 @@ HRESULT CDecoder::CodeReal(ISequentialInStream *inStream, ISequentialOutStream *
 
 
 STDMETHODIMP CDecoder::Code(ISequentialInStream *inStream, ISequentialOutStream *outStream,
-    const UInt64 *inSize, const UInt64 *outSize, ICompressProgressInfo *progress)
+    const UInt64 *inSize, const UInt64 *outSize, ICompressProgressInfo *progress) noexcept
 {
   try { return CodeReal(inStream, outStream, inSize, outSize, progress);  }
   catch(const CInBufferException &e)  { return e.ErrorCode; }
@@ -60,7 +60,7 @@ STDMETHODIMP CDecoder::Code(ISequentialInStream *inStream, ISequentialOutStream 
   catch(...) { return S_FALSE; }
 }
 
-STDMETHODIMP CDecoder::GetInStreamProcessedSize(UInt64 *value)
+STDMETHODIMP CDecoder::GetInStreamProcessedSize(UInt64 *value) noexcept
 {
   *value = processedIn;
   return S_OK;
