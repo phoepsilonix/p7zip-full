@@ -10,6 +10,11 @@
 #include "../Common/MyCom.h"
 #include "../7zip/Common/RegisterCodec.h"
 
+#include "../../C/7zVersion.h"
+#if MY_VER_MAJOR >= 23
+#define MY_UNKNOWN_IMP1 Z7_COM_UNKNOWN_IMP_1
+#endif
+
 // XXH64
 class CXXH64Hasher:
   public IHasher,
@@ -20,10 +25,14 @@ class CXXH64Hasher:
 
 public:
   CXXH64Hasher() { _ctx = XXH64_createState(); }
-  ~CXXH64Hasher() { XXH64_freeState(_ctx); }
+  virtual ~CXXH64Hasher() { XXH64_freeState(_ctx); }
 
   MY_UNKNOWN_IMP1(IHasher)
+#if MY_VER_MAJOR >= 23
+  Z7_IFACE_COM7_IMP(IHasher)
+#else
   INTERFACE_IHasher(;)
+#endif
 };
 
 STDMETHODIMP_(void) CXXH64Hasher::Init() throw()
