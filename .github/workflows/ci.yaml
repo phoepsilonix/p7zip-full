@@ -131,43 +131,43 @@ jobs:
         ./build_win.sh
     - name: Upload (Linux/GCC-x64)
       if: ${{ matrix.os == 'ubuntu-20.04' && matrix.mode == 'gcc-x64' }}
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: linux-x64
         path: bin
     - name: Upload (Linux/GCC-x86)
       if: ${{ matrix.os == 'ubuntu-20.04' && matrix.mode == 'gcc-x86' }}
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: linux-x86
         path: bin
     - name: Upload (Linux/Clang)
       if: ${{ matrix.os == 'ubuntu-20.04' && matrix.mode == 'clang' }}
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: linux-clang
         path: bin
     - name: Upload (Linux/android-aarch64)
       if: ${{ matrix.os == 'ubuntu-20.04' && matrix.mode == 'android-aarch64' }}
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: android-aarch64
         path: bin
     - name: Upload (macOS)
       if: ${{ matrix.os == 'macos-latest' }}
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: macos
         path: bin
     - name: Upload (Win64)
       if: ${{ matrix.os == 'ubuntu-20.04' && matrix.mode == 'win64' }}
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: win64
         path: bin
     - name: Upload (Win32)
       if: ${{ matrix.os == 'ubuntu-20.04' && matrix.mode == 'win32' }}
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: win32
         path: bin
