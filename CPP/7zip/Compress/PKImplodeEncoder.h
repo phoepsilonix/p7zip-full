@@ -19,6 +19,8 @@ extern "C" {
 #if MY_VER_MAJOR >= 23
 #define OVERRIDE override
 #define MY_UNKNOWN_IMP2 Z7_COM_UNKNOWN_IMP_2
+#else
+#define OVERRIDE
 #endif
 
 namespace NCompress {

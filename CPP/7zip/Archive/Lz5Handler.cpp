@@ -21,6 +21,8 @@
 #if MY_VER_MAJOR >= 23
 #define OVERRIDE override
 #define MY_UNKNOWN_IMP4 Z7_COM_UNKNOWN_IMP_4
+#else
+#define OVERRIDE
 #endif
 
 using namespace NWindows;

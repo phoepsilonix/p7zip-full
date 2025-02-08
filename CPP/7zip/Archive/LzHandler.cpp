@@ -22,6 +22,8 @@
 #define OVERRIDE override
 #define MY_UNKNOWN_IMP1 Z7_COM_UNKNOWN_IMP_1
 #define MY_UNKNOWN_IMP2 Z7_COM_UNKNOWN_IMP_2
+#else
+#define OVERRIDE
 #endif
 
 using namespace NWindows;

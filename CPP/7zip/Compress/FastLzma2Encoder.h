@@ -14,6 +14,8 @@
 #define OVERRIDE override
 #define MY_UNKNOWN_IMP3 Z7_COM_UNKNOWN_IMP_3
 #define LZMA2_ENC_PROPS__BLOCK_SIZE__SOLID LZMA2_ENC_PROPS_BLOCK_SIZE_SOLID
+#else
+#define OVERRIDE
 #endif
 
 namespace NCompress {

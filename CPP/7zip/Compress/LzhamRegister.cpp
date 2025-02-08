@@ -34,6 +34,8 @@
 #define MY_ADDREF_RELEASE Z7_COM_ADDREF_RELEASE
 
 #define MY_UNKNOWN_IMP2 Z7_COM_UNKNOWN_IMP_2
+#else
+#define OVERRIDE
 #endif
 
 #if 0
