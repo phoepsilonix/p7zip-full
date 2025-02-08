@@ -31,7 +31,7 @@ public:
 #if MY_VER_MAJOR >= 23
   Z7_IFACE_COM7_IMP(IHasher)
 #else
-  INTERFACE_IHasher(noexcept;)
+  INTERFACE_IHasher(;)
 #endif
 
 public:
