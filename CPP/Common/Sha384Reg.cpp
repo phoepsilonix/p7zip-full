@@ -11,6 +11,11 @@ EXTERN_C_END
 #include "../Common/MyCom.h"
 #include "../7zip/Common/RegisterCodec.h"
 
+#include "../../C/7zVersion.h"
+#if MY_VER_MAJOR >= 23
+#define MY_UNKNOWN_IMP1 Z7_COM_UNKNOWN_IMP_1
+#endif
+
 // SHA384
 class CSHA384Hasher:
   public IHasher,
@@ -23,7 +28,14 @@ public:
   CSHA384Hasher() { SHA384_Init(&_ctx); }
 
   MY_UNKNOWN_IMP1(IHasher)
+#if MY_VER_MAJOR >= 23
+  Z7_IFACE_COM7_IMP(IHasher)
+#else
   INTERFACE_IHasher(;)
+#endif
+
+public:
+  virtual ~CSHA384Hasher() = default;
 };
 
 STDMETHODIMP_(void) CSHA384Hasher::Init() throw()
