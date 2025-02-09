@@ -22,7 +22,6 @@ class CSHA512Hasher:
   public CMyUnknownImp
 {
   SHA512_CTX _ctx;
-  Byte mtDummy[1 << 7];
 
 public:
   CSHA512Hasher() { SHA512_Init(&_ctx); }

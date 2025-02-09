@@ -22,7 +22,6 @@ class CMD4Hasher:
   public CMyUnknownImp
 {
   MD4_CTX _ctx;
-  Byte mtDummy[1 << 7];
 
 public:
   CMD4Hasher() { MD4_Init(&_ctx); }

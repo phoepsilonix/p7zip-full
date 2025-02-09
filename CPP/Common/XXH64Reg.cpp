@@ -21,7 +21,6 @@ class CXXH64Hasher:
   public CMyUnknownImp
 {
   XXH64_state_t *_ctx;
-  Byte mtDummy[1 << 7];
 
 public:
   CXXH64Hasher() { _ctx = XXH64_createState(); }

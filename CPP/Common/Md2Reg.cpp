@@ -22,7 +22,6 @@ class CMD2Hasher:
   public CMyUnknownImp
 {
   MD2_CTX _ctx;
-  Byte mtDummy[1 << 7];
 
 public:
   CMD2Hasher() { MD2_Init(&_ctx); }

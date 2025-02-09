@@ -305,7 +305,7 @@ public:
   MY_UNKNOWN_IMP1(ICompressProgressInfo)
 
 public:
-  STDMETHOD(SetRatioInfo)(const UInt64 *inSize, const UInt64 *outSize) noexcept;
+  STDMETHOD(SetRatioInfo)(const UInt64 *inSize, const UInt64 *outSize) noexcept OVERRIDE;
   void Init(IArchiveOpenCallback *callback) { Callback = callback; }
 
   virtual ~CCompressProgressInfoImp() = default;

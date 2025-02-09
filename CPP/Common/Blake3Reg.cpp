@@ -22,7 +22,6 @@ class CBLAKE3Hasher:
   public CMyUnknownImp
 {
   blake3_hasher _ctx;
-  Byte mtDummy[1 << 7];
 
 public:
   CBLAKE3Hasher() { blake3_hasher_init(&_ctx); }
