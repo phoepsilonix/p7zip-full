@@ -30,6 +30,7 @@ COMMON_OBJS = \
   $O/OutBuffer.o \
   $O/StreamUtils.o \
   $O/System.o \
+  $O/7zStream.o \
 
 COMPRESS_OBJS_2 = \
   $O/CodecExports.o \
