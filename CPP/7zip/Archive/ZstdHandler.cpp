@@ -51,8 +51,6 @@ class CHandler:
 
   UInt64 _packSize;
   UInt64 _unpackSize;
-  UInt64 _numStreams;
-  UInt64 _numBlocks;
 
   CSingleMethodProps _props;
 
