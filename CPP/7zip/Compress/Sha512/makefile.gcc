@@ -30,11 +30,13 @@ COMPRESS_OBJS_2 = \
   $O/DllExportsCompress.o \
   $O/Sha512Reg.o \
   $O/Sha512.o \
+  $O/Sha512Opt.o \
 
 OBJS = \
   $(COMPRESS_OBJS_2) \
   $(SYS_OBJS) \
   $(COMMON_OBJS) \
   $O/Alloc.o \
+  $O/CpuArch.o \
 
 include ../../7zip_gcc.mak
