@@ -21,7 +21,7 @@ jobs:
             mode: "win64"
           - os: ubuntu-20.04
             mode: "win32"
-          - os: macos-latest
+          - os: macos-13
 
     steps:
     - uses: actions/checkout@v2
@@ -36,11 +36,11 @@ jobs:
         make -C UASM-2.55 -f gccLinux64.mak
         sudo cp UASM-2.55/GccUnixR/uasm /usr/local/bin/
     - name: Set up UASM (macOS)
-      if: ${{ matrix.os == 'macos-latest' }}
+      if: ${{ matrix.os == 'macos-13' }}
       run: |
         curl -L https://github.com/Terraspace/UASM/archive/refs/tags/v2.55.tar.gz | tar xz
         # Apple clang 12+ requires "-Wno-error=implicit-function-declaration" cf https://forum.mmm.ucar.edu/phpBB3/viewtopic.php?t=11087&p=24226
-        sed -i -e 's/-ansi/-Wno-error=implicit-function-declaration/' UASM-2.55/ClangOSX64.mak
+        sed -i -e 's/-ansi/-Wno-error=implicit-function-declaration -Wno-error=int-conversion -Wno-error=incompatible-function-pointer-types/' UASM-2.55/ClangOSX64.mak
         make -C UASM-2.55 -f ClangOSX64.mak CC=clang
         sudo cp UASM-2.55/GccUnixR/uasm /usr/local/bin/
     # - name: Set up UASM (Win)
@@ -97,10 +97,10 @@ jobs:
         export CFLAGS_ADDITIONAL="-march=armv8-a+crypto -Wno-error"
         ./build_linux.sh
     - name: Build (macOS)
-      if: ${{ matrix.os == 'macos-latest' }}
+      if: ${{ matrix.os == 'macos-13' }}
       run: |
-        echo 'clang -arch arm64 -fno-stack-check "$@"' | sudo tee /usr/local/bin/arm64-apple-darwin-clang
-        echo 'clang++ -arch arm64 -fno-stack-check "$@"' | sudo tee /usr/local/bin/arm64-apple-darwin-clang++
+        /usr/bin/printf '#!/bin/sh\nclang -arch arm64 -fno-stack-check "$@"\n' | sudo tee /usr/local/bin/arm64-apple-darwin-clang
+        /usr/bin/printf '#!/bin/sh\nclang++ -arch arm64 -fno-stack-check "$@"\n' | sudo tee /usr/local/bin/arm64-apple-darwin-clang++
         sudo chmod 755 /usr/local/bin/arm64-apple-darwin-clang /usr/local/bin/arm64-apple-darwin-clang++
         sed -i -e 's/\&\& LZHAM_PLATFORM_PC/\&\& LZHAM_PLATFORM_PC \&\& !defined(__aarch64__)/' Codecs/lzham_codec_devel/lzhamdecomp/lzham_platform.h
 
@@ -131,43 +131,43 @@ jobs:
         ./build_win.sh
     - name: Upload (Linux/GCC-x64)
       if: ${{ matrix.os == 'ubuntu-20.04' && matrix.mode == 'gcc-x64' }}
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: linux-x64
         path: bin
     - name: Upload (Linux/GCC-x86)
       if: ${{ matrix.os == 'ubuntu-20.04' && matrix.mode == 'gcc-x86' }}
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: linux-x86
         path: bin
     - name: Upload (Linux/Clang)
       if: ${{ matrix.os == 'ubuntu-20.04' && matrix.mode == 'clang' }}
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: linux-clang
         path: bin
     - name: Upload (Linux/android-aarch64)
       if: ${{ matrix.os == 'ubuntu-20.04' && matrix.mode == 'android-aarch64' }}
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: android-aarch64
         path: bin
     - name: Upload (macOS)
-      if: ${{ matrix.os == 'macos-latest' }}
-      uses: actions/upload-artifact@v2
+      if: ${{ matrix.os == 'macos-13' }}
+      uses: actions/upload-artifact@v4
       with:
         name: macos
         path: bin
     - name: Upload (Win64)
       if: ${{ matrix.os == 'ubuntu-20.04' && matrix.mode == 'win64' }}
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: win64
         path: bin
     - name: Upload (Win32)
       if: ${{ matrix.os == 'ubuntu-20.04' && matrix.mode == 'win32' }}
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: win32
         path: bin

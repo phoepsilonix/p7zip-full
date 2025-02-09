@@ -20,10 +20,12 @@
 #include "../../../C/7zVersion.h"
 #if MY_VER_MAJOR >= 23
 #define OVERRIDE override
+#define NOEXCEPT_23ONLY noexcept
 #define MY_UNKNOWN_IMP1 Z7_COM_UNKNOWN_IMP_1
 #define MY_UNKNOWN_IMP2 Z7_COM_UNKNOWN_IMP_2
 #else
 #define OVERRIDE
+#define NOEXCEPT_23ONLY
 #endif
 
 using namespace NWindows;
@@ -168,7 +170,7 @@ public:
 #if MY_VER_MAJOR >= 23
   Z7_IFACE_COM7_IMP(IInArchive)
 #else
-  INTERFACE_IInArchive(noexcept;)
+  INTERFACE_IInArchive(;)
 #endif
 
 public:
@@ -181,7 +183,7 @@ public:
 IMP_IInArchive_Props
 IMP_IInArchive_ArcProps
 
-STDMETHODIMP CHandler::GetArchiveProperty(PROPID propID, PROPVARIANT *value) noexcept
+STDMETHODIMP CHandler::GetArchiveProperty(PROPID propID, PROPVARIANT *value) NOEXCEPT_23ONLY
 {
   NCOM::CPropVariant prop;
   switch (propID)
@@ -203,13 +205,13 @@ STDMETHODIMP CHandler::GetArchiveProperty(PROPID propID, PROPVARIANT *value) noe
   return S_OK;
 }
 
-STDMETHODIMP CHandler::GetNumberOfItems(UInt32 *numItems) noexcept
+STDMETHODIMP CHandler::GetNumberOfItems(UInt32 *numItems) NOEXCEPT_23ONLY
 {
   *numItems = 1;
   return S_OK;
 }
 
-STDMETHODIMP CHandler::GetProperty(UInt32 /* index */, PROPID propID, PROPVARIANT *value) noexcept
+STDMETHODIMP CHandler::GetProperty(UInt32 /* index */, PROPID propID, PROPVARIANT *value) NOEXCEPT_23ONLY
 {
   NCOM::CPropVariant prop;
   switch (propID)
@@ -245,7 +247,7 @@ bool CHeader::Parse()
   return (DicSize >= min_dictionary_size && DicSize <= max_dictionary_size);
 }
 
-STDMETHODIMP CHandler::Open(IInStream *inStream, const UInt64 *, IArchiveOpenCallback *) noexcept
+STDMETHODIMP CHandler::Open(IInStream *inStream, const UInt64 *, IArchiveOpenCallback *) NOEXCEPT_23ONLY
 {
   Close();
 
@@ -272,7 +274,7 @@ STDMETHODIMP CHandler::OpenSeq(ISequentialInStream *stream) noexcept
   return S_OK;
 }
 
-STDMETHODIMP CHandler::Close() noexcept
+STDMETHODIMP CHandler::Close() NOEXCEPT_23ONLY
 {
   _isArc = false;
   _packSize_Defined = false;
@@ -321,7 +323,7 @@ STDMETHODIMP CCompressProgressInfoImp::SetRatioInfo(const UInt64 *inSize, const 
 }
 
 STDMETHODIMP CHandler::Extract(const UInt32 *indices, UInt32 numItems,
-    Int32 testMode, IArchiveExtractCallback *extractCallback) noexcept
+    Int32 testMode, IArchiveExtractCallback *extractCallback) NOEXCEPT_23ONLY
 {
   COM_TRY_BEGIN
   if (numItems == 0)

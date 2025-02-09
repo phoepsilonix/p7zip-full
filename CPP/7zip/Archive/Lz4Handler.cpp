@@ -20,9 +20,11 @@
 #include "../../../C/7zVersion.h"
 #if MY_VER_MAJOR >= 23
 #define OVERRIDE override
+#define NOEXCEPT_23ONLY noexcept
 #define MY_UNKNOWN_IMP4 Z7_COM_UNKNOWN_IMP_4
 #else
 #define OVERRIDE
+#define NOEXCEPT_23ONLY
 #endif
 
 using namespace NWindows;
@@ -64,8 +66,8 @@ public:
   Z7_IFACE_COM7_IMP(IInArchive)
   Z7_IFACE_COM7_IMP(IOutArchive)
 #else
-  INTERFACE_IInArchive(noexcept;)
-  INTERFACE_IOutArchive(noexcept;)
+  INTERFACE_IInArchive(;)
+  INTERFACE_IOutArchive(;)
 #endif
 
 public:
@@ -91,18 +93,18 @@ static const Byte kArcProps[] =
 IMP_IInArchive_Props
 IMP_IInArchive_ArcProps
 
-STDMETHODIMP CHandler::GetArchiveProperty(PROPID /*propID*/, PROPVARIANT * /*value*/) noexcept
+STDMETHODIMP CHandler::GetArchiveProperty(PROPID /*propID*/, PROPVARIANT * /*value*/) NOEXCEPT_23ONLY
 {
   return S_OK;
 }
 
-STDMETHODIMP CHandler::GetNumberOfItems(UInt32 *numItems) noexcept
+STDMETHODIMP CHandler::GetNumberOfItems(UInt32 *numItems) NOEXCEPT_23ONLY
 {
   *numItems = 1;
   return S_OK;
 }
 
-STDMETHODIMP CHandler::GetProperty(UInt32 /* index */, PROPID propID, PROPVARIANT *value) noexcept
+STDMETHODIMP CHandler::GetProperty(UInt32 /* index */, PROPID propID, PROPVARIANT *value) NOEXCEPT_23ONLY
 {
   NCOM::CPropVariant prop;
   switch (propID)
@@ -138,7 +140,7 @@ API_FUNC_static_IsArc IsArc_lz4(const Byte *p, size_t size)
 }
 }
 
-STDMETHODIMP CHandler::Open(IInStream *stream, const UInt64 *, IArchiveOpenCallback *) noexcept
+STDMETHODIMP CHandler::Open(IInStream *stream, const UInt64 *, IArchiveOpenCallback *) NOEXCEPT_23ONLY
 {
   COM_TRY_BEGIN
   Close();
@@ -164,7 +166,7 @@ STDMETHODIMP CHandler::OpenSeq(ISequentialInStream *stream) noexcept
   return S_OK;
 }
 
-STDMETHODIMP CHandler::Close() noexcept
+STDMETHODIMP CHandler::Close() NOEXCEPT_23ONLY
 {
   _isArc = false;
   _dataAfterEnd = false;
@@ -181,7 +183,7 @@ STDMETHODIMP CHandler::Close() noexcept
 }
 
 STDMETHODIMP CHandler::Extract(const UInt32 *indices, UInt32 numItems,
-    Int32 testMode, IArchiveExtractCallback *extractCallback) noexcept
+    Int32 testMode, IArchiveExtractCallback *extractCallback) NOEXCEPT_23ONLY
 {
   COM_TRY_BEGIN
   if (numItems == 0)
@@ -297,14 +299,14 @@ static HRESULT UpdateArchive(
   return updateCallback->SetOperationResult(NArchive::NUpdate::NOperationResult::kOK);
 }
 
-STDMETHODIMP CHandler::GetFileTimeType(UInt32 *type) noexcept
+STDMETHODIMP CHandler::GetFileTimeType(UInt32 *type) NOEXCEPT_23ONLY
 {
   *type = NFileTimeType::kUnix;
   return S_OK;
 }
 
 STDMETHODIMP CHandler::UpdateItems(ISequentialOutStream *outStream, UInt32 numItems,
-    IArchiveUpdateCallback *updateCallback) noexcept
+    IArchiveUpdateCallback *updateCallback) NOEXCEPT_23ONLY
 {
   COM_TRY_BEGIN
 

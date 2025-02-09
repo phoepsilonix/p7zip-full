@@ -48,6 +48,8 @@ CFLAGS_WARN_CLANG_ADDITIONAL = \
   -Wno-conditional-uninitialized \
   -Wno-missing-variable-declarations \
   -Wno-newline-eof \
+  -Wno-error=unused-but-set-variable \
+  -Wno-error=unused-but-set-parameter \
 
 CFLAGS_WARN_MAC = \
   -Wno-poison-system-directories \
