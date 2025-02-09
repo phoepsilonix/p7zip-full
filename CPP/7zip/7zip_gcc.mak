@@ -227,6 +227,9 @@ all: $(O) $(PROGPATH) $(STATIC_TARGET)
 .PHONY: mkdir
 mkdir: $(O)
 
+# we need $(O) as order-only-prerequisites:
+$(OBJS): | $(O)
+
 $(O):
 	$(MY_MKDIR) $(O)
 
