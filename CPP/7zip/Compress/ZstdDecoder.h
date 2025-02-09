@@ -1,117 +1,98 @@
-// (C) 2016 - 2018 Tino Reichardt
+// ZstdDecoder.h
 
-#define ZSTD_STATIC_LINKING_ONLY
-#include "../../../C/Alloc.h"
-#include "../../../Codecs/zstd/lib/zstd_errors.h"
-#include "../../../Codecs/zstd/lib/zstd.h"
+#ifndef ZIP7_INC_ZSTD_DECODER_H
+#define ZIP7_INC_ZSTD_DECODER_H
 
-#include "../../Common/Common.h"
+#include "../../../C/ZstdDec.h"
+
 #include "../../Common/MyCom.h"
-#include "../../Windows/System.h"
-#include "../Common/ProgressMt.h"
-#include "../Common/RegisterCodec.h"
-#include "../Common/StreamUtils.h"
 #include "../ICoder.h"
 
-#include "../../../C/7zVersion.h"
-#if MY_VER_MAJOR >= 23
-#define OVERRIDE override
-#define MY_QUERYINTERFACE_BEGIN2 Z7_COM_QI_BEGIN2
-#define MY_QUERYINTERFACE_ENTRY Z7_COM_QI_ENTRY
-#define MY_QUERYINTERFACE_END Z7_COM_QI_END
-#define MY_ADDREF_RELEASE Z7_COM_ADDREF_RELEASE
-#else
-#define OVERRIDE
-#endif
-
-/**
- * possible return values @ 7zip:
- * S_OK / S_FALSE
- * E_NOTIMPL
- * E_NOINTERFACE
- * E_ABORT
- * E_FAIL
- * E_OUTOFMEMORY
- * E_INVALIDARG
- */
-
-#define ZSTD_LEVEL_MIN 1
-#define ZSTD_LEVEL_MAX 22
-#define ZSTD_THREAD_MAX 256
-
 namespace NCompress {
-namespace NZSTD {
+namespace NZstd {
 
-struct DProps {
-  DProps() { clear(); }
-  void clear() {
-    memset(this, 0, sizeof(*this));
-    _ver_major = ZSTD_VERSION_MAJOR;
-    _ver_minor = ZSTD_VERSION_MINOR;
-    _level = 3;
-  }
+#ifdef Z7_NO_READ_FROM_CODER
+#define Z7_NO_READ_FROM_CODER_ZSTD
+#endif
 
-  Byte _ver_major;
-  Byte _ver_minor;
-  Byte _level;
-  Byte _reserved[2];
-};
+#ifndef Z7_NO_READ_FROM_CODER_ZSTD
+// #define Z7_NO_READ_FROM_CODER_ZSTD
+#endif
 
-class CDecoder : public ICompressCoder,
-                 public ICompressSetDecoderProperties2,
-                 public ICompressSetOutStreamSize,
-                 #ifndef NO_READ_FROM_CODER
-                 public ICompressSetInStream,
-                 #endif
-                 public ICompressSetCoderMt,
-                 public CMyUnknownImp {
+class CDecoder Z7_final:
+  public ICompressCoder,
+  public ICompressSetDecoderProperties2,
+  public ICompressSetFinishMode,
+  public ICompressGetInStreamProcessedSize,
+  public ICompressReadUnusedFromInBuf,
+  public ICompressSetBufSize,
+ #ifndef Z7_NO_READ_FROM_CODER_ZSTD
+  public ICompressSetInStream,
+  public ICompressSetOutStreamSize,
+  public ISequentialInStream,
+ #endif
+  public CMyUnknownImp
+{
+  Z7_COM_QI_BEGIN2(ICompressCoder)
+  Z7_COM_QI_ENTRY(ICompressSetDecoderProperties2)
+  Z7_COM_QI_ENTRY(ICompressSetFinishMode)
+  Z7_COM_QI_ENTRY(ICompressGetInStreamProcessedSize)
+  Z7_COM_QI_ENTRY(ICompressReadUnusedFromInBuf)
+  Z7_COM_QI_ENTRY(ICompressSetBufSize)
+ #ifndef Z7_NO_READ_FROM_CODER_ZSTD
+  Z7_COM_QI_ENTRY(ICompressSetInStream)
+  Z7_COM_QI_ENTRY(ICompressSetOutStreamSize)
+  Z7_COM_QI_ENTRY(ISequentialInStream)
+ #endif
+  Z7_COM_QI_END
+  Z7_COM_ADDREF_RELEASE
+
+  Z7_IFACE_COM7_IMP(ICompressCoder)
+  Z7_IFACE_COM7_IMP(ICompressSetDecoderProperties2)
+  Z7_IFACE_COM7_IMP(ICompressSetFinishMode)
+  Z7_IFACE_COM7_IMP(ICompressGetInStreamProcessedSize)
+  Z7_IFACE_COM7_IMP(ICompressReadUnusedFromInBuf)
+  Z7_IFACE_COM7_IMP(ICompressSetBufSize)
+ #ifndef Z7_NO_READ_FROM_CODER_ZSTD
+  Z7_IFACE_COM7_IMP(ICompressSetOutStreamSize)
+  Z7_IFACE_COM7_IMP(ICompressSetInStream)
+  Z7_IFACE_COM7_IMP(ISequentialInStream)
+ #endif
+
+  HRESULT Prepare(const UInt64 *outSize);
+
+  UInt32 _outStepMask;
+  CZstdDecHandle _dec;
+public:
+  UInt64 _inProcessed;
+  CZstdDecState _state;
+
+private:
+  UInt32 _inBufSize;
+  UInt32 _inBufSize_Allocated;
+  Byte *_inBuf;
+  size_t _afterDecoding_tempPos;
+
+ #ifndef Z7_NO_READ_FROM_CODER_ZSTD
   CMyComPtr<ISequentialInStream> _inStream;
-  DProps _props;
-
-  ZSTD_DCtx *_ctx;
-  void *_srcBuf;
-  void *_dstBuf;
-  size_t _srcBufSize;
-  size_t _dstBufSize;
-
-  UInt64 _processedIn;
-  UInt64 _processedOut;
-
-  HRESULT CodeSpec(ISequentialInStream *inStream,
-                   ISequentialOutStream *outStream,
-                   ICompressProgressInfo *progress);
-  HRESULT SetOutStreamSizeResume(const UInt64 *outSize);
+  HRESULT _hres_Read;
+  HRESULT _hres_Decode;
+  UInt64 _writtenSize;
+  bool _readWasFinished;
+  bool _wasFinished;
+ #endif
 
 public:
-  MY_QUERYINTERFACE_BEGIN2(ICompressCoder)
-  MY_QUERYINTERFACE_ENTRY(ICompressSetDecoderProperties2)
-#ifndef NO_READ_FROM_CODER
-  MY_QUERYINTERFACE_ENTRY(ICompressSetInStream)
-#endif
-  MY_QUERYINTERFACE_ENTRY(ICompressSetCoderMt)
-  MY_QUERYINTERFACE_END
-  MY_ADDREF_RELEASE
+  bool FinishMode;
+  Byte DisableHash;
+  CZstdDecResInfo ResInfo;
 
-public:
-  STDMETHOD(Code)
-  (ISequentialInStream *inStream, ISequentialOutStream *outStream,
-   const UInt64 *inSize, const UInt64 *outSize,
-   ICompressProgressInfo *progress) noexcept OVERRIDE;
-  STDMETHOD(SetDecoderProperties2)(const Byte *data, UInt32 size) noexcept OVERRIDE;
-  STDMETHOD(SetOutStreamSize)(const UInt64 *outSize) noexcept OVERRIDE;
-  STDMETHOD(SetNumberOfThreads)(UInt32 numThreads) noexcept OVERRIDE;
-
-#ifndef NO_READ_FROM_CODER
-  STDMETHOD(SetInStream)(ISequentialInStream *inStream) noexcept OVERRIDE;
-  STDMETHOD(ReleaseInStream)() noexcept OVERRIDE;
-  UInt64 GetInputProcessedSize() const { return _processedIn; }
-#endif
-  HRESULT CodeResume(ISequentialOutStream *outStream, const UInt64 *outSize,
-                     ICompressProgressInfo *progress);
+  HRESULT GetFinishResult();
 
   CDecoder();
-  virtual ~CDecoder();
+  ~CDecoder();
 };
 
-} // namespace NZSTD
-} // namespace NCompress
+}}
+
+#endif
