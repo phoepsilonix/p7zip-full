@@ -15,7 +15,7 @@ namespace NCompress {
 namespace NZstdPK {
 REGISTER_CODEC_E(
   ZSTD_PK,
-  NCompress::NZSTD::CDecoder(),
+  NCompress::NZstd::CDecoder(),
   NCompress::NZSTD::CEncoder(),
   0x40100+20, "ZSTD-PK")
 }
@@ -23,7 +23,7 @@ REGISTER_CODEC_E(
 namespace NZstdWZ {
 REGISTER_CODEC_E(
   ZSTD_WZ,
-  NCompress::NZSTD::CDecoder(),
+  NCompress::NZstd::CDecoder(),
   NCompress::NZSTD::CEncoder(),
   0x40100+93, "ZSTD-WZ")
 }

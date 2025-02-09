@@ -89,6 +89,10 @@ public:
 
   HRESULT GetFinishResult();
 
+ #ifndef Z7_NO_READ_FROM_CODER_ZSTD
+  UInt64 GetInputProcessedSize() const { return _inProcessed; }
+ #endif
+
   CDecoder();
   ~CDecoder();
 };

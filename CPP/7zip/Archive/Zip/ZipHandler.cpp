@@ -1163,10 +1163,6 @@ HRESULT CZipDecoder::Decode(
       lzmaDecoderSpec = new CLzmaDecoder;
       mi.Coder = lzmaDecoderSpec;
     }
-    else if (id ==NFileHeader::NCompressionMethod::kZstdPk)
-      mi.Coder = new NCompress::NZSTD::CDecoder();
-    else if (id ==NFileHeader::NCompressionMethod::kZstdWz)
-      mi.Coder = new NCompress::NZSTD::CDecoder();
     else if (id == NFileHeader::NCompressionMethod::kXz)
       mi.Coder = new NCompress::NXz::CComDecoder;
     // PKImploding might not be available, must be handled by CreateCoder_Id
@@ -1174,6 +1170,8 @@ HRESULT CZipDecoder::Decode(
     //  mi.Coder = new NCompress::NPKImplode::NDecoder::CDecoder;
     else if (id == NFileHeader::NCompressionMethod::kPPMd)
       mi.Coder = new NCompress::NPpmdZip::CDecoder(true);
+    else if (id == NFileHeader::NCompressionMethod::kZstdPk)
+      mi.Coder = new NCompress::NZstd::CDecoder();
     else if (id == NFileHeader::NCompressionMethod::kZstdWz)
       mi.Coder = new NCompress::NZstd::CDecoder();
 #ifndef Z7_ZIP_LZFSE_DISABLE

@@ -19,6 +19,7 @@ ifdef IS_MINGW
 
 SYS_OBJS = \
   $O/resource.o \
+  $O/TimeUtils.o \
 
 else
 

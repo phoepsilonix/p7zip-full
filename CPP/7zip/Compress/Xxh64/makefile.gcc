@@ -29,8 +29,9 @@ COMPRESS_OBJS_2 = \
   $O/CodecExports.o \
   $O/DllExportsCompress.o \
   $O/XXH32Reg.o \
-  $O/XXH64Reg.o \
+  $O/Xxh64Reg.o \
   $O/xxhash.o \
+  $O/Xxh64.o \
 
 OBJS = \
   $(COMPRESS_OBJS_2) \

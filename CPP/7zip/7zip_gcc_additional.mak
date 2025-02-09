@@ -222,8 +222,6 @@ $O/Sha512Reg.o: ../../../Common/Sha512Reg.cpp
 	$(CXX) $(CXXFLAGS) $<
 $O/XXH32Reg.o: ../../../Common/XXH32Reg.cpp
 	$(CXX) $(CXXFLAGS) $<
-$O/XXH64Reg.o: ../../../Common/XXH64Reg.cpp
-	$(CXX) $(CXXFLAGS) $<
 $O/Blake3Reg.o: ../../../Common/Blake3Reg.cpp
 	$(CXX) $(CXXFLAGS) $<
 

@@ -371,7 +371,6 @@ HASHES_OBJS = \
   $O/Sha384Reg.o \
   $O/Sha512Reg.o \
   $O/XXH32Reg.o \
-  $O/XXH64Reg.o \
   $O/Blake3Reg.o \
   $O/md2.o \
   $O/md4.o \

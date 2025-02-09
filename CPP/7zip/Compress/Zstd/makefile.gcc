@@ -30,6 +30,7 @@ COMMON_OBJS = \
   $O/OutBuffer.o \
   $O/StreamUtils.o \
   $O/System.o \
+  $O/CWrappers.o \
 
 COMPRESS_OBJS_2 = \
   $O/CodecExports.o \
@@ -40,6 +41,8 @@ COMPRESS_OBJS_2 = \
   $O/ZstdEncoder.o \
   $O/ZstdDecoder.o \
   $O/libzstd.a \
+  $O/ZstdDec.o \
+  $O/Xxh64.o \
 
 OBJS = \
   $(COMPRESS_OBJS_2) \

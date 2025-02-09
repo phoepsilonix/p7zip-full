@@ -7,6 +7,7 @@
 #endif
 
 #include "StdAfx.h"
+#include "../../../C/7zTypes.h"
 #include "ZstdDecoder.h"
 #include "ZstdEncoder.h"
 

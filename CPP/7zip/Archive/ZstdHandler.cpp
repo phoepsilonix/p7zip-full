@@ -3,7 +3,9 @@
 #include "StdAfx.h"
 
 // #define Z7_USE_ZSTD_ORIG_DECODER
-// #define Z7_USE_ZSTD_COMPRESSION
+#define Z7_USE_ZSTD_COMPRESSION
+
+#define Z7_ZSTDMT_NBWORKERS_MAX ZSTD_THREAD_MAX
 
 #include "../../Common/ComTry.h"
 
@@ -20,7 +22,7 @@
 
 #ifdef Z7_USE_ZSTD_COMPRESSION
 #include "../Compress/ZstdEncoder.h"
-#include "../Compress/ZstdEncoderProps.h"
+// #include "../Compress/ZstdEncoderProps.h"
 #include "Common/HandlerOut.h"
 #endif
 
@@ -1054,6 +1056,7 @@ Z7_COM7F_IMF(CHandler::UpdateItems(ISequentialOutStream *outStream, UInt32 numIt
 
       if (_props.FindProp(NCoderPropID::kNumThreads) < 0)
       {
+#if 0
         if (!_props._numThreads_WasForced
             && numThreads >= 1
             && _props._memUsage_WasSet)
@@ -1064,6 +1067,7 @@ Z7_COM7F_IMF(CHandler::UpdateItems(ISequentialOutStream *outStream, UInt32 numIt
           numThreads = ZstdEncProps_GetNumThreads_for_MemUsageLimit(
               &zstdProps.EncProps, _props._memUsage_Compress, numThreads);
         }
+#endif
         props2.AddProp_NumThreads(numThreads);
       }
 
@@ -1072,12 +1076,12 @@ Z7_COM7F_IMF(CHandler::UpdateItems(ISequentialOutStream *outStream, UInt32 numIt
       CMyComPtr2_Create<ICompressProgressInfo, CLocalProgress> lps;
       lps->Init(updateCallback, true);
       {
-        CMyComPtr2_Create<ICompressCoder, NCompress::NZstd::CEncoder> encoder;
+        CMyComPtr2_Create<ICompressCoder, NCompress::NZSTD::CEncoder> encoder;
         // size = 1 << 24; // for debug
         RINOK(props2.SetCoderProps(encoder.ClsPtr(), size != (UInt64)(Int64)-1 ? &size : NULL))
         // encoderSpec->_props.SmallFileOpt = _smallMode;
         // we must set kExpectedDataSize just before Code().
-        encoder->SrcSizeHint64 = size;
+        ///// encoder->SrcSizeHint64 = size;
         /*
         CMyComPtr<ICompressSetCoderPropertiesOpt> optProps;
         _compressEncoder->QueryInterface(IID_ICompressSetCoderPropertiesOpt, (void**)&optProps);
@@ -1128,7 +1132,8 @@ Z7_COM7F_IMF(CHandler::UpdateItems(ISequentialOutStream *outStream, UInt32 numIt
 #define CreateArcOut NULL
 #endif
 
-#ifdef Z7_USE_ZSTD_COMPRESSION
+#if 0
+//def Z7_USE_ZSTD_COMPRESSION
 REGISTER_ARC_IO(
   "zstd2", "zst tzst", "* .tar", 0xe + 1,
   k_Signature, 0

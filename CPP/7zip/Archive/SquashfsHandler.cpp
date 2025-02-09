@@ -878,7 +878,7 @@ Z7_CLASS_IMP_CHandler_IInArchive_1(
   // CMyComPtr2<ICompressCoder, NCompress::NLzma::CDecoder> _lzmaDecoder;
   CMyComPtr2<ICompressCoder, NCompress::NZlib::CDecoder> _zlibDecoder;
   
-  NCompress::NZSTD::CDecoder *_zstdDecoderSpec;
+  NCompress::NZstd::CDecoder *_zstdDecoderSpec;
   CMyComPtr<ICompressCoder> _zstdDecoder;
 
   CXzUnpacker _xz;
@@ -1174,7 +1174,7 @@ HRESULT CHandler::Decompress(ISequentialOutStream *outStream, Byte *outBuf, bool
   {
     if (!_zstdDecoder)
     {
-      _zstdDecoderSpec = new NCompress::NZSTD::CDecoder();
+      _zstdDecoderSpec = new NCompress::NZstd::CDecoder();
       _zstdDecoder = _zstdDecoderSpec;
     }
     RINOK(_zstdDecoder->Code(_limitedInStream, outStream, NULL, NULL, NULL));

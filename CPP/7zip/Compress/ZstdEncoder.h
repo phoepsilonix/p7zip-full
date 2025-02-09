@@ -5,6 +5,7 @@
 #include "../../../C/Threads.h"
 #include "../../../Codecs/zstd/lib/zstd.h"
 
+#include "../../Windows/System.h"
 #include "../../Common/Common.h"
 #include "../../Common/MyCom.h"
 #include "../Common/StreamUtils.h"
@@ -22,6 +23,8 @@
 #else
 #define OVERRIDE
 #endif
+
+#define ZSTD_THREAD_MAX 256
 
 #ifndef EXTRACT_ONLY
 namespace NCompress {

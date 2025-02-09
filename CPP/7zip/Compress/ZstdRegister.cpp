@@ -12,7 +12,7 @@
 
 REGISTER_CODEC_E(
   ZSTD,
-  NCompress::NZSTD::CDecoder(),
+  NCompress::NZstd::CDecoder(),
   NCompress::NZSTD::CEncoder(),
   0x4F71101, "ZSTD")
 
