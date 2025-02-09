@@ -21,7 +21,7 @@ jobs:
             mode: "win64"
           - os: ubuntu-20.04
             mode: "win32"
-          - os: macos-latest
+          - os: macos-13
 
     steps:
     - uses: actions/checkout@v2
@@ -36,7 +36,7 @@ jobs:
         make -C UASM-2.55 -f gccLinux64.mak
         sudo cp UASM-2.55/GccUnixR/uasm /usr/local/bin/
     - name: Set up UASM (macOS)
-      if: ${{ matrix.os == 'macos-latest' }}
+      if: ${{ matrix.os == 'macos-13' }}
       run: |
         curl -L https://github.com/Terraspace/UASM/archive/refs/tags/v2.55.tar.gz | tar xz
         # Apple clang 12+ requires "-Wno-error=implicit-function-declaration" cf https://forum.mmm.ucar.edu/phpBB3/viewtopic.php?t=11087&p=24226
@@ -97,7 +97,7 @@ jobs:
         export CFLAGS_ADDITIONAL="-march=armv8-a+crypto -Wno-error"
         ./build_linux.sh
     - name: Build (macOS)
-      if: ${{ matrix.os == 'macos-latest' }}
+      if: ${{ matrix.os == 'macos-13' }}
       run: |
         echo 'clang -arch arm64 -fno-stack-check "$@"' | sudo tee /usr/local/bin/arm64-apple-darwin-clang
         echo 'clang++ -arch arm64 -fno-stack-check "$@"' | sudo tee /usr/local/bin/arm64-apple-darwin-clang++
@@ -154,7 +154,7 @@ jobs:
         name: android-aarch64
         path: bin
     - name: Upload (macOS)
-      if: ${{ matrix.os == 'macos-latest' }}
+      if: ${{ matrix.os == 'macos-13' }}
       uses: actions/upload-artifact@v4
       with:
         name: macos
