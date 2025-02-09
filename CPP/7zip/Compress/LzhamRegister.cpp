@@ -429,7 +429,7 @@ namespace NCompress
       {
          lzham_compress_state_ptr _state;
          CProps _props;
-         bool _dictSizeSet;
+         // bool _dictSizeSet;
          int _num_threads;
          
          Byte *_inBuf;
@@ -465,7 +465,7 @@ namespace NCompress
 
       CEncoder::CEncoder() :
          _state(NULL),
-         _dictSizeSet(false),
+         // _dictSizeSet(false),
          _num_threads(-1),
          _inBuf(NULL),
          _outBuf(NULL),

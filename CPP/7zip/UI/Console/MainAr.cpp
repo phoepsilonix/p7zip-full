@@ -2,8 +2,6 @@
 
 #include "StdAfx.h"
 
-#define Z7_EXTERNAL_CODECS
-
 #ifdef _WIN32
 #include "../../../../C/DllSecur.h"
 #endif

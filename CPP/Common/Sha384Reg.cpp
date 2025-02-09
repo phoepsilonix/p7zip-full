@@ -22,7 +22,6 @@ class CSHA384Hasher:
   public CMyUnknownImp
 {
   SHA384_CTX _ctx;
-  Byte mtDummy[1 << 7];
 
 public:
   CSHA384Hasher() { SHA384_Init(&_ctx); }

@@ -22,7 +22,6 @@ class CMD5Hasher:
   public CMyUnknownImp
 {
   MD5_CTX _ctx;
-  Byte mtDummy[1 << 7];
 
 public:
   CMD5Hasher() { MD5_Init(&_ctx); }
