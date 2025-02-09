@@ -1,4 +1,4 @@
-﻿BALZ v1.20
+BALZ v1.20
 
 DESCRIPTION
 BALZ is a command-line file compressor with a high compression ratio and fast decompression.
