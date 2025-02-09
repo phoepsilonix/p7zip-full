@@ -99,8 +99,8 @@ jobs:
     - name: Build (macOS)
       if: ${{ matrix.os == 'macos-13' }}
       run: |
-        echo 'clang -arch arm64 -fno-stack-check "$@"' | sudo tee /usr/local/bin/arm64-apple-darwin-clang
-        echo 'clang++ -arch arm64 -fno-stack-check "$@"' | sudo tee /usr/local/bin/arm64-apple-darwin-clang++
+        /usr/bin/printf '#!/bin/sh\nclang -arch arm64 -fno-stack-check "$@"\n' | sudo tee /usr/local/bin/arm64-apple-darwin-clang
+        /usr/bin/printf '#!/bin/sh\nclang++ -arch arm64 -fno-stack-check "$@"\n' | sudo tee /usr/local/bin/arm64-apple-darwin-clang++
         sudo chmod 755 /usr/local/bin/arm64-apple-darwin-clang /usr/local/bin/arm64-apple-darwin-clang++
         sed -i -e 's/\&\& LZHAM_PLATFORM_PC/\&\& LZHAM_PLATFORM_PC \&\& !defined(__aarch64__)/' Codecs/lzham_codec_devel/lzhamdecomp/lzham_platform.h
 
