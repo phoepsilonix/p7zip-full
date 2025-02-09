@@ -38,15 +38,9 @@ $O/libzstd.a: ../../../../Codecs/zstd/lib/zstd.h
 	cp zstd_build/lib/libzstd.a $O
 
 # Compile zstd method and Handler
-$O/ZstdDecoder.o: ../../Compress/ZstdDecoder.cpp
-	$(CXX) $(CXXFLAGS) $<
 $O/ZstdEncoder.o: ../../Compress/ZstdEncoder.cpp
 	$(CXX) $(CXXFLAGS) $<
-$O/ZstdRegister.o: ../../Compress/ZstdRegister.cpp
-	$(CXX) $(CXXFLAGS) $<
 $O/ZstdZipRegister.o: ../../Compress/ZstdZipRegister.cpp
-	$(CXX) $(CXXFLAGS) $<
-$O/ZstdHandler.o: ../../Archive/ZstdHandler.cpp
 	$(CXX) $(CXXFLAGS) $<
 
 # Build lz4 lib static
@@ -202,10 +196,6 @@ $O/md2.o: ../../../../Codecs/hashes/md2.c
 	$(CC) $(CFLAGS) $<
 $O/md4.o: ../../../../Codecs/hashes/md4.c
 	$(CC) $(CFLAGS) $<
-$O/md5.o: ../../../../Codecs/hashes/md5.c
-	$(CC) $(CFLAGS) $<
-$O/sha512.o: ../../../../Codecs/hashes/sha512.c
-	$(CC) $(CFLAGS) $<
 $O/blake3.o: ../../../../Codecs/hashes/blake3.c
 	$(CC) $(CFLAGS) $<
 
@@ -213,12 +203,6 @@ $O/blake3.o: ../../../../Codecs/hashes/blake3.c
 $O/Md2Reg.o: ../../../Common/Md2Reg.cpp
 	$(CXX) $(CXXFLAGS) $<
 $O/Md4Reg.o: ../../../Common/Md4Reg.cpp
-	$(CXX) $(CXXFLAGS) $<
-$O/Md5Reg.o: ../../../Common/Md5Reg.cpp
-	$(CXX) $(CXXFLAGS) $<
-$O/Sha384Reg.o: ../../../Common/Sha384Reg.cpp
-	$(CXX) $(CXXFLAGS) $<
-$O/Sha512Reg.o: ../../../Common/Sha512Reg.cpp
 	$(CXX) $(CXXFLAGS) $<
 $O/XXH32Reg.o: ../../../Common/XXH32Reg.cpp
 	$(CXX) $(CXXFLAGS) $<

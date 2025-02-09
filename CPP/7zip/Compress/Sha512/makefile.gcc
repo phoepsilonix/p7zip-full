@@ -28,13 +28,13 @@ LOCAL_FLAGS = \
 COMPRESS_OBJS_2 = \
   $O/CodecExports.o \
   $O/DllExportsCompress.o \
-  $O/Sha384Reg.o \
   $O/Sha512Reg.o \
-  $O/sha512.o \
+  $O/Sha512.o \
 
 OBJS = \
   $(COMPRESS_OBJS_2) \
   $(SYS_OBJS) \
   $(COMMON_OBJS) \
+  $O/Alloc.o \
 
 include ../../7zip_gcc.mak

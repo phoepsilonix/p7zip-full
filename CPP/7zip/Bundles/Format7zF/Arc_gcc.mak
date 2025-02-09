@@ -371,14 +371,11 @@ endif
 HASHES_OBJS = \
   $O/Md2Reg.o \
   $O/Md4Reg.o \
-  $O/Md5Reg.o \
   $O/Sha384Reg.o \
-  $O/Sha512Reg.o \
   $O/XXH32Reg.o \
   $O/Blake3Reg.o \
   $O/md2.o \
   $O/md4.o \
-  $O/md5.o \
   $O/sha512.o \
   $O/blake3.o \
 

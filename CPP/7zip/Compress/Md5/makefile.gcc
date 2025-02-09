@@ -33,11 +33,12 @@ COMPRESS_OBJS_2 = \
   $O/Md5Reg.o \
   $O/md2.o \
   $O/md4.o \
-  $O/md5.o \
+  $O/Md5.o \
 
 OBJS = \
   $(COMPRESS_OBJS_2) \
   $(SYS_OBJS) \
   $(COMMON_OBJS) \
+  $O/Alloc.o \
 
 include ../../7zip_gcc.mak
