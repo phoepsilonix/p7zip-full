@@ -3,6 +3,18 @@
 
 ----
 
+How to update the basesystem:
+
+```
+git remote add ip7z https://github.com/ip7z/7zip.git
+git fetch ip7z --tags
+git checkout ip7z/main
+git checkout -B ip7z
+git push ___ ip7z --tags
+```
+
+----
+
 This repository's goal was these:
 
 - to provide automated p7zip binary generator for Windows / macOS (x86-64/arm64) / Linux / Android
@@ -13,8 +25,6 @@ These goals have been already acheived. You can put Codecs directory to the same
 I'd like to have these patch merged into jinfeihan57/p7zip, but I had issue in resolving conflict, so I have given up.
 
 Excuse: to utilize git's 3-way merge, I have suggested https://github.com/jinfeihan57/p7zip/issues/179 , but it was not adopted.
-
-This repo has been archived (might be temporary unarchived when I got interested but it will happen rarely).
 
 ----
 
